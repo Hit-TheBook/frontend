@@ -9,7 +9,7 @@ class TestPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)), // 왼쪽 메뉴버튼
-        title: const Text('Test Page'), // 타이틀
+        title: const Text('Test Page for JIRA'), // 타이틀
         centerTitle: true, // 타이틀 텍스트 위치
         shape: const Border(bottom: BorderSide(color: Colors.grey, width: 1)),
         actions: [
