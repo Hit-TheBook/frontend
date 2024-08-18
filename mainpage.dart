@@ -1,8 +1,9 @@
+// lib/main_page.dart
 import 'package:flutter/material.dart';
 import 'package:project1/studypage.dart';
 import 'package:project1/testpage.dart';
+import 'package:project1/bottom_nav_bar.dart'; // BottomNavBar import
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -30,15 +31,9 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueAccent,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(FeatherIcons.user), label: ''),
-          BottomNavigationBarItem(icon: Icon(FeatherIcons.penTool), label: ''),
-          BottomNavigationBarItem(icon: Icon(FeatherIcons.facebook), label: ''),
-        ],
+        onItemTapped: _onItemTapped,
       ),
     );
   }
@@ -63,27 +58,28 @@ class MainContent extends StatelessWidget {
         ],
       ),
       body: const Center(
+
         child: Text('Welcome to the Main Page!'),
       ),
     );
   }
 }
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MainPage(),
-    );
-  }
-}
+// void main() {
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: const MainPage(),
+//     );
+//   }
+// }
