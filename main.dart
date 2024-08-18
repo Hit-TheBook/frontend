@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project1/mainpage.dart';
-import 'package:intl/date_symbol_data_local.dart'; // 추가된 import
-
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:project1/registerpage.dart';
+import 'package:project1/theme.dart'; // Import your theme file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter의 초기화 보장
@@ -12,51 +14,66 @@ void main() async {
   runApp(const MyApp());
 }
 
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: appTheme, // Use the custom theme from theme.dart
       home: const SplashScreen(),
     );
   }
 }
 
-//로그인 화면
+// 로그인 화면
 class Login extends StatelessWidget {
   const Login({super.key});
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('로그인'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
-backgroundColor: Colors.blue,
+      backgroundColor: black1,
       body: Center(
-        child: ElevatedButton(
-          child: const Text('로그인'),
-          onPressed:(){Navigator.push(context, MaterialPageRoute(builder: (context) => const MainPage()));
-          } ,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: neonskyblue1, // 배경색
+                foregroundColor: black1, // 텍스트 색
+              ),
+              child: const Text('로그인'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainPage()),
+                );
+              },
+            ),
+            const SizedBox(height: 20), // 로그인 버튼과 시작하기 버튼 사이의 간격
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: neonskyblue1, // 배경색
+                foregroundColor: black1, // 텍스트 색
+              ),
+              child: const Text('시작하기'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
+              },
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }
-//로그인 화면 끝
 
-//메인 화면
+// 메인 화면
 class Main extends StatelessWidget {
   const Main({super.key});
 
@@ -67,13 +84,11 @@ class Main extends StatelessWidget {
         title: const Text('메인화면'),
         centerTitle: true,
       ),
-
     );
   }
 }
-// 메인화면 끝
 
-//스플래쉬 화면시작
+// 스플래쉬 화면 시작
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
@@ -81,28 +96,6 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: Lottie.asset('assets/study.json'),
-
-      // Center(
-      //   child: Column(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       SizedBox(
-      //         width: MediaQuery.of(context).size.width * 0.6,
-      //         height: MediaQuery.of(context).size.width * 0.6,
-      //         child: Image.asset('assets/images/demo2.png'),
-      //       ),
-      //       const SizedBox(height: 20),
-      //       const Text(
-      //         'Study app',
-      //         style: TextStyle(
-      //           fontSize: 20,
-      //           fontWeight: FontWeight.bold,
-      //           color: Colors.white,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
       backgroundColor: Colors.cyanAccent,
       nextScreen: const Login(),
       splashIconSize: double.infinity,
@@ -113,4 +106,4 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
-//스플래쉬 끝
+// 스플래쉬 끝
