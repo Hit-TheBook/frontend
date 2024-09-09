@@ -1,83 +1,87 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 
-class DdayApiHelper {
-  final String baseUrl;
+class ApiHelper {
+  static const String baseUrl = 'http://13.209.78.125'; // 서버 URL을 지정하세요
 
-  DdayApiHelper(this.baseUrl);
+  static Future<http.Response> getRequest(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+    final response = await http.get(url);
 
-  // 전체 Dday 목록 가져오기
-  Future<List<Map<String, dynamic>>> fetchDdayList() async {
-    final response = await http.get(Uri.parse('$baseUrl/dday/list'));
+    debugPrint('GET $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => item as Map<String, dynamic>).toList();
-    } else {
-      throw Exception('Failed to load Ddays');
-    }
+    return response;
   }
 
-  // Dday 추가하기
-  Future<void> addDday(Map<String, dynamic> dday) async {
+  static Future<http.Response> postRequest(String endpoint, Map<String, dynamic> data) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.post(
-      Uri.parse('$baseUrl/dday'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: json.encode(dday),
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
     );
 
-    if (response.statusCode != 201) {
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+  }
+
+  static Future<http.Response> putRequest(String endpoint, Map<String, dynamic> data) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    debugPrint('PUT $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+  }
+
+  static Future<http.Response> deleteRequest(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+    final response = await http.delete(url);
+
+    debugPrint('DELETE $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+  }
+
+  static Future<Map<String, dynamic>> addDday(Map<String, dynamic> dday) async {
+    final response = await postRequest('ddays', dday);
+
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    } else {
       throw Exception('Failed to add Dday');
     }
   }
 
-  // Dday 수정하기
-  Future<void> updateDday(String ddayId, Map<String, dynamic> dday) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/dday/$ddayId'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: json.encode(dday),
-    );
+  static Future<Map<String, dynamic>> updateDday(String id, Map<String, dynamic> dday) async {
+    final response = await putRequest('ddays/$id', dday);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
       throw Exception('Failed to update Dday');
     }
   }
 
-  // Dday 삭제하기
-  Future<void> deleteDday(String ddayId) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/dday/$ddayId'),
-    );
+  static Future<void> deleteDday(String id) async {
+    final response = await deleteRequest('ddays/$id');
 
     if (response.statusCode != 200) {
       throw Exception('Failed to delete Dday');
-    }
-  }
-
-  // 대표 Dday 등록하기
-  Future<void> setPrimaryDday(String ddayId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/dday/primary/$ddayId'),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to set primary Dday');
-    }
-  }
-
-  // 대표 Dday 가져오기
-  Future<Map<String, dynamic>> fetchPrimaryDday() async {
-    final response = await http.get(Uri.parse('$baseUrl/dday/primary'));
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
-    } else {
-      throw Exception('Failed to load primary Dday');
     }
   }
 }

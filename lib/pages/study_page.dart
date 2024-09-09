@@ -71,7 +71,7 @@ class StudyPage extends StatelessWidget {
                       if (title == '디데이') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const DdayPage()),
+                          MaterialPageRoute(builder: (context) => DdayPage()),
                         );
                       }
                       if (title == '00:00:00') {

@@ -4,25 +4,35 @@ import 'package:project1/colors.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final bool showBackButton; // 뒤로가기 버튼을 표시할지 여부
 
   const CustomAppBar({
     super.key,
     required this.title,
+    this.showBackButton = false, // 기본값은 false
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: black1, // AppBar의 배경색을 검정색으로 설정
+      backgroundColor: black1,
       title: Text(
         title,
         style: const TextStyle(
-          color: white1, // 타이틀 텍스트의 색깔을 흰색으로 설정
+          color: white1,
         ),
       ),
       iconTheme: const IconThemeData(
-        color: neonskyblue1, // 뒤로가기 아이콘의 색깔을 설정
+        color: neonskyblue1,
       ),
+      leading: showBackButton
+          ? IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      )
+          : null,
     );
   }
 

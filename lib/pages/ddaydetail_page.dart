@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart'; // 날짜 포맷을 위해 필요한 패키지
+import 'package:intl/intl.dart';
+import 'package:project1/utils/api_helper.dart'; // API 헬퍼를 추가합니다.
 
 class DdaydetailPage extends StatefulWidget {
   final String? initialTitle;
@@ -28,7 +29,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
   void initState() {
     super.initState();
     _titleController.text = widget.initialTitle ?? '';
-    // 오늘 날짜로 기본값 설정
     _selectedStartDate = widget.initialStartDate ?? DateTime.now();
     _selectedEndDate = widget.initialEndDate;
   }
@@ -43,7 +43,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
     DateTime? minimumDate;
     DateTime? initialDate = DateTime.now();
 
-    // 시작일이 설정된 경우 종료일 선택 시 최소 날짜 설정
     if (!isStartDate && _selectedStartDate != null) {
       minimumDate = _selectedStartDate;
       initialDate = _selectedEndDate ?? minimumDate;
@@ -69,11 +68,10 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                       if (isStartDate) {
                         _selectedStartDate = newDate;
                         if (_selectedEndDate != null && newDate.isAfter(_selectedEndDate!)) {
-                          _selectedEndDate = null; // 시작일이 종료일 이후로 변경된 경우 종료일을 초기화
+                          _selectedEndDate = null;
                         }
                       } else {
                         if (newDate.isBefore(_selectedStartDate ?? newDate)) {
-                          // 종료일이 시작일 이전으로 선택된 경우
                           return;
                         }
                         _selectedEndDate = newDate;
@@ -100,6 +98,32 @@ class DdaydetailPageState extends State<DdaydetailPage> {
     return DateFormat('yyyy-MM-dd').format(date);
   }
 
+  void _saveDday() async {
+    if (_titleController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('디데이 이름을 입력해주세요.')),
+      );
+      return;
+    }
+
+    final dday = {
+      'title': _titleController.text,
+      'startDate': _selectedStartDate?.toIso8601String(),
+      'endDate': _selectedEndDate?.toIso8601String(),
+    };
+
+    try {
+      final response = await ApiHelper.addDday(dday);
+      print('Dday saved successfully: $response');
+      Navigator.of(context).pop(dday);
+    } catch (e) {
+      print('Error saving Dday: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('디데이 추가에 실패했습니다.')),
+      );
+    }
+  }
+
   void _selectStartDate() {
     _showDatePicker(isStartDate: true);
     if (kDebugMode) {
@@ -109,7 +133,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
 
   void _selectEndDate() {
     if (_selectedStartDate == null) {
-      // 시작일이 설정되지 않은 경우
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('먼저 시작일을 선택해주세요.')),
       );
@@ -119,21 +142,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
     if (kDebugMode) {
       print('End Date button clicked');
     }
-  }
-
-  void _saveDday() {
-    if (_titleController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('디데이 이름을 입력해주세요.')),
-      );
-      return;
-    }
-
-    Navigator.of(context).pop({
-      'title': _titleController.text,
-      'startDate': _selectedStartDate,
-      'endDate': _selectedEndDate,
-    });
   }
 
   @override
@@ -174,7 +182,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: '디데이 이름을 입력하세요',
-                  hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상
+                  hintStyle: TextStyle(color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 16),
@@ -252,7 +260,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Text(
-                                  _formatDate(_selectedEndDate).isEmpty ? '종료일' : _formatDate(_selectedEndDate),
+                                  _formatDate(_selectedEndDate),
                                   style: const TextStyle(color: Colors.white),
                                 ),
                               ],
@@ -264,7 +272,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16), // 여유 공간 추가
             ],
           ),
         ),
