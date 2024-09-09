@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project1/planner.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/timer.dart';
 import 'package:project1/dday.dart';
@@ -111,7 +112,10 @@ class StudyPage extends StatelessWidget {
                     ],
                     onPressed: (String title) {
                       if (kDebugMode) {
-                        print('버튼 클릭됨: $title');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PlannerPage()),
+                        );
                       }
                       // 여기에 원하는 동작 추가
                     },
