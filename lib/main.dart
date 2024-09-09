@@ -3,9 +3,9 @@ import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:project1/mainpage.dart';
+import 'package:project1/pages/main_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:project1/registerpage.dart';
+import 'package:project1/pages/register_page.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 
 void main() async {

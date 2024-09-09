@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project1/planner.dart';
+import 'package:project1/pages/planner_page.dart';
 import 'package:project1/theme.dart';
-import 'package:project1/timer.dart';
-import 'package:project1/dday.dart';
-import 'colors.dart';
+import 'package:project1/pages/timer.dart';
+import 'package:project1/pages/dday_page.dart';
+import '../colors.dart';
 import 'count_up_timer_page.dart';
 
 class StudyPage extends StatelessWidget {

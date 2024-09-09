@@ -1,13 +1,13 @@
 // lib/timer.dart
 import 'package:flutter/material.dart';
-import 'package:project1/bottom_nav_bar.dart'; // BottomNavBar import
-import 'package:project1/studypage.dart'; // Import pages for navigation
-import 'package:project1/testpage.dart';
+import 'package:project1/widgets/bottom_nav_bar.dart'; // BottomNavBar import
+import 'package:project1/pages/study_page.dart'; // Import pages for navigation
+import 'package:project1/pages/test_page.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart'; //타이머
 
-import 'colors.dart';
-import 'custom_appbar.dart';
-import 'mainpage.dart'; // Import pages for navigation
+import '../colors.dart';
+import '../widgets/custom_appbar.dart';
+import 'main_page.dart'; // Import pages for navigation
 
 class TimerPage extends StatefulWidget {
   const TimerPage({super.key});

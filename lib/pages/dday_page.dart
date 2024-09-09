@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project1/ddaydetail.dart';
+import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/theme.dart';
 import 'count_up_timer_page.dart';
-import 'custom_appbar.dart';
-import 'mainpage.dart'; // Import pages for navigation
+import '../widgets/custom_appbar.dart';
+import 'main_page.dart'; // Import pages for navigation
 
 class DdayPage extends StatefulWidget {
   const DdayPage({super.key});

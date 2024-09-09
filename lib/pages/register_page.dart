@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 import 'package:project1/theme.dart'; // Import the theme
-import 'package:project1/username.dart'; // Import the UsernamePage
+import 'package:project1/pages/login_page.dart'; // Import the UsernamePage
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

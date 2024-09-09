@@ -1,3 +1,4 @@
+// lib/custom_app_bar.dart
 import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 
@@ -20,7 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       iconTheme: const IconThemeData(
-        color: neonskyblue1, // 뒤로가기 아이콘의 색깔을 흰색으로 설정
+        color: neonskyblue1, // 뒤로가기 아이콘의 색깔을 설정
       ),
     );
   }

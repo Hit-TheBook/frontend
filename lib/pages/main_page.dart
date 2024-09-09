@@ -1,8 +1,8 @@
 // lib/main_page.dart
 import 'package:flutter/material.dart';
-import 'package:project1/studypage.dart';
-import 'package:project1/testpage.dart';
-import 'package:project1/bottom_nav_bar.dart'; // BottomNavBar import
+import 'package:project1/pages/study_page.dart';
+import 'package:project1/pages/test_page.dart';
+import 'package:project1/widgets/bottom_nav_bar.dart'; // BottomNavBar import
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class MainPage extends StatefulWidget {
