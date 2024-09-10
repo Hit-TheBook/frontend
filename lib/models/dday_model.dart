@@ -1,32 +1,27 @@
-// lib/models/dday_model.dart
-class DdayModel {
-  final String? id; // Nullable
-  final String ddayName;
-  final DateTime startDate;
-  final DateTime endDate;
+import 'dart:convert';
 
-  DdayModel({
-    this.id, // Nullable
-    required this.ddayName,
-    required this.startDate,
-    required this.endDate,
-  });
+class Dday {
+  final String? ddayName;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
-  factory DdayModel.fromJson(Map<String, dynamic> json) {
-    return DdayModel(
-      id: json['id'] as String?,
-      ddayName: json['ddayName'] as String,
+  Dday({this.ddayName, this.startDate, this.endDate});
+
+  // JSON -> Dday 객체 변환
+  factory Dday.fromJson(Map<String, dynamic> json) {
+    return Dday(
+      ddayName: json['ddayName'],
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
     );
   }
 
+  // Dday 객체 -> JSON 변환
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'ddayName': ddayName,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
+      'startDate': startDate?.toUtc().toIso8601String(),
+      'endDate': endDate?.toUtc().toIso8601String(),
     };
   }
 }

@@ -20,12 +20,12 @@ class DdayPageState extends State<DdayPage> {
   @override
   void initState() {
     super.initState();
-    _fetchDdays(); // 페이지 로드 시 디데이 목록을 가져옵니다.
+    _fetchDday(); // 페이지 로드 시 디데이 목록을 가져옵니다.
   }
 
-  Future<void> _fetchDdays() async {
+  Future<void> _fetchDday() async {
     try {
-      final response = await ApiHelper.getRequest('ddays');
+      final response = await ApiHelper.getRequest('dday');
       if (response.statusCode == 200) {
         setState(() {
           _ddayList = List<Map<String, dynamic>>.from(jsonDecode(response.body));
