@@ -8,7 +8,7 @@ class ApiHelper {
   static const String temporaryToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0BleGFtcGxlLmNvbV85Mmlvc2RmOTNpc2Rmamkzb2kyMzRtb2ZzZGlqMiIsImlhdCI6MTcyNTk0NjQxOSwiZXhwIjoxNzU3NDgyNDE5fQ.t-LwL_f9huhSTzDMGLWLF_PAgqVq4NAk49kx1weMuFY1-eVY6OEBC1qm0rkmNyJAdIMylYtAuVq8Y8LS9IdUhQ'; // 서버에서 발급받은 임시 토큰
 
   // GET 요청
-  static Future<http.Response> getRequest(String endpoint) async {
+  static Future<http.Response> findDdayList(String endpoint) async {
     final url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.get(
       url,
@@ -26,7 +26,8 @@ class ApiHelper {
   }
 
   // POST 요청
-  static Future<http.Response> postRequest(String endpoint, Map<String, dynamic> data) async {
+  static Future<http.Response> addDday(String endpoint,
+      Map<String, dynamic> data) async {
     final url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.post(
       url,
@@ -34,7 +35,7 @@ class ApiHelper {
         'Authorization': 'Bearer $temporaryToken', // 헤더에 토큰 추가
         'Content-Type': 'application/json',
       },
-      body: json.encode(data),
+      body: jsonEncode(data), // RequestDday 객체를 JSON 문자열로 변환
     );
 
     debugPrint('POST $url');
@@ -45,7 +46,8 @@ class ApiHelper {
   }
 
   // PUT 요청
-  static Future<http.Response> putRequest(String endpoint, Map<String, dynamic> data) async {
+  static Future<http.Response> modifyDday(String endpoint,
+      Map<String, dynamic> data) async {
     final url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.put(
       url,
@@ -64,7 +66,7 @@ class ApiHelper {
   }
 
   // DELETE 요청
-  static Future<http.Response> deleteRequest(String endpoint) async {
+  static Future<http.Response> deleteDday(String endpoint) async {
     final url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.delete(
       url,
@@ -81,34 +83,5 @@ class ApiHelper {
     return response;
   }
 
-  // Dday 추가
-  static Future<Map<String, dynamic>> addDday(RequestDday dday) async {
-    final response = await postRequest('dday', dday.toJson());
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to add Dday');
-    }
-  }
-
-  // Dday 수정
-  static Future<Map<String, dynamic>> updateDday(String id, RequestDday dday) async {
-    final response = await putRequest('dday/$id', dday.toJson());
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to update Dday');
-    }
-  }
-
-  // Dday 삭제
-  static Future<void> deleteDday(String id) async {
-    final response = await deleteRequest('dday/$id');
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete Dday');
-    }
-  }
 }

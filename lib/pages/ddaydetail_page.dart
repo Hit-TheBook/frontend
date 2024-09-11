@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:project1/utils/api_helper.dart'; // API 헬퍼를 추가합니다.
+import 'package:project1/models/dday_model.dart';
+import 'package:project1/utils/dday_api_helper.dart'; // API helper import
+import 'package:flutter/material.dart';
+
 
 class DdaydetailPage extends StatefulWidget {
   final String? initialTitle;
@@ -22,8 +27,8 @@ class DdaydetailPage extends StatefulWidget {
 
 class DdaydetailPageState extends State<DdaydetailPage> {
   final TextEditingController _titleController = TextEditingController();
-  DateTime? _selectedStartDate; // 선택된 시작일을 저장할 변수
-  DateTime? _selectedEndDate; // 선택된 종료일을 저장할 변수
+  DateTime? _selectedStartDate; // Variable to store selected start date
+  DateTime? _selectedEndDate; // Variable to store selected end date
 
   @override
   void initState() {
@@ -82,7 +87,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
               ),
             ),
             CupertinoButton(
-              child: const Text('Done'),
+              child: const Text('완료'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -98,7 +103,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
     return DateFormat('yyyy-MM-dd').format(date);
   }
 
-  void _saveDday() async {
+  Future<void> _saveDday() async {
     if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('디데이 이름을 입력해주세요.')),
@@ -106,16 +111,25 @@ class DdaydetailPageState extends State<DdaydetailPage> {
       return;
     }
 
-    final dday = {
-      'title': _titleController.text,
-      'startDate': _selectedStartDate?.toIso8601String(),
-      'endDate': _selectedEndDate?.toIso8601String(),
-    };
+    // Create a RequestDday object
+    final requestDday = RequestDday(
+      ddayName: _titleController.text,
+      startDate: _selectedStartDate!,
+      endDate: _selectedEndDate!,
+    );
 
     try {
-      final response = await ApiHelper.addDday(dday);
-      print('Dday saved successfully: $response');
-      Navigator.of(context).pop(dday);
+      Map<String, dynamic> requsetDday = requestDday.toJson();
+      // Convert RequestDday object to JSON and send to API helper
+      final response = await ApiHelper.addDday('dday', requsetDday);
+      final responseData = jsonDecode(response.body);
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      print(jsonEncode(responseData));
+      if (response.statusCode == 200 && responseData['message'] == 'successful') {
+        Navigator.of(context).pop(requestDday);
+      } else {
+        throw Exception('Dday 추가에 실패했습니다.');
+      }
     } catch (e) {
       print('Error saving Dday: $e');
       ScaffoldMessenger.of(context).showSnackBar(
