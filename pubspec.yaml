@@ -26,6 +26,7 @@ dependencies:
   flutter_feather_icons: ^2.0.0 # 상단바 아이콘
   intl: ^0.18.0 #날짜
   stop_watch_timer: #타이머
+  flutter_dotenv: ^5.0.2 #서버 ip보안
 
 
 dev_dependencies:

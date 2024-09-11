@@ -1,13 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/models/dday_model.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API helper import
-import 'package:flutter/material.dart';
-
 
 class DdaydetailPage extends StatefulWidget {
   final String? initialTitle;
@@ -27,8 +24,8 @@ class DdaydetailPage extends StatefulWidget {
 
 class DdaydetailPageState extends State<DdaydetailPage> {
   final TextEditingController _titleController = TextEditingController();
-  DateTime? _selectedStartDate; // Variable to store selected start date
-  DateTime? _selectedEndDate; // Variable to store selected end date
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
 
   @override
   void initState() {
@@ -111,22 +108,33 @@ class DdaydetailPageState extends State<DdaydetailPage> {
       return;
     }
 
-    // Create a RequestDday object
-    final requestDday = RequestDday(
+    if (_selectedStartDate == null || _selectedEndDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('시작일과 종료일을 모두 선택해주세요.')),
+      );
+      return;
+    }
+
+    if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('종료일은 시작일 이후여야 합니다.')),
+      );
+      return;
+    }
+
+    final dday = RequestDday(
       ddayName: _titleController.text,
       startDate: _selectedStartDate!,
       endDate: _selectedEndDate!,
     );
 
     try {
-      Map<String, dynamic> requsetDday = requestDday.toJson();
-      // Convert RequestDday object to JSON and send to API helper
-      final response = await ApiHelper.addDday('dday', requsetDday);
+      Map<String, dynamic> requestDday = dday.toJson();
+      final response = await ApiHelper.addDday('dday', requestDday);
       final responseData = jsonDecode(response.body);
-      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      print(jsonEncode(responseData));
+
       if (response.statusCode == 200 && responseData['message'] == 'successful') {
-        Navigator.of(context).pop(requestDday);
+        Navigator.of(context).pop(dday.toJson()); // 디데이 정보 반환
       } else {
         throw Exception('Dday 추가에 실패했습니다.');
       }

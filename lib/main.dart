@@ -6,10 +6,12 @@ import 'package:page_transition/page_transition.dart';
 import 'package:project1/pages/main_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:project1/pages/register_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter의 초기화 보장
+  await dotenv.load();
   await initializeDateFormatting('ko_KR'); // 'ko_KR' 로케일 데이터 초기화
   runApp(const MyApp());
 }

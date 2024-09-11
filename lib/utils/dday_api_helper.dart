@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/dday_model.dart'; // 모델 클래스를 import합니다.
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiHelper {
-  static const String baseUrl = 'http://13.209.78.125'; // 서버 URL
+  static final String baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost'; // 서버 URL
   static const String temporaryToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0BleGFtcGxlLmNvbV85Mmlvc2RmOTNpc2Rmamkzb2kyMzRtb2ZzZGlqMiIsImlhdCI6MTcyNTk0NjQxOSwiZXhwIjoxNzU3NDgyNDE5fQ.t-LwL_f9huhSTzDMGLWLF_PAgqVq4NAk49kx1weMuFY1-eVY6OEBC1qm0rkmNyJAdIMylYtAuVq8Y8LS9IdUhQ'; // 서버에서 발급받은 임시 토큰
 
   // GET 요청

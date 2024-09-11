@@ -17,19 +17,23 @@ class DdayPageState extends State<DdayPage> {
   final List<Map<String, dynamic>> _ddayList = []; // 디데이 정보를 저장할 리스트
   Map<String, dynamic>? _selectedDday; // 현재 선택된 디데이 정보
 
+  // 디데이 상세 페이지로 이동하는 함수
   void _navigateToDdayDetail() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const DdaydetailPage()),
     );
 
-    if (result != null) {
+    if (result != null && result is Map<String, dynamic>) {
       setState(() {
         _ddayList.add(result);
       });
+    } else {
+      print("Unexpected result type: $result");
     }
   }
 
+  // 디데이 옵션(수정, 삭제 등)을 보여주는 함수
   void _showDdayOptions(BuildContext context, Map<String, dynamic> dday) {
     _selectedDday = dday;
     showDialog(
@@ -87,9 +91,9 @@ class DdayPageState extends State<DdayPage> {
     );
   }
 
+  // 대표 디데이 설정 함수
   void _setAsFeaturedDday(Map<String, dynamic> dday) {
     setState(() {
-      // 디데이를 리스트의 가장 위로 이동시킵니다.
       _ddayList.remove(dday);
       _ddayList.insert(0, dday);
     });
@@ -99,22 +103,21 @@ class DdayPageState extends State<DdayPage> {
     );
   }
 
+  // 디데이 정보 수정 함수
   void _editDdayInfo(Map<String, dynamic> dday) async {
-    // 선택한 디데이 정보를 수정하기 위해 DdaydetailPage를 열고 결과를 받습니다.
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DdaydetailPage(
           initialTitle: dday['title'],
-          initialStartDate: dday['startDate'],
-          initialEndDate: dday['endDate'],
+          initialStartDate: DateTime.parse(dday['startDate']),
+          initialEndDate: DateTime.parse(dday['endDate']),
         ),
       ),
     );
 
-    if (result != null) {
+    if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        // 기존 디데이 정보를 수정합니다.
         final index = _ddayList.indexOf(dday);
         if (index != -1) {
           _ddayList[index] = result;
@@ -123,6 +126,7 @@ class DdayPageState extends State<DdayPage> {
     }
   }
 
+  // 디데이 삭제 함수
   void _deleteDday(Map<String, dynamic> dday) {
     setState(() {
       _ddayList.remove(dday);
@@ -133,15 +137,18 @@ class DdayPageState extends State<DdayPage> {
     );
   }
 
+  // 날짜 형식 포맷팅 함수
   String _formatDate(DateTime date) {
     return DateFormat('yyyy.MM.dd').format(date);
   }
 
+  // 시작일과 종료일의 차이를 계산하는 함수
   String _calculateDuration(DateTime startDate, DateTime endDate) {
     final difference = endDate.difference(startDate).inDays;
     return '$difference일';
   }
 
+  // 시작일까지 남은 일수를 계산하는 함수
   String? _calculateDaysUntilStart(DateTime startDate) {
     final today = DateTime.now();
     final difference = startDate.difference(today).inDays;
@@ -171,25 +178,13 @@ class DdayPageState extends State<DdayPage> {
         itemCount: _ddayList.length,
         itemBuilder: (context, index) {
           final dday = _ddayList[index];
-          final title = dday['title'] ?? '디데이 제목';
-          final startDate = dday['startDate'] != null
-              ? DateTime.parse(dday['startDate'].toString())
-              : null;
-          final endDate = dday['endDate'] != null
-              ? DateTime.parse(dday['endDate'].toString())
-              : null;
-          final formattedStartDate = startDate != null
-              ? _formatDate(startDate)
-              : '시작일 없음';
-          final formattedEndDate = endDate != null
-              ? _formatDate(endDate)
-              : '종료일 없음';
-          final duration = (startDate != null && endDate != null)
-              ? _calculateDuration(startDate, endDate)
-              : '';
-          final daysUntilStart = (startDate != null)
-              ? _calculateDaysUntilStart(startDate)
-              : null;
+          final title = dday['title'] ?? '아아아';
+          final startDate = DateTime.parse(dday['startDate']);
+          final endDate = DateTime.parse(dday['endDate']);
+          final formattedStartDate = _formatDate(startDate);
+          final formattedEndDate = _formatDate(endDate);
+          final duration = _calculateDuration(startDate, endDate);
+          final daysUntilStart = _calculateDaysUntilStart(startDate);
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
