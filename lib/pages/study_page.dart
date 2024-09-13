@@ -152,7 +152,7 @@ class StudyPage extends StatelessWidget {
       width: MediaQuery.of(context).size.width - 32,
       padding: const EdgeInsets.all(4.0), // 컨테이너 여백 조정
       decoration: BoxDecoration(
-        color: const Color(0xFF9D9D9D), // 전체 컨테이너 배경색
+        color: const Color(0xFF333333), // 전체 컨테이너 배경색
         borderRadius: BorderRadius.circular(8), // 둥근 모서리
       ),
       child: Column(

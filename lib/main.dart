@@ -11,7 +11,7 @@ import 'package:project1/theme.dart'; // Import your theme file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter의 초기화 보장
-  await dotenv.load();
+
   await initializeDateFormatting('ko_KR'); // 'ko_KR' 로케일 데이터 초기화
   runApp(const MyApp());
 }

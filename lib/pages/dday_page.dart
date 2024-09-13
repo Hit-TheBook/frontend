@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/theme.dart';
@@ -16,6 +18,47 @@ class DdayPage extends StatefulWidget {
 class DdayPageState extends State<DdayPage> {
   final List<Map<String, dynamic>> _ddayList = []; // 디데이 정보를 저장할 리스트
   Map<String, dynamic>? _selectedDday; // 현재 선택된 디데이 정보
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDdayList(); // 화면이 생성될 때 디데이 리스트를 가져옴
+  }
+
+  Future<void> _fetchDdayList() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://13.209.78.125/dday/list'),
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0BleGFtcGxlLmNvbV85Mmlvc2RmOTNpc2Rmamkzb2kyMzRtb2ZzZGlqMiIsImlhdCI6MTcyNTk0NjQxOSwiZXhwIjoxNzU3NDgyNDE5fQ.t-LwL_f9huhSTzDMGLWLF_PAgqVq4NAk49kx1weMuFY1-eVY6OEBC1qm0rkmNyJAdIMylYtAuVq8Y8LS9IdUhQ', // 필요한 인증 정보를 추가합니다.
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+        final List<dynamic> upComingDdays = data['upComingDdays'] ?? [];
+        final List<dynamic> oldDdays = data['oldDdays'] ?? [];
+
+        setState(() {
+          _ddayList.clear();
+          _ddayList.addAll(upComingDdays.map((item) => {
+            'title': item['ddayName'],
+            'startDate': item['startDate'],
+            'endDate': item['endDate'],
+          }).toList());
+        });
+
+        // 성공적으로 디데이 리스트를 가져왔을 때 콘솔에 로그 출력
+        print('디데이 리스트를 성공적으로 가져왔습니다: ${_ddayList.length}개의 디데이 항목이 있습니다.');
+      } else {
+        throw Exception('Failed to load dday list. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching dday list: $error');
+    }
+  }
 
   // 디데이 상세 페이지로 이동하는 함수
   void _navigateToDdayDetail() async {
