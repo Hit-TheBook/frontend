@@ -39,8 +39,24 @@ class DdayPageState extends State<DdayPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
-        final List<dynamic> upComingDdays = data['upComingDdays'] ?? [];
+        // 대표 디데이와 일반 디데이를 구분
+        final primaryDday = data['primaryDday']; // 대표 디데이
+        List<dynamic> upComingDdays = data['upComingDdays'] ?? [];
         final List<dynamic> oldDdays = data['oldDdays'] ?? [];
+
+        // 대표 디데이가 있을 경우 콘솔에 출력
+        if (primaryDday != null) {
+          print('현재 설정된 대표 디데이:');
+          print('ID: ${primaryDday['ddayId']}');
+          print('이름: ${primaryDday['ddayName']}');
+          print('시작일: ${primaryDday['startDate']}');
+          print('종료일: ${primaryDday['endDate']}');
+
+          // 같은 ID를 가진 디데이를 리스트에서 제거
+          upComingDdays = upComingDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
+        } else {
+          print('현재 설정된 대표 디데이가 없습니다.');
+        }
 
         // 디버그 로그 추가
         print('Fetched D-days:');
@@ -51,12 +67,24 @@ class DdayPageState extends State<DdayPage> {
           // 기존 데이터를 클리어
           _ddayList.clear();
 
-          // 새로운 데이터 추가
+          // 대표 디데이가 있으면 가장 상단에 추가
+          if (primaryDday != null) {
+            _ddayList.add({
+              'ddayId': primaryDday['ddayId'],
+              'ddayName': primaryDday['ddayName'],
+              'startDate': primaryDday['startDate'],
+              'endDate': primaryDday['endDate'],
+              'isPrimary': true, // 대표 디데이 여부를 표시할 수 있는 플래그 추가
+            });
+          }
+
+          // 일반 디데이를 대표 디데이 아래에 추가
           _ddayList.addAll(upComingDdays.map((item) => {
             'ddayId': item['ddayId'],
             'ddayName': item['ddayName'],
             'startDate': item['startDate'],
             'endDate': item['endDate'],
+            'isPrimary': false, // 일반 디데이
           }).toList());
 
           // 추가된 데이터 확인
@@ -72,6 +100,8 @@ class DdayPageState extends State<DdayPage> {
       print('Error fetching dday list: $error');
     }
   }
+
+
 
 
   // 디데이 상세 페이지로 이동하는 함수
