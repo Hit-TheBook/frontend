@@ -148,17 +148,36 @@ class DdayPageState extends State<DdayPage> {
     );
   }
 
-  // 대표 디데이 설정 함수
-  void _setAsFeaturedDday(Map<String, dynamic> dday) {
-    setState(() {
-      _ddayList.remove(dday);
-      _ddayList.insert(0, dday);
-    });
+  // 대표 디데이 설정 함수 (서버와 통신)
+  Future<void> _setAsFeaturedDday(Map<String, dynamic> dday) async {
+    final ddayId = dday['ddayId'].toString(); // int를 String으로 변환
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${dday['ddayName']}이(가) 대표 디데이로 설정되었습니다.')),
-    );
+    try {
+      // API 호출하여 대표 디데이 설정
+      final response = await ApiHelper.setFeaturedDday(ddayId);
+
+      if (response.statusCode == 200) {
+        // 서버에 성공적으로 저장되면 로컬 리스트에서도 변경
+        setState(() {
+          _ddayList.remove(dday);
+          _ddayList.insert(0, dday);
+        });
+
+        // 성공적으로 대표 디데이 설정 후 사용자에게 알림
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${dday['ddayName']}이(가) 대표 디데이로 설정되었습니다.')),
+        );
+      } else {
+        throw Exception('Failed to set featured dday. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error setting featured dday: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('대표 디데이 설정에 실패했습니다.')),
+      );
+    }
   }
+
 
   // 디데이 정보 수정 함수
   Future<void> _editDdayInfo(Map<String, dynamic> dday) async {

@@ -81,4 +81,23 @@ class ApiHelper {
 
     return response;
   }
+
+  // 대표 디데이 설정
+  static Future<http.Response> setFeaturedDday(String ddayId) async {
+    final url = Uri.parse('$baseUrl/dday/primary/$ddayId');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $temporaryToken', // 헤더에 토큰 추가
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(ddayId), // RequestDday 객체를 JSON 문자열로 변환
+    );
+
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+  }
 }
