@@ -161,7 +161,8 @@ class DdayPageState extends State<DdayPage> {
   }
 
   // 디데이 정보 수정 함수
-  void _editDdayInfo(Map<String, dynamic> dday) async {
+  Future<void> _editDdayInfo(Map<String, dynamic> dday) async {
+    final ddayId = dday['ddayId'].toString(); // int를 String으로 변환
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -169,6 +170,8 @@ class DdayPageState extends State<DdayPage> {
           initialTitle: dday['ddayName'],
           initialStartDate: DateTime.parse(dday['startDate']),
           initialEndDate: DateTime.parse(dday['endDate']),
+          isEditing: true,// 수정모드를 나타내는 플래그
+          ddayId: ddayId, // 디데이 ID 전달
         ),
       ),
     );
@@ -213,6 +216,7 @@ class DdayPageState extends State<DdayPage> {
       print('Error deleting dday: $error');
     }
   }
+
 
 
   // 날짜 형식 포맷팅 함수

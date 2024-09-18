@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/src/response.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/models/dday_model.dart';
 import 'package:project1/pages/dday_page.dart';
@@ -11,12 +12,16 @@ class DdaydetailPage extends StatefulWidget {
   final String? initialTitle;
   final DateTime? initialStartDate;
   final DateTime? initialEndDate;
+  final bool isEditing;  // 플래그 추가
+  final String? ddayId;
 
   const DdaydetailPage({
     super.key,
     this.initialTitle,
     this.initialStartDate,
     this.initialEndDate,
+    this.isEditing = false,  // 기본값 false
+    this.ddayId,  // 디데이 ID
   });
 
   @override
@@ -131,21 +136,30 @@ class DdaydetailPageState extends State<DdaydetailPage> {
 
     try {
       Map<String, dynamic> requestDday = dday.toJson();
-      final response = await ApiHelper.addDday('dday', requestDday);
+      late final Response response;
+
+      if (widget.isEditing) {
+        // 수정일 때 modifyDday 호출
+        response = await ApiHelper.modifyDday(widget.ddayId!, requestDday);
+      } else {
+        // 추가일 때 addDday 호출
+        response = await ApiHelper.addDday('dday', requestDday);
+      }
+
       final responseData = jsonDecode(response.body);
 
-      if (response.statusCode == 200 ) {
+      if (response.statusCode == 200) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const DdayPage()),
         );
       } else {
-        throw Exception('Dday 추가에 실패했습니다.');
+        throw Exception(widget.isEditing ? 'Dday 수정에 실패했습니다.' : 'Dday 추가에 실패했습니다.');
       }
     } catch (e) {
       print('Error saving Dday: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('디데이 추가에 실패했습니다.')),
+        SnackBar(content: Text(widget.isEditing ? '디데이 수정에 실패했습니다.' : '디데이 추가에 실패했습니다.')),
       );
     }
   }
@@ -174,11 +188,13 @@ class DdaydetailPageState extends State<DdaydetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('디데이 추가'),
+        title: Text(widget.isEditing ? '디데이 수정' : '디데이 추가'),
         centerTitle: true,
         actions: <Widget>[
           TextButton(
-            onPressed: _saveDday,
+            onPressed: () async {
+              await _saveDday();
+            },
             child: const Text(
               '완료',
               style: TextStyle(

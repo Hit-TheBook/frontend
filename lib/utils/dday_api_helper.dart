@@ -47,7 +47,7 @@ class ApiHelper {
 
   // PUT 요청
   static Future<http.Response> modifyDday(String endpoint, Map<String, dynamic> data) async {
-    final url = Uri.parse('$baseUrl/$endpoint');
+    final url = Uri.parse('$baseUrl/dday/$endpoint');
     final response = await http.put(
       url,
       headers: {
