@@ -37,7 +37,7 @@ class ApiHelper {
       },
       body: jsonEncode(data), // RequestDday 객체를 JSON 문자열로 변환
     );
-
+    debugPrint('Request data: $data');
     debugPrint('POST $url');
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
@@ -66,7 +66,7 @@ class ApiHelper {
 
   // DELETE 요청
   static Future<http.Response> deleteDday(String endpoint) async {
-    final url = Uri.parse('$baseUrl/$endpoint');
+    final url = Uri.parse('$baseUrl/dday/$endpoint');
     final response = await http.delete(
       url,
       headers: {

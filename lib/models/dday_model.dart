@@ -1,7 +1,15 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+
+String formatDateTimeForJava(DateTime dateTime) {
+  DateTime utcDateTime = dateTime.toUtc();
+  final DateFormat formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  return formatter.format(dateTime) ;
+}
 
 class RequestDday {
-  // ddayId 필드 추가
+
   final String ddayName;
   final DateTime startDate;
   final DateTime endDate;
@@ -17,8 +25,8 @@ class RequestDday {
   Map<String, dynamic> toJson() {
     return {
       'ddayName': ddayName,
-      'startDate': startDate.toUtc().toIso8601String(),
-      'endDate': endDate.toUtc().toIso8601String(),
+      'startDate': formatDateTimeForJava(startDate),
+      'endDate': formatDateTimeForJava(endDate),
     };
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/models/dday_model.dart';
+import 'package:project1/pages/dday_page.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API helper import
 
 class DdaydetailPage extends StatefulWidget {
@@ -133,8 +134,11 @@ class DdaydetailPageState extends State<DdaydetailPage> {
       final response = await ApiHelper.addDday('dday', requestDday);
       final responseData = jsonDecode(response.body);
 
-      if (response.statusCode == 200 && responseData['message'] == 'successful') {
-        Navigator.of(context).pop(dday.toJson()); // 디데이 정보 반환
+      if (response.statusCode == 200 ) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const DdayPage()),
+        );
       } else {
         throw Exception('Dday 추가에 실패했습니다.');
       }

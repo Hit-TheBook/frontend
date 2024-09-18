@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/theme.dart';
+import '../utils/dday_api_helper.dart';
 import 'count_up_timer_page.dart';
 import 'package:project1/widgets/custom_appbar.dart';
 import 'package:project1/pages/main_page.dart'; // Import pages for navigation
@@ -41,13 +42,25 @@ class DdayPageState extends State<DdayPage> {
         final List<dynamic> upComingDdays = data['upComingDdays'] ?? [];
         final List<dynamic> oldDdays = data['oldDdays'] ?? [];
 
+        // 디버그 로그 추가
+        print('Fetched D-days:');
+        print('Upcoming D-days: $upComingDdays');
+        print('Old D-days: $oldDdays');
+
         setState(() {
+          // 기존 데이터를 클리어
           _ddayList.clear();
+
+          // 새로운 데이터 추가
           _ddayList.addAll(upComingDdays.map((item) => {
-            'title': item['ddayName'],
+            'ddayId': item['ddayId'],
+            'ddayName': item['ddayName'],
             'startDate': item['startDate'],
             'endDate': item['endDate'],
           }).toList());
+
+          // 추가된 데이터 확인
+          print('Updated _ddayList: $_ddayList');
         });
 
         // 성공적으로 디데이 리스트를 가져왔을 때 콘솔에 로그 출력
@@ -59,6 +72,7 @@ class DdayPageState extends State<DdayPage> {
       print('Error fetching dday list: $error');
     }
   }
+
 
   // 디데이 상세 페이지로 이동하는 함수
   void _navigateToDdayDetail() async {
@@ -142,7 +156,7 @@ class DdayPageState extends State<DdayPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${dday['title']}이(가) 대표 디데이로 설정되었습니다.')),
+      SnackBar(content: Text('${dday['ddayName']}이(가) 대표 디데이로 설정되었습니다.')),
     );
   }
 
@@ -152,7 +166,7 @@ class DdayPageState extends State<DdayPage> {
       context,
       MaterialPageRoute(
         builder: (context) => DdaydetailPage(
-          initialTitle: dday['title'],
+          initialTitle: dday['ddayName'],
           initialStartDate: DateTime.parse(dday['startDate']),
           initialEndDate: DateTime.parse(dday['endDate']),
         ),
@@ -169,16 +183,37 @@ class DdayPageState extends State<DdayPage> {
     }
   }
 
-  // 디데이 삭제 함수
-  void _deleteDday(Map<String, dynamic> dday) {
-    setState(() {
-      _ddayList.remove(dday);
-    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${dday['title']}이(가) 삭제되었습니다.')),
-    );
+
+
+
+// DdayPageState 클래스에서 삭제 메소드 정의
+  Future<void> _deleteDday(Map<String, dynamic> dday) async {
+
+
+    final ddayId = dday['ddayId'].toString(); // int를 String으로 변환
+
+
+    try {
+      final response = await ApiHelper.deleteDday(ddayId);
+
+      if (response.statusCode == 200) {
+        // 서버에서 성공 응답을 받으면, 리스트에서 해당 디데이 제거
+        setState(() {
+          _ddayList.remove(dday);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${dday['ddayName']}이(가) 삭제되었습니다.')),
+        );
+      } else {
+        throw Exception('Failed to delete dday. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error deleting dday: $error');
+    }
   }
+
 
   // 날짜 형식 포맷팅 함수
   String _formatDate(DateTime date) {
@@ -221,7 +256,8 @@ class DdayPageState extends State<DdayPage> {
         itemCount: _ddayList.length,
         itemBuilder: (context, index) {
           final dday = _ddayList[index];
-          final title = dday['title'] ?? '아아아';
+          final ddayId = dday['ddayId'];
+          final ddayName = dday['ddayName'];
           final startDate = DateTime.parse(dday['startDate']);
           final endDate = DateTime.parse(dday['endDate']);
           final formattedStartDate = _formatDate(startDate);
@@ -254,7 +290,7 @@ class DdayPageState extends State<DdayPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            title,
+                            ddayName,
                             textAlign: TextAlign.left,
                             style: const TextStyle(
                               color: Colors.white,
