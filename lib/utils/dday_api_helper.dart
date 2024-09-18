@@ -19,8 +19,6 @@ class ApiHelper {
       },
     );
 
-
-
     debugPrint('GET $url');
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
@@ -102,4 +100,23 @@ class ApiHelper {
 
     return response;
   }
+
+  //대표디데이 get
+  static Future<http.Response> fetchDdayList(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $temporaryToken', // 헤더에 토큰 추가
+        'Content-Type': 'application/json',
+      },
+    );
+    debugPrint('GET $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+
+  }
+
 }

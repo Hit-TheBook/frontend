@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,16 +9,55 @@ import 'package:project1/pages/timer.dart';
 import 'package:project1/pages/dday_page.dart';
 import '../colors.dart';
 import 'count_up_timer_page.dart';
+import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
 
-class StudyPage extends StatelessWidget {
+class StudyPage extends StatefulWidget {
   const StudyPage({super.key});
+
+  @override
+  _StudyPageState createState() => _StudyPageState();
+}
+
+class _StudyPageState extends State<StudyPage> {
+  String? primaryDdayName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPrimaryDday(); // 페이지가 로드될 때 API 호출
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchPrimaryDday(); // 페이지가 다시 표시될 때마다 API 호출
+  }
+
+
+  // API를 호출하여 대표 디데이 이름을 가져오는 함수
+  Future<void> fetchPrimaryDday() async {
+    try {
+      // ApiHelper에서 fetchDdayList 호출
+      final response = await ApiHelper.fetchDdayList('dday/primary'); // 적절한 엔드포인트 사용
+
+      // 응답 데이터를 JSON으로 변환
+      final decodedResponse = jsonDecode(response.body);
+
+      setState(() {
+        primaryDdayName = decodedResponse['ddayName'] ?? '대표 디데이를 설정해주세요.';
+      });
+    } catch (e) {
+      // 오류 처리
+      setState(() {
+        primaryDdayName = '대표 디데이 불러오기 실패';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('MM월 dd일', 'ko_KR').format(now);
-
-    // 요일의 첫 글자를 한국어로 얻기
     String weekDay = DateFormat('EEEE', 'ko_KR').format(now);
     String firstLetterOfWeekDay = weekDay.isNotEmpty ? weekDay[0] : '';
 
@@ -35,7 +76,7 @@ class StudyPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 40), // 상단 여백 추가
+                const SizedBox(height: 80), // 상단 여백 추가
                 const Text(
                   '나의 스터디',
                   style: TextStyle(
@@ -61,23 +102,18 @@ class StudyPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  // 여기서 디데이 항목에 primaryDdayName을 표시
                   buildSectionContainer(
                     context: context,
                     items: [
                       '디데이',
-                      '디데이 이름',
+                      primaryDdayName ?? '로딩 중...',
                     ],
                     onPressed: (String title) {
                       if (title == '디데이') {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => DdayPage()),
-                        );
-                      }
-                      if (title == '00:00:00') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CountUpTimerPage()),
                         );
                       }
                     },
@@ -111,13 +147,10 @@ class StudyPage extends StatelessWidget {
                       '플래너',
                     ],
                     onPressed: (String title) {
-                      if (kDebugMode) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PlannerPage()),
-                        );
-                      }
-                      // 여기에 원하는 동작 추가
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PlannerPage()),
+                      );
                     },
                   ),
                   const SizedBox(height: 20),
@@ -128,10 +161,7 @@ class StudyPage extends StatelessWidget {
                       '오늘 수행 미션',
                     ],
                     onPressed: (String title) {
-                      if (kDebugMode) {
-                        print('버튼 클릭됨: $title');
-                      }
-                      // 여기에 원하는 동작 추가
+                      print('버튼 클릭됨: $title');
                     },
                   ),
                 ],

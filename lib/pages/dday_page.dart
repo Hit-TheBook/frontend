@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:project1/colors.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
+import 'package:project1/pages/study_page.dart';
 import 'package:project1/theme.dart';
 import '../utils/dday_api_helper.dart';
 import 'count_up_timer_page.dart';
@@ -303,9 +305,61 @@ class DdayPageState extends State<DdayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: '디데이', // 사용할 타이틀을 전달
+      appBar: AppBar(
+        automaticallyImplyLeading: false, // 기본 뒤로가기 버튼 제거
+        leading: Align(
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min, // 최소 크기만 사용
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, size: 20), // 원하는 아이콘 사용
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const StudyPage()), // StudyPage로 이동
+                  );
+                },
+              ),
+              const SizedBox(width: 4.0), // 아이콘과 텍스트 사이의 간격 조정
+              Text(
+                '나의 스터디',
+                style: TextStyle(
+                  color: neonskyblue1, // 원하는 색상으로 변경
+                  fontSize: 14, // 원하는 크기로 변경
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis, // 텍스트가 넘칠 경우 생략 표시
+              ),
+            ],
+          ),
+        ),
+        title: Center(
+          child: Text(
+            '디데이',
+            style: TextStyle(
+              color: Colors.white, // 원하는 색상으로 변경
+              fontSize: 16, // 원하는 크기로 변경
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.black, // AppBar 배경색 설정
       ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       body: _ddayList.isEmpty
           ? const Center(
         child: Text(
