@@ -19,6 +19,8 @@ class ApiHelper {
       },
     );
 
+
+
     debugPrint('GET $url');
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');

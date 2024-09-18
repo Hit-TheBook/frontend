@@ -28,13 +28,7 @@ class DdayPageState extends State<DdayPage> {
 
   Future<void> _fetchDdayList() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://13.209.78.125/dday/list'),
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0BleGFtcGxlLmNvbV85Mmlvc2RmOTNpc2Rmamkzb2kyMzRtb2ZzZGlqMiIsImlhdCI6MTcyNTk0NjQxOSwiZXhwIjoxNzU3NDgyNDE5fQ.t-LwL_f9huhSTzDMGLWLF_PAgqVq4NAk49kx1weMuFY1-eVY6OEBC1qm0rkmNyJAdIMylYtAuVq8Y8LS9IdUhQ', // 필요한 인증 정보를 추가합니다.
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await ApiHelper.findDdayList('dday/list');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -42,9 +36,9 @@ class DdayPageState extends State<DdayPage> {
         // 대표 디데이와 일반 디데이를 구분
         final primaryDday = data['primaryDday']; // 대표 디데이
         List<dynamic> upComingDdays = data['upComingDdays'] ?? [];
-        final List<dynamic> oldDdays = data['oldDdays'] ?? [];
+        List<dynamic> oldDdays = data['oldDdays'] ?? [];
 
-        // 대표 디데이가 있을 경우 콘솔에 출력
+        // 대표 디데이가 null이 아닌지 확인
         if (primaryDday != null) {
           print('현재 설정된 대표 디데이:');
           print('ID: ${primaryDday['ddayId']}');
@@ -54,29 +48,39 @@ class DdayPageState extends State<DdayPage> {
 
           // 같은 ID를 가진 디데이를 리스트에서 제거
           upComingDdays = upComingDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
+          oldDdays = oldDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
         } else {
           print('현재 설정된 대표 디데이가 없습니다.');
         }
-
-        // 디버그 로그 추가
-        print('Fetched D-days:');
-        print('Upcoming D-days: $upComingDdays');
-        print('Old D-days: $oldDdays');
 
         setState(() {
           // 기존 데이터를 클리어
           _ddayList.clear();
 
-          // 대표 디데이가 있으면 가장 상단에 추가
-          if (primaryDday != null) {
+          // 대표 디데이가 null이 아닌 경우에만 추가
+          // 대표 디데이가 있을 경우 콘솔에 출력
+          if (primaryDday != null && primaryDday['ddayId'] != null) {
+            print('현재 설정된 대표 디데이:');
+            print('ID: ${primaryDday['ddayId']}');
+            print('이름: ${primaryDday['ddayName']}');
+            print('시작일: ${primaryDday['startDate']}');
+            print('종료일: ${primaryDday['endDate']}');
+
+            // 같은 ID를 가진 디데이를 리스트에서 제거
+            upComingDdays = upComingDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
+            oldDdays = oldDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
+
             _ddayList.add({
-              'ddayId': primaryDday['ddayId'],
-              'ddayName': primaryDday['ddayName'],
-              'startDate': primaryDday['startDate'],
-              'endDate': primaryDday['endDate'],
+              'ddayId': primaryDday['ddayId'] ?? '', // null 처리
+              'ddayName': primaryDday['ddayName'] ?? 'Unknown', // null 처리
+              'startDate': primaryDday['startDate'] ?? '', // null 처리
+              'endDate': primaryDday['endDate'] ?? '', // null 처리
               'isPrimary': true, // 대표 디데이 여부를 표시할 수 있는 플래그 추가
             });
+          } else {
+            print('현재 설정된 대표 디데이가 없습니다.');
           }
+
 
           // 일반 디데이를 대표 디데이 아래에 추가
           _ddayList.addAll(upComingDdays.map((item) => {
@@ -87,8 +91,14 @@ class DdayPageState extends State<DdayPage> {
             'isPrimary': false, // 일반 디데이
           }).toList());
 
-          // 추가된 데이터 확인
-          print('Updated _ddayList: $_ddayList');
+          // 과거 디데이 추가
+          _ddayList.addAll(oldDdays.map((item) => {
+            'ddayId': item['ddayId'],
+            'ddayName': item['ddayName'],
+            'startDate': item['startDate'],
+            'endDate': item['endDate'],
+            'isPrimary': false, // 일반 디데이
+          }).toList());
         });
 
         // 성공적으로 디데이 리스트를 가져왔을 때 콘솔에 로그 출력
@@ -100,6 +110,7 @@ class DdayPageState extends State<DdayPage> {
       print('Error fetching dday list: $error');
     }
   }
+
 
 
 
