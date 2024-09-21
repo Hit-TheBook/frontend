@@ -6,6 +6,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:project1/pages/main_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:project1/pages/register_page.dart';
+import 'package:project1/pages/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 
@@ -46,7 +47,7 @@ class Login extends StatelessWidget {
                 backgroundColor: neonskyblue1, // 배경색
                 foregroundColor: black1, // 텍스트 색
               ),
-              child: const Text('로그인'),
+              child: const Text('메인'),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -60,11 +61,25 @@ class Login extends StatelessWidget {
                 backgroundColor: neonskyblue1, // 배경색
                 foregroundColor: black1, // 텍스트 색
               ),
-              child: const Text('시작하기'),
+              child: const Text('회원가입'),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
+              },
+            ),
+            const SizedBox(height: 20), // 로그인 버튼과 시작하기 버튼 사이의 간격
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: neonskyblue1, // 배경색
+                foregroundColor: black1, // 텍스트 색
+              ),
+              child: const Text('로그인'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UsernamePage()),
                 );
               },
             ),

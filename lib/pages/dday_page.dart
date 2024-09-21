@@ -322,15 +322,15 @@ class DdayPageState extends State<DdayPage> {
                 },
               ),
               const SizedBox(width: 4.0), // 아이콘과 텍스트 사이의 간격 조정
-              Text(
-                '나의 스터디',
-                style: TextStyle(
-                  color: neonskyblue1, // 원하는 색상으로 변경
-                  fontSize: 14, // 원하는 크기로 변경
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis, // 텍스트가 넘칠 경우 생략 표시
-              ),
+              // Text(
+              //   '나의 스터디',
+              //   style: TextStyle(
+              //     color: neonskyblue1, // 원하는 색상으로 변경
+              //     fontSize: 14, // 원하는 크기로 변경
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              //   overflow: TextOverflow.ellipsis, // 텍스트가 넘칠 경우 생략 표시
+              // ),
             ],
           ),
         ),

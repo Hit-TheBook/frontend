@@ -1,15 +1,13 @@
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project1/pages/planner_page.dart';
-import 'package:project1/theme.dart';
-import 'package:project1/pages/timer.dart';
 import 'package:project1/pages/dday_page.dart';
-import '../colors.dart';
-import 'count_up_timer_page.dart';
+import 'package:project1/pages/timer.dart';
+import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
+import 'package:project1/pages/count_up_timer_page.dart';
+import '../colors.dart';
+import 'planner_page.dart'; // 플래너 페이지 추가
 
 class StudyPage extends StatefulWidget {
   const StudyPage({super.key});
@@ -20,36 +18,35 @@ class StudyPage extends StatefulWidget {
 
 class _StudyPageState extends State<StudyPage> {
   String? primaryDdayName;
+  int? remainingDays;
 
   @override
   void initState() {
     super.initState();
-    fetchPrimaryDday(); // 페이지가 로드될 때 API 호출
+    fetchPrimaryDday();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    fetchPrimaryDday(); // 페이지가 다시 표시될 때마다 API 호출
+    fetchPrimaryDday();
   }
 
-
-  // API를 호출하여 대표 디데이 이름을 가져오는 함수
+  // API를 호출하여 대표 디데이 이름과 남은 날짜를 가져오는 함수
   Future<void> fetchPrimaryDday() async {
     try {
-      // ApiHelper에서 fetchDdayList 호출
-      final response = await ApiHelper.fetchDdayList('dday/primary'); // 적절한 엔드포인트 사용
+      final response = await ApiHelper.fetchDdayList('dday/primary'); // API 호출
 
-      // 응답 데이터를 JSON으로 변환
       final decodedResponse = jsonDecode(response.body);
 
       setState(() {
         primaryDdayName = decodedResponse['ddayName'] ?? '대표 디데이를 설정해주세요.';
+        remainingDays = decodedResponse['remainingDays'] ?? 0;
       });
     } catch (e) {
-      // 오류 처리
       setState(() {
         primaryDdayName = '대표 디데이 불러오기 실패';
+        remainingDays = null;
       });
     }
   }
@@ -65,18 +62,17 @@ class _StudyPageState extends State<StudyPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // 상단 배너 부분
           Container(
-            padding: const EdgeInsets.all(16.0), // 상단 여백 추가
+            padding: const EdgeInsets.all(16.0),
             decoration: const BoxDecoration(
-              color: black1, // 상단 배경색
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(15), // 하단 모서리 둥글게
-              ),
+              color: black1, // 배경색 설정
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 80), // 상단 여백 추가
+                const SizedBox(height: 80), // 상단 여백
                 const Text(
                   '나의 스터디',
                   style: TextStyle(
@@ -86,7 +82,7 @@ class _StudyPageState extends State<StudyPage> {
                   ),
                 ),
                 Text(
-                  '$formattedDate ($firstLetterOfWeekDay)',
+                  '$formattedDate ($firstLetterOfWeekDay)', // 날짜 표시
                   style: const TextStyle(
                     color: Color(0xFF8E8E8E),
                     fontSize: 14.0,
@@ -95,19 +91,21 @@ class _StudyPageState extends State<StudyPage> {
               ],
             ),
           ),
-          const SizedBox(height: 20), // 상단 내용과 버튼 사이의 간격
+          const SizedBox(height: 20), // 여백 추가
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0), // 페이지 여백 추가
+              padding: const EdgeInsets.all(16.0), // 페이지 여백
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // 여기서 디데이 항목에 primaryDdayName을 표시
+                  // 디데이 섹션
                   buildSectionContainer(
                     context: context,
                     items: [
                       '디데이',
-                      primaryDdayName ?? '로딩 중...',
+                      primaryDdayName != null && remainingDays != null
+                          ? '$primaryDdayName                                          D -$remainingDays'
+                          : '로딩 중...',
                     ],
                     onPressed: (String title) {
                       if (title == '디데이') {
@@ -118,7 +116,8 @@ class _StudyPageState extends State<StudyPage> {
                       }
                     },
                   ),
-                  const SizedBox(height: 20), // 섹션 간의 간격 추가
+                  const SizedBox(height: 20), // 섹션 간 간격
+                  // 타이머 섹션
                   buildSectionContainer(
                     context: context,
                     items: [
@@ -140,7 +139,8 @@ class _StudyPageState extends State<StudyPage> {
                       }
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 20), // 섹션 간 간격 추가
+                  // 플래너 섹션
                   buildSectionContainer(
                     context: context,
                     items: [
@@ -154,6 +154,7 @@ class _StudyPageState extends State<StudyPage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  // 개인 미션 섹션
                   buildSectionContainer(
                     context: context,
                     items: [
@@ -173,6 +174,7 @@ class _StudyPageState extends State<StudyPage> {
     );
   }
 
+  // 섹션 컨테이너 빌드 함수
   Widget buildSectionContainer({
     required BuildContext context,
     required List<String> items,
@@ -180,9 +182,9 @@ class _StudyPageState extends State<StudyPage> {
   }) {
     return Container(
       width: MediaQuery.of(context).size.width - 32,
-      padding: const EdgeInsets.all(4.0), // 컨테이너 여백 조정
+      padding: const EdgeInsets.all(4.0), // 컨테이너 패딩
       decoration: BoxDecoration(
-        color: const Color(0xFF333333), // 전체 컨테이너 배경색
+        color: const Color(0xFF333333), // 배경색 설정
         borderRadius: BorderRadius.circular(8), // 둥근 모서리
       ),
       child: Column(
@@ -195,11 +197,11 @@ class _StudyPageState extends State<StudyPage> {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
-                    onPressed(items[index]);
+                    onPressed(items[index]); // 버튼 클릭 시 동작
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.white, // 버튼 텍스트 색상
-                    padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0), // 버튼 패딩 조정
+                    foregroundColor: Colors.white, // 텍스트 색상
+                    padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
                     backgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8), // 둥근 모서리
@@ -217,7 +219,7 @@ class _StudyPageState extends State<StudyPage> {
                   ),
                 ),
               ),
-              if (index < items.length - 1) // 마지막 항목이 아니면 구분선 추가
+              if (index < items.length - 1)
                 const Divider(
                   color: AppColors.primary, // 구분선 색상
                   thickness: 1,
