@@ -7,6 +7,7 @@ import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/pages/study_page.dart';
 import 'package:project1/theme.dart';
 import '../utils/dday_api_helper.dart';
+import '../widgets/customfloatingactionbutton.dart';
 import 'count_up_timer_page.dart';
 import 'package:project1/widgets/custom_appbar.dart';
 import 'package:project1/pages/main_page.dart'; // Import pages for navigation
@@ -444,14 +445,8 @@ class DdayPageState extends State<DdayPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFloatingActionButton(
         onPressed: _navigateToDdayDetail,
-        backgroundColor: AppColors.primary,
-        elevation: 6.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

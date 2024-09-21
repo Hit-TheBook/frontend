@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../colors.dart';
+import 'package:project1/widgets/customfloatingactionbutton.dart';
 
 class PlannerPage extends StatefulWidget {
   const PlannerPage({super.key});
@@ -19,7 +19,7 @@ class _PlannerPageState extends State<PlannerPage> {
       builder: (context) {
         return Container(
           height: 250,
-          color: Colors.grey[300], // 배경색을 회색으로 설정
+          color: Colors.grey[300],
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.date,
             initialDateTime: _selectedDate,
@@ -40,6 +40,62 @@ class _PlannerPageState extends State<PlannerPage> {
     }
   }
 
+  TableRow _buildTimetableRow(String startTime, String endTime, String subject, String content, bool achieved) {
+    return TableRow(
+      children: [
+        Container(
+          height: 60,
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                startTime,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+              const Text(
+                '~',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+              Text(
+                endTime,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 60,
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.center,
+          child: Text(
+            subject,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+        Container(
+          height: 60,
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.center,
+          child: Text(
+            content,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+        Container(
+          height: 60,
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.center,
+          child: Icon(
+            achieved ? Icons.check_circle : Icons.cancel,
+            color: achieved ? Colors.green : Colors.red,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일';
@@ -55,20 +111,37 @@ class _PlannerPageState extends State<PlannerPage> {
           GestureDetector(
             onTap: () => _selectDate(context),
             child: Container(
+              width: 122,
+              height: 24,
               alignment: Alignment.center,
               margin: const EdgeInsets.only(top: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  Text(
-                    formattedDate,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    child: SizedBox(
+                      width: 117,
+                      height: 24,
+                      child: Text(
+                        formattedDate,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          height: 0,
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.arrow_drop_down,
-                    size: 24,
-                    color: Colors.white,
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: const Icon(
+                      Icons.arrow_drop_down,
+                      size: 24,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -77,57 +150,91 @@ class _PlannerPageState extends State<PlannerPage> {
           const SizedBox(height: 20),
           // 버튼 추가
           Row(
-            mainAxisAlignment: MainAxisAlignment.start, // 왼쪽 정렬
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(width: 16), // 버튼을 오른쪽으로 이동
-              SizedBox(
+              const SizedBox(width: 16),
+              Container(
                 width: 43,
                 height: 22,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 버튼 1 클릭 시 동작
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero, // 여백 제거
-                  ),
-                  child: const Text(
-                    '공부',
-                    style: TextStyle(fontSize: 10), // 텍스트 크기 조정
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShapeDecoration(
+                  color: Color(0xFF69EDFF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '공부',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF333333),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 4), // 버튼 간격 조정
-              SizedBox(
+              const SizedBox(width: 4),
+              Container(
                 width: 43,
                 height: 22,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 버튼 2 클릭 시 동작
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero, // 여백 제거
-                  ),
-                  child: const Text(
-                    '일정',
-                    style: TextStyle(fontSize: 10), // 텍스트 크기 조정
-                  ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: Container(
+                        width: 43,
+                        height: 22,
+                        decoration: ShapeDecoration(
+                          color: Color(0xFF9D9D9D),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 6,
+                      top: 3,
+                      child: SizedBox(
+                        width: 30,
+                        height: 17,
+                        child: Text(
+                          '일정',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const Spacer(), // 버튼 2와 3 사이의 공간을 차지
-              SizedBox(
-                width: 70,
+              const Spacer(),
+              Container(
+                width: 60,
                 height: 22,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 버튼 3 클릭 시 동작
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero, // 여백 제거
-                  ),
-                  child: const Text(
-                    '원시간표',
-                    style: TextStyle(fontSize: 10), // 텍스트 크기 조정
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShapeDecoration(
+                  color: Color(0xFF69EDFF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '원 시간표',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -138,49 +245,49 @@ class _PlannerPageState extends State<PlannerPage> {
             width: 380,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xff333333), // 배경색
-              borderRadius: BorderRadius.circular(15), // 모서리 둥글게
+              color: const Color(0xff333333),
+              borderRadius: BorderRadius.circular(15),
             ),
             child: Row(
               children: [
                 Expanded(
-                  flex: 2, // 왼쪽 영역을 더 넓게
+                  flex: 2,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Text(
                           '오늘의',
-                          style: TextStyle(fontSize: 16, color: Colors.white), // 텍스트 색상 추가
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         Text(
                           '총평',
-                          style: TextStyle(fontSize: 16, color: Colors.white), // 텍스트 색상 추가
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const VerticalDivider(
-                  color: Colors.white, // 세로줄 색상
-                  thickness: 1, // 세로줄 두께
-                  width: 10, // 세로줄과 텍스트 사이 간격
+                  color: Colors.white,
+                  thickness: 1,
+                  width: 10,
                 ),
                 Expanded(
-                  flex: 7, // 오른쪽 영역을 좁게
+                  flex: 7,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextField(
                       controller: _controller,
-                      style: const TextStyle(color: Colors.white), // 텍스트 색상
+                      style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: '클릭 후 오늘의 총 평을 입력해 보세요.',
-                        hintStyle: const TextStyle(color: Colors.white54), // 힌트 색상
-                        border: InputBorder.none, // 테두리 제거
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        border: InputBorder.none,
                       ),
-                      maxLines: null, // 여러 줄 입력 가능
-                      textAlignVertical: TextAlignVertical.top, // 텍스트 필드를 위쪽으로 정렬
-                      cursorColor: Colors.white, // 커서 색상
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.top,
+                      cursorColor: Colors.white,
                     ),
                   ),
                 ),
@@ -188,20 +295,80 @@ class _PlannerPageState extends State<PlannerPage> {
             ),
           ),
           const SizedBox(height: 20),
+          // 시간표 컨테이너 추가
           Container(
             width: 380,
-            height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xff333333), // 배경색
-              borderRadius: BorderRadius.circular(15), // 모서리 둥글게
+              color: const Color(0xff333333),
+              borderRadius: BorderRadius.circular(15),
             ),
-            alignment: Alignment.center,
-            child: const Text(
-              '여기에 내용이 들어갑니다.',
-              style: TextStyle(fontSize: 16, color: Colors.white), // 텍스트 색상 추가
+            child: Table(
+              border: TableBorder(
+                verticalInside: BorderSide(color: Colors.black54, width: 2),
+                horizontalInside: BorderSide(color: Colors.black54, width: 2),
+              ),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: {
+                0: FixedColumnWidth(40),
+                1: FixedColumnWidth(40),
+                2: FixedColumnWidth(175),
+                3: FixedColumnWidth(35),
+              },
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(color: Color(0xFF69EDFF), borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '시간',
+                        style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '주제',
+                        style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '내용',
+                        style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '달성',
+                        style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+                // 시간표 데이터 추가
+                _buildTimetableRow('am 6:00', 'am 7:00', '화학I', '실험 준비', false),
+                _buildTimetableRow('am 7:00', 'am 8:00', '수학', '문제풀이', true),
+              ],
             ),
           ),
+          const SizedBox(height: 20),
+          // 하단에 추가할 Container
+
+
         ],
+      ),
+
+      floatingActionButton: CustomFloatingActionButton(
+        onPressed: () {
+          // 플래너 페이지에서의 버튼 동작
+        },
       ),
     );
   }
