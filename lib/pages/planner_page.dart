@@ -12,6 +12,7 @@ class PlannerPage extends StatefulWidget {
 class _PlannerPageState extends State<PlannerPage> {
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _controller = TextEditingController();
+  bool isStudying = true; // 공부 버튼 활성화 상태
 
   void _selectDate(BuildContext context) async {
     final DateTime? picked = await showCupertinoModalPopup<DateTime>(
@@ -108,109 +109,80 @@ class _PlannerPageState extends State<PlannerPage> {
       ),
       body: Column(
         children: [
-          GestureDetector(
-            onTap: () => _selectDate(context),
-            child: Container(
-              width: 122,
-              height: 24,
-              alignment: Alignment.center,
-              margin: const EdgeInsets.only(top: 16.0),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: SizedBox(
-                      width: 117,
-                      height: 24,
-                      child: Text(
-                        formattedDate,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          height: 0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: const Icon(
-                      Icons.arrow_drop_down,
-                      size: 24,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+
+                child: Container(
+
+                  width: 95,
+                  height: 24,
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.only(top: 5.0, right: 0.0),
+                  child: Text(
+                    formattedDate,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
                       color: Colors.white,
+                      fontSize: 12,
                     ),
+
                   ),
-                ],
+                ),
               ),
-            ),
+
+              Padding(
+                padding: const EdgeInsets.only(top: 5.0, left: 0.0), // 원하는 만큼 위쪽 여백 조정
+                child: GestureDetector(
+                  onTap: () => _selectDate(context), // 아이콘 클릭 시 날짜 선택 모달
+                  child: Icon(
+                    Icons.expand_more,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          // 버튼 추가
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(width: 16),
-              Container(
-                width: 43,
-                height: 22,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: ShapeDecoration(
-                  color: Color(0xFF69EDFF),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isStudying = true; // 공부 버튼 활성화
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isStudying ? Color(0xFF69EDFF) : Color(0xFF9D9D9D), // 버튼 색상 설정
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                  minimumSize: Size(50, 22),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '공부',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                child: const Text(
+                  '공부',
+                  style: TextStyle(color: Color(0xFF333333), fontSize: 12),
                 ),
               ),
-              const SizedBox(width: 4),
-              Container(
-                width: 43,
-                height: 22,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        width: 43,
-                        height: 22,
-                        decoration: ShapeDecoration(
-                          color: Color(0xFF9D9D9D),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 6,
-                      top: 3,
-                      child: SizedBox(
-                        width: 30,
-                        height: 17,
-                        child: Text(
-                          '일정',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(width: 6),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isStudying = false; // 일정 버튼 활성화
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isStudying ? Color(0xFF9D9D9D) : Color(0xFF69EDFF), // 버튼 색상 설정
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                  minimumSize: Size(50, 22),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                ),
+                child: const Text(
+                  '일정',
+                  style: TextStyle(color: Colors.black, fontSize: 12),
                 ),
               ),
               const Spacer(),
@@ -222,16 +194,17 @@ class _PlannerPageState extends State<PlannerPage> {
                   color: Color(0xFF69EDFF),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      '원 시간표',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
+                    Expanded(
+                      child: Text(
+                        '원 시간표',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -239,8 +212,7 @@ class _PlannerPageState extends State<PlannerPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          // 새로운 컨테이너 추가
+          const SizedBox(height: 3),
           Container(
             width: 380,
             height: 100,
@@ -295,7 +267,6 @@ class _PlannerPageState extends State<PlannerPage> {
             ),
           ),
           const SizedBox(height: 20),
-          // 시간표 컨테이너 추가
           Container(
             width: 380,
             decoration: BoxDecoration(
@@ -359,12 +330,8 @@ class _PlannerPageState extends State<PlannerPage> {
             ),
           ),
           const SizedBox(height: 20),
-          // 하단에 추가할 Container
-
-
         ],
       ),
-
       floatingActionButton: CustomFloatingActionButton(
         onPressed: () {
           // 플래너 페이지에서의 버튼 동작
