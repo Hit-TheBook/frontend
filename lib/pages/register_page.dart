@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:project1/colors.dart';
+import 'package:project1/main.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/pages/login_page.dart'; // Import the LoginPage for navigation
-import '../utils/auth_api_helper.dart';
+import 'package:project1/widgets/customdialog.dart';
+import '../colors.dart';
+
 import '../models/register_view_model.dart'; // Import ViewModel for managing state
 
 class RegisterPage extends StatefulWidget {
@@ -18,7 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController codeController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController nicknameController = TextEditingController();
 
   final RegisterViewModel registerViewModel = RegisterViewModel();
 
@@ -69,14 +71,14 @@ class _RegisterPageState extends State<RegisterPage> {
     bool registered = await registerViewModel.registerUser(
         emailController.text,
         passwordController.text,
-        usernameController.text
+        nicknameController.text
     );
 
     if (registered) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('회원가입 성공')));
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const UsernamePage()), // Change to LoginPage for completion
+        MaterialPageRoute(builder: (context) => const Main()), // Change to LoginPage for completion
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('회원가입 실패')));
@@ -100,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
           _isCountdownActive = false;
           _isCountdownVisible = false; // Hide countdown and label on timeout
         });
-        _showTimeoutDialog(); // Show timeout dialog when countdown ends
+        _showCustomDialog(context); // Show timeout dialog when countdown ends
         return;
       }
       setState(() {
@@ -115,26 +117,30 @@ class _RegisterPageState extends State<RegisterPage> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void _showTimeoutDialog() {
+  void _showCustomDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('인증번호 안내', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          content: Text('인증 시간이 만료되었습니다. 인증번호 재발급이 필요합니다.', style: TextStyle(color: Colors.white)),
-          actions: <Widget>[
-            TextButton(
-              child: Text('확인', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-            ),
-          ],
-          backgroundColor: Colors.black,
+        return CustomDialog(
+          title: '인증번호 안내',
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // 내용에 맞춰 Column 크기를 설정
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('인증 시간이 만료되었습니다.'),
+              SizedBox(height: 8), // 텍스트 사이에 공간 추가
+              Text('인증번호 재발급이 필요합니다.'),
+            ],
+          ),
+          onConfirm: () {
+            Navigator.of(context).pop(); // 다이얼로그 닫기
+          },
         );
       },
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -233,9 +239,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text('* 8자리 이상 영어 대소문자, 숫자, 특수문자 중 2종류 이상을 조합해야 합니다.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
+              Text(
+                '* 8자리 이상 영어 대소문자, 숫자, 특수문자 중 2종류 이상을 조합해야 합니다.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: neonskyblue1), // 직접 정의한 색상 사용
+              ),
               const SizedBox(height: 16),
+
 
               // 비밀번호 확인 입력 필드
               Text('비밀번호 확인', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
@@ -256,7 +265,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text('사용자 이름 입력', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(
-                controller: usernameController,
+                controller: nicknameController,
                 decoration: const InputDecoration(
                   fillColor: Color(0xFF333333),
                   filled: true,
@@ -265,18 +274,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text('* 최소 2글자 이상 6글자 이하 (공백 제외)', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
+              Text(
+                '* 최소 2글자 이상 6글자 이하(공백 제외)',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: neonskyblue1), // 직접 정의한 색상 사용
+              ),
               const SizedBox(height: 80),
 
               // 완료 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _registerUser,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                  child: const Text('완료'),
-                ),
-              ),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isCodeVerified ? _registerUser : null, // 인증 완료시만 _registerUser 호출
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              child: const Text('완료'),
+            ),
+          ),
+
             ],
           ),
         ),

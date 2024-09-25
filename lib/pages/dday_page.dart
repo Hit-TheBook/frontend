@@ -2,15 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:project1/colors.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/pages/study_page.dart';
-import 'package:project1/theme.dart';
 import '../utils/dday_api_helper.dart';
 import '../widgets/customfloatingactionbutton.dart';
-import 'count_up_timer_page.dart';
-import 'package:project1/widgets/custom_appbar.dart';
-import 'package:project1/pages/main_page.dart'; // Import pages for navigation
 
 class DdayPage extends StatefulWidget {
   const DdayPage({super.key});
@@ -48,6 +43,8 @@ class DdayPageState extends State<DdayPage> {
           print('이름: ${primaryDday['ddayName']}');
           print('시작일: ${primaryDday['startDate']}');
           print('종료일: ${primaryDday['endDate']}');
+          print('남은날짜: ${primaryDday['remainDays']}');
+          print('기간: ${primaryDday['durationDays']}');
 
           // 같은 ID를 가진 디데이를 리스트에서 제거
           upComingDdays = upComingDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
@@ -68,6 +65,9 @@ class DdayPageState extends State<DdayPage> {
             print('이름: ${primaryDday['ddayName']}');
             print('시작일: ${primaryDday['startDate']}');
             print('종료일: ${primaryDday['endDate']}');
+            print('남은날짜: ${primaryDday['remainingDays']}');
+            print('기간: ${primaryDday['durationDays']}');
+
 
             // 같은 ID를 가진 디데이를 리스트에서 제거
             upComingDdays = upComingDdays.where((item) => item['ddayId'] != primaryDday['ddayId']).toList();
@@ -77,7 +77,9 @@ class DdayPageState extends State<DdayPage> {
               'ddayId': primaryDday['ddayId'] ?? '', // null 처리
               'ddayName': primaryDday['ddayName'] ?? 'Unknown', // null 처리
               'startDate': primaryDday['startDate'] ?? '', // null 처리
-              'endDate': primaryDday['endDate'] ?? '', // null 처리
+              'endDate': primaryDday['endDate'] ?? '',
+              'remainingDays': primaryDday['remainingDays'] ?? '',
+              'durationDays': primaryDday['durationDays'] ?? '',// null 처리
               'isPrimary': true, // 대표 디데이 여부를 표시할 수 있는 플래그 추가
             });
           } else {
@@ -91,6 +93,8 @@ class DdayPageState extends State<DdayPage> {
             'ddayName': item['ddayName'],
             'startDate': item['startDate'],
             'endDate': item['endDate'],
+            'remainingDays' : item['remainingDays'],
+            'durationDays': item['durationDays'],
             'isPrimary': false, // 일반 디데이
           }).toList());
 
@@ -100,6 +104,8 @@ class DdayPageState extends State<DdayPage> {
             'ddayName': item['ddayName'],
             'startDate': item['startDate'],
             'endDate': item['endDate'],
+            'remainingDays' : item['remainingDays'],
+            'durationDays': item['durationDays'],
             'isPrimary': false, // 일반 디데이
           }).toList());
         });
@@ -298,7 +304,7 @@ class DdayPageState extends State<DdayPage> {
     final today = DateTime.now();
     final difference = startDate.difference(today).inDays;
     if (difference > 0) {
-      return '$difference일 남음';
+      return '$difference일 후 시작';
     }
     return null; // 오늘 날짜가 시작일을 지나면 null 반환
   }
@@ -347,20 +353,6 @@ class DdayPageState extends State<DdayPage> {
         ),
         backgroundColor: Colors.black, // AppBar 배경색 설정
       ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       body: _ddayList.isEmpty
           ? const Center(
         child: Text(
@@ -381,6 +373,8 @@ class DdayPageState extends State<DdayPage> {
           final endDate = DateTime.parse(dday['endDate']);
           final formattedStartDate = _formatDate(startDate);
           final formattedEndDate = _formatDate(endDate);
+          final durationDays= dday['durationDays'];
+          final remaningDays = dday['remaningDays'];
           final duration = _calculateDuration(startDate, endDate);
           final daysUntilStart = _calculateDaysUntilStart(startDate);
 

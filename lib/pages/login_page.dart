@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:project1/theme.dart'; // Import the theme
+import 'package:project1/theme.dart'; // 테마 파일 경로
+import 'package:project1/utils/login_api_helper.dart';
+import 'package:project1/models/login_model.dart';
 
-class UsernamePage extends StatelessWidget {
-  const UsernamePage({super.key});
+import 'main_page.dart';
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true, // 타이틀 가운데 정렬
-        title: const Text('로그인'), // AppBar 타이틀
+        centerTitle: true,
+        title: const Text('로그인'),
         actions: [
           TextButton(
             onPressed: () {
               // 완료 버튼 클릭 시 동작 추가
             },
             style: TextButton.styleFrom(
-              foregroundColor: Colors.white, padding: EdgeInsets.zero, // 기본 패딩 제거
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.zero,
             ),
             child: const Text(
               '완료',
               style: TextStyle(
-                color: AppColors.primary, // 버튼 텍스트 색상
+                color: AppColors.primary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -30,45 +37,47 @@ class UsernamePage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // 페이지 여백 추가
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // 상단 정렬
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60), // 상단에 여백 추가
+            const SizedBox(height: 60),
             Text(
               '이메일 주소',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8), // 텍스트와 텍스트필드 사이의 간격
-            const TextField(
+            const SizedBox(height: 8),
+            TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color(0xFF333333), // 텍스트 필드의 배경 색상 설정
+                fillColor: Color(0xFF333333),
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16), // 이메일 필드와 비밀번호 필드 사이의 간격
+            const SizedBox(height: 16),
             Text(
               '비밀번호 입력',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8), // 텍스트와 텍스트필드 사이의 간격
-            const TextField(
-              obscureText: true, // 비밀번호 입력 시 텍스트 숨김
+            const SizedBox(height: 8),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color(0xFF333333), // 텍스트 필드의 배경 색상 설정
+                fillColor: Color(0xFF333333),
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8), // 비밀번호 필드와 비밀번호 재설정 링크 사이의 간격
+            const SizedBox(height: 8),
             Align(
-              alignment: Alignment.centerRight, // 오른쪽 정렬
+              alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {
                   // 비밀번호 재설정 클릭 시 동작 추가
@@ -76,24 +85,49 @@ class UsernamePage extends StatelessWidget {
                 child: const Text(
                   '비밀번호 재설정',
                   style: TextStyle(
-                    color: Color(0xFF9D9D9D), // 텍스트 색상 설정
+                    color: Color(0xFF9D9D9D),
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 32), // 비밀번호 필드와 확인 버튼 사이의 간격
+            const SizedBox(height: 32),
             SizedBox(
-              width: double.infinity, // 버튼을 전체 너비로 확장
+              width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // 확인 버튼 클릭 시 동작 추가
+                onPressed: () async {
+                  LoginApiHelper apiHelper = LoginApiHelper();
+
+                  String email = emailController.text;
+                  String password = passwordController.text;
+
+                  LoginRequestModel requestModel = LoginRequestModel(
+                    email: email,
+                    password: password,
+                  );
+
+                  LoginResponseModel responseModel = await apiHelper.login(
+                    requestModel.email,
+                    requestModel.password,
+                  );
+
+                  if (responseModel.accessToken.isNotEmpty) {
+                    print('로그인 성공');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MainPage()),
+                    );
+                  } else {
+                    print('로그인 실패: ${responseModel.message}');
+                    // 실패 시 처리 (예: 에러 메시지 표시)
+                  }
+
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary, // 테마에 정의된 색상 사용
+                  backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5), // 직사각형 모양으로 변경
+                    borderRadius: BorderRadius.circular(5),
                   ),
                 ),
                 child: const Text('확인'),

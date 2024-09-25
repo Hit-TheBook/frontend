@@ -11,7 +11,7 @@ class RegisterViewModel {
     return await _authApiHelper.verifyAuthCode(email, code);
   }
 
-  Future<bool> registerUser(String email, String password, String username) async {
-    return await _authApiHelper.registerUser(email, password, username);
+  Future<bool> registerUser(String email, String password, String nickname) async {
+    return await _authApiHelper.registerUser(email, password, nickname);
   }
 }

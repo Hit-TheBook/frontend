@@ -36,11 +36,16 @@ class ResponsePrimaryDday {
   final String ddayName;
   final String message;
   final int remainingDays;
+  final int durationDays;
+  final String ddayTypeEnum;
+
   ResponsePrimaryDday({
     // 선택적 파라미터로 수정
     required this.ddayName,
     required this.message,
     required this.remainingDays,
+    required this.durationDays,
+    required this.ddayTypeEnum,
   });
 
   // JSON에서 객체로 변환하는 메서드
@@ -49,7 +54,9 @@ class ResponsePrimaryDday {
       // ddayId 추가
       ddayName: json['ddayName'],
       message: json['message'],
-      remainingDays: json['remainingDays']
+      remainingDays: json['remainingDays'],
+      durationDays:  json['durationDays'],
+      ddayTypeEnum: json['ddayTypeEnum']
     );
   }
 }
@@ -60,12 +67,15 @@ class DdayInfo {
   final int ddayId;
   final String ddayName;
   final int remainingDays;
+  final int durationDays;
   final DateTime startDate;
   final DateTime endDate;
+
 
   DdayInfo({
     required this.ddayId,
     required this.remainingDays,
+    required this.durationDays,
     required this.ddayName,
     required this.startDate,
     required this.endDate,
@@ -76,6 +86,7 @@ class DdayInfo {
       ddayId: json['ddayId'] as int,
       ddayName: json['ddayName'] as String,
       remainingDays: json['remainingDays'] as int,
+      durationDays: json['durationDays'] as int,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
     );
@@ -93,6 +104,7 @@ class ResponseDdayList {
     required this.primaryDay,
     required this.upComingDdays,
     required this.oldDdays,
+
   });
 
   factory ResponseDdayList.fromJson(Map<String, dynamic> json) {
