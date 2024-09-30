@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:project1/widgets/customfloatingactionbutton.dart';
-
+import 'package:project1/pages/time_circle_planner_page.dart';
 class PlannerPage extends StatefulWidget {
   const PlannerPage({super.key});
 
@@ -186,30 +186,25 @@ class _PlannerPageState extends State<PlannerPage> {
                 ),
               ),
               const Spacer(),
-              Container(
-                width: 60,
-                height: 22,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: ShapeDecoration(
-                  color: Color(0xFF69EDFF),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TimeCirclePlannerPage()), // TimeCirclePlanner로 이동
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF69EDFF), // 버튼 색상 설정
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                  minimumSize: Size(60, 22),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '원 시간표',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: const Text(
+                  '원시간표',
+                  style: TextStyle(color: Colors.black, fontSize: 12),
                 ),
               ),
+
             ],
           ),
           const SizedBox(height: 3),
