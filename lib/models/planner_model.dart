@@ -6,18 +6,44 @@ String formatDateTimeForJava(DateTime dateTime) {
   return formatter.format(dateTime) ;
 }
 
-class ReviewModel {
-final DateTime reviewAt;
 
+class ReviewModel {
+  final DateTime reviewAt;
+  final String? content;
+
+  ReviewModel({
+    required this.reviewAt,
+    this.content,
+  });
+
+  // 서버로 보내기 위한 JSON 변환 메서드
+  Map<String, dynamic> toJson() {
+    final data = {
+      'reviewAt': formatDateTimeForJava(reviewAt),
+    };
+    if (content != null) {
+      data['content'] = content!; // content가 있을 때만 JSON에 포함
+    }
+    return data;
+  }
+
+  // 서버에서 받아온 데이터를 모델로 변환하는 메서드
+  factory ReviewModel.fromJson(Map<String, dynamic> json) {
+    return ReviewModel(
+      reviewAt: DateTime.parse(json['reviewAt']),
+      content: json['content'],
+    );
+  }
 }
-class PlanerModel {
+
+class PlannerModel {
   final String scheduleTitle;
   final String content;
   final DateTime scheduleAt;
   final DateTime startAt;
   final DateTime endAt;
 
-  PlanerModel({
+  PlannerModel({
     required this.scheduleTitle,
     required this.content,
     required this.scheduleAt,
@@ -37,8 +63,8 @@ class PlanerModel {
   }
 
   // 서버에서 받아온 데이터를 모델로 변환하는 메서드 (필요시)
-  factory PlanerModel.fromJson(Map<String, dynamic> json) {
-    return PlanerModel(
+  factory PlannerModel.fromJson(Map<String, dynamic> json) {
+    return PlannerModel(
       scheduleTitle: json['scheduleTitle'],
       content: json['content'],
       scheduleAt: DateTime.parse(json['scheduleAt']),

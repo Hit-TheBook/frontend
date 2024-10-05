@@ -28,6 +28,7 @@ dependencies:
   stop_watch_timer: #타이머
   flutter_dotenv: ^5.0.2 #서버 ip보안
   google_fonts: ^6.2.1 #아이콘및 폰트
+  flutter_screenutil: ^5.9.3 #해상도
 
 
 dev_dependencies:
