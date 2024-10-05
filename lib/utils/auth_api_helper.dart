@@ -51,4 +51,59 @@ class AuthApiHelper {
     return response.statusCode == 200;
 
   }
+
+  Future<bool> sendResetAuthCode(String email) async {
+    final url = Uri.parse('$baseUrl/mail/forget/authorization');
+    final response = await http.post(
+      Uri.parse('$baseUrl/mail/forget/authorization'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'emailId': email}),
+    );
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+    return response.statusCode == 200;
+
+  }
+
+
+  Future<http.Response> checkPreviousPassword(String email, String password) async {
+    final url = Uri.parse('$baseUrl/forget/password/current');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'emailId': email,
+        'password': password,
+      }),
+    );
+
+    debugPrint('$email,$password');
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response; // 응답 객체를 반환
+  }
+
+
+
+  Future<bool> resetPassword(String email, String password) async {
+    final url = Uri.parse('$baseUrl/forget/password/reset');
+    final response = await http.post(
+      Uri.parse('$baseUrl/forget/password/reset'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'emailId': email,
+        'password': password,
+
+      }),
+    );
+    debugPrint('$email,$password');
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+    return response.statusCode == 200;
+
+  }
 }

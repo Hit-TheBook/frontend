@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:project1/pages/register_page.dart';
 import 'package:project1/theme.dart'; // 테마 파일 경로
 import 'package:project1/utils/login_api_helper.dart';
 import 'package:project1/models/login_model.dart';
-
 import 'main_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -11,45 +13,27 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    bool isResetPassword = false; // 비밀번호 재설정 플래그
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text('로그인'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // 완료 버튼 클릭 시 동작 추가
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.zero,
-            ),
-            child: const Text(
-              '완료',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.w), // ScreenUtil 사용
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            SizedBox(height: 60.h), // ScreenUtil 사용
             Text(
               '이메일 주소',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h), // ScreenUtil 사용
             TextField(
               controller: emailController,
               decoration: InputDecoration(
@@ -58,14 +42,14 @@ class LoginPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h), // ScreenUtil 사용
             Text(
               '비밀번호 입력',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h), // ScreenUtil 사용
             TextField(
               controller: passwordController,
               obscureText: true,
@@ -75,24 +59,30 @@ class LoginPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h), // ScreenUtil 사용
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {
-                  // 비밀번호 재설정 클릭 시 동작 추가
+                  isResetPassword = true; // 플래그를 true로 설정
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegisterPage(isResetPassword: isResetPassword),
+                    ),
+                  ); // 비밀번호 재설정 클릭 시 동작 추가
                 },
                 child: const Text(
                   '비밀번호 재설정',
                   style: TextStyle(
-                    color: Color(0xFF9D9D9D),
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h), // ScreenUtil 사용
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -122,12 +112,11 @@ class LoginPage extends StatelessWidget {
                     print('로그인 실패: ${responseModel.message}');
                     // 실패 시 처리 (예: 에러 메시지 표시)
                   }
-
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(5.r), // ScreenUtil 사용
                   ),
                 ),
                 child: const Text('확인'),

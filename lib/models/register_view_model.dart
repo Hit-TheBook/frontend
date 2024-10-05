@@ -1,3 +1,5 @@
+import 'package:http/src/response.dart';
+
 import '../utils/auth_api_helper.dart';
 
 class RegisterViewModel {
@@ -6,7 +8,15 @@ class RegisterViewModel {
   Future<bool> sendAuthCode(String email) async {
     return await _authApiHelper.sendAuthCode(email);
   }
-
+  Future<bool> sendResetAuthCode(String email) async {
+    return await _authApiHelper.sendResetAuthCode(email);
+  }
+  Future<Response> checkPreviousPassword(String email, String password) async {
+    return await _authApiHelper.checkPreviousPassword(email, password);
+  }
+  Future<bool> resetPassword(String email, String password) async {
+    return await _authApiHelper.resetPassword(email, password);
+  }
   Future<bool> verifyAuthCode(String email, String code) async {
     return await _authApiHelper.verifyAuthCode(email, code);
   }
