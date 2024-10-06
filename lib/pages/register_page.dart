@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:project1/main.dart';
+import 'package:project1/pages/login_page.dart';
 import 'package:project1/theme.dart';
 
 import 'package:project1/widgets/customdialog.dart';
@@ -61,25 +62,34 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _sendAuthCode() async {
     print('Sending auth code to: ${emailController.text}');
-    bool success = await registerViewModel.sendAuthCode(emailController.text);
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('인증번호가 발송되었습니다.')));
-      _startCountdown();
+    final response = await registerViewModel.sendAuthCode(emailController.text);
+
+    if (response.statusCode == 200) {
+      // 성공: 상태 코드 200
+      _startCountdown();  // 인증 코드 전송 후 카운트다운 시작
+    } else if (response.statusCode == 400) {
+      // 잘못된 요청: 상태 코드 400
+      _showCustomDialog(context, '이메일 확인', '잘못된 요청입니다. 이메일 주소를 다시 한번 확인해주세요.');
+    } else if (response.statusCode == 445) {
+      // 중복된 이메일: 상태 코드 445
+      _showCustomDialog(context, '이메일 확인', '이미 가입된 이메일입니다');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('인증번호 발송 실패')));
+      // 그 외 다른 상태 코드 처리
+      _showCustomDialog(context, '오류', '인증 코드 전송 중 오류가 발생했습니다. 상태 코드: ${response.statusCode}');
     }
   }
+
 
   Future<void> _sendResetAuthCode() async {
     print('Sending auth code to: ${emailController.text}');
     bool success = await registerViewModel.sendResetAuthCode(emailController.text);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('인증번호가 발송되었습니다.')));
+
       _startCountdown();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이메일을 다시 한 번 확인해주세요.')));
+      _showCustomDialog(context, '이메일 확인', '이메일 주소를 다시 한번 확인해주세요.');
     }
   }
 
@@ -89,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     bool verified = await registerViewModel.verifyAuthCode(email, code);
     if (verified) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('인증번호 확인 완료')));
+
       setState(() {
         _isCodeVerified = true;
         _isCountdownActive = false; // Stop the countdown timer
@@ -99,13 +109,13 @@ class _RegisterPageState extends State<RegisterPage> {
         _countdownTimer!.cancel(); // Cancel the timer
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('인증번호가 올바르지 않습니다.')));
+      _showCustomDialog(context, '인증번호 안내', '알맞지 않은 인증번호 입니다.');
     }
   }
 
   Future<void> _registerUser() async {
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('비밀번호가 일치하지 않습니다.')));
+      _showCustomDialog(context, '비밀번호 확인 안내', '비밀번호가 일치하지않습니다.');
       return;
     }
 
@@ -116,10 +126,16 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (registered) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('회원가입 성공')));
-      Navigator.pushReplacement(
+      _showCustomDialog(
         context,
-        MaterialPageRoute(builder: (context) => const Main()), // Change to LoginPage for completion
+        '시작하기 안내',
+        '정상적으로 회원가입이 완료되었습니다.',
+        onConfirm: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()), // 원하는 페이지로 이동
+          );
+        },
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('회원가입 실패')));
@@ -134,20 +150,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (resetPassword) {
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('비밀번호 재설정 완료')));
-      Navigator.pushReplacement(
+      _showCustomDialog(
         context,
-        MaterialPageRoute(builder: (context) => const Main()), // Change to LoginPage for completion
+        '비밀번호 재설정 안내',
+        '비밀번호가 정상적으로 재설정되었습니다.',
+        onConfirm: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()), // 원하는 페이지로 이동
+          );
+        },
       );
+
     } else {
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('비밀번호 재설정 실패')));
+      _showCustomDialog(context, '비밀번호 재설정 안내', '비밀번호 재설정 실패');
     }
   }
 
   Future<void> _checkPreviousPassword() async {
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('비밀번호가 일치하지 않습니다.')));
+      _showCustomDialog(context, '비밀번호 확인 안내', '비밀번호가 일치하지않습니다.');
       return;
     }
 
@@ -166,32 +189,10 @@ class _RegisterPageState extends State<RegisterPage> {
      // _showPasswordResetDialog(context); // 서버 오류 처리
     //}
     else {
-      _showPasswordResetDialog(context);
+      _showCustomDialog(context, '비밀번호 재설정 실패', '이전 비밀번호와 동일한 비밀번호를 사용할 수 없습니다.');
     }
   }
 
-
-
-  void _showPasswordResetDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomDialog(
-          title: '비밀번호 재설정 안내',
-          content: Column(
-            mainAxisSize: MainAxisSize.min, // 내용에 맞춰 Column 크기를 설정
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('이전 비밀번호와 동일한 비밀번호를 다시 사용할 수 없습니다.'),
-            ],
-          ),
-          onConfirm: () {
-            Navigator.of(context).pop(); // 다이얼로그 닫기
-          },
-        );
-      },
-    );
-  }
 
   void _startCountdown() {
     if (_countdownTimer != null) {
@@ -210,7 +211,7 @@ class _RegisterPageState extends State<RegisterPage> {
           _isCountdownActive = false;
           _isCountdownVisible = false; // Hide countdown and label on timeout
         });
-        _showCustomDialog(context); // Show timeout dialog when countdown ends
+        _showCustomDialog(context,'인증번호 안내', '인증 시간이 만료되었습니다. 인증번호 재발급이 필요합니다.'); // Show timeout dialog when countdown ends
         return;
       }
       setState(() {
@@ -225,28 +226,35 @@ class _RegisterPageState extends State<RegisterPage> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void _showCustomDialog(BuildContext context) {
+
+
+
+  void _showCustomDialog(BuildContext context, String title, String content, {VoidCallback? onConfirm}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
-          title: '인증번호 안내',
+          title: title,
           content: Column(
-            mainAxisSize: MainAxisSize.min, // 내용에 맞춰 Column 크기를 설정
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('인증 시간이 만료되었습니다.'),
-              SizedBox(height: 8), // 텍스트 사이에 공간 추가
-              Text('인증번호 재발급이 필요합니다.'),
+              Text(content),
+              SizedBox(height: 8),
             ],
           ),
           onConfirm: () {
-            Navigator.of(context).pop(); // 다이얼로그 닫기
+            if (onConfirm != null) {
+              onConfirm(); // onConfirm 콜백이 있을 경우 실행
+            } else {
+              Navigator.of(context).pop(); // onConfirm이 없으면 다이얼로그만 닫기
+            }
           },
         );
       },
     );
   }
+
 
 
 
@@ -437,10 +445,10 @@ class _RegisterPageState extends State<RegisterPage> {
               onPressed: () {
                 if (widget.isResetPassword) {
                   // 비밀번호 재설정 관련 메소드 호출
-                  _checkPreviousPassword();
+                  _isCodeVerified ?_checkPreviousPassword(): null;
                 } else {
                   // 일반 등록 관련 메소드 호출
-                  _isCodeVerified ? _registerUser : null;//인증 완료시만 _registerUser 호출
+                  _isCodeVerified ? _registerUser() : null;//인증 완료시만 _registerUser 호출
                 }
               },
 

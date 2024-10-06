@@ -5,7 +5,7 @@ import 'dart:convert';
 class AuthApiHelper {
   final String baseUrl = 'http://13.209.78.125';
 
-  Future<bool> sendAuthCode(String email) async {
+  Future<http.Response> sendAuthCode(String email) async {
     final url = Uri.parse('$baseUrl/mail/join/authorization');
     final response = await http.post(
       Uri.parse('$baseUrl/mail/join/authorization'),
@@ -15,7 +15,7 @@ class AuthApiHelper {
     debugPrint('POST $url');
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
-    return response.statusCode == 200;
+    return response;
 
   }
 

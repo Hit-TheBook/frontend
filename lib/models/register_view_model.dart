@@ -5,7 +5,7 @@ import '../utils/auth_api_helper.dart';
 class RegisterViewModel {
   final AuthApiHelper _authApiHelper = AuthApiHelper();
 
-  Future<bool> sendAuthCode(String email) async {
+  Future<Response> sendAuthCode(String email) async {
     return await _authApiHelper.sendAuthCode(email);
   }
   Future<bool> sendResetAuthCode(String email) async {

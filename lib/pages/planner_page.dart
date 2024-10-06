@@ -34,9 +34,9 @@ class _PlannerPageState extends State<PlannerPage> {
       _controller.text = reviewContent;
     } else {
       // 에러 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('리뷰를 불러오는 데 실패했습니다.')),
-      );
+      //ScaffoldMessenger.of(context).showSnackBar(
+        //const SnackBar(content: Text('리뷰를 불러오는 데 실패했습니다.')),
+      //);
     }
   }
 
@@ -422,6 +422,7 @@ class _PlannerPageState extends State<PlannerPage> {
                   ),
                   _buildTimetableRow("am 10:00", "am 11:00", "아아아아아아아아아아아아아아아", "아아아아아아아아아아아아아아아아아", true),
                   _buildTimetableRow("pm 11:00", "pm 12:00", "과목2", "내용2", false),
+                  _buildTimetableRow("am 10:00", "am 11:00", "아아아아아아아아아아아아아아아", "아아아아아아아아아아아아아아아아아", true),
                   // 추가로 더 많은 데이터 행을 필요에 맞게 추가하세요.
                 ],
               ),
