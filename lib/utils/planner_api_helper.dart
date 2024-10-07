@@ -87,4 +87,26 @@ class PlannerApiHelper {
     return response;
 
   }
+
+  static Future<http.Response> findPlanner(ScheduleRequestModel requestModel) async {
+    final formattedDate = formatDateTimeForJava(requestModel.scheduleDate); // ISO 8601 형식으로 변환
+    final url = Uri.parse('$baseUrl/planner/schdule/${requestModel.scheduleType}/$formattedDate');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $temporaryToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    debugPrint('GET $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response;
+  }
+
+
+
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:project1/pages/planner_detail_page.dart';
 import 'package:project1/widgets/customfloatingactionbutton.dart';
 import 'package:project1/pages/time_circle_planner_page.dart';
@@ -21,7 +22,14 @@ class _PlannerPageState extends State<PlannerPage> {
   bool isStudying = true; // 공부 버튼 활성화 상태
   final FocusNode _textFieldFocusNode = FocusNode(); // FocusNode 추가
   bool isScheduleButtonPressed = false; // 일정 버튼 상태 변수
+  List<dynamic> plannerData = []; // 플래너 데이터를 저장할 리스트
 
+
+  String formatDateTimeForJava(DateTime dateTime) {
+    DateTime utcDateTime = dateTime.toUtc(); // UTC로 변환
+    final DateFormat formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // 포맷 설정
+    return formatter.format(utcDateTime); // UTC 시간으로 포맷팅
+  }
 
   Future<void> _loadReview() async {
     DateTime currentDateTime = DateTime.now();
@@ -40,6 +48,31 @@ class _PlannerPageState extends State<PlannerPage> {
     }
   }
 
+  Future<void> _loadPlanner() async {
+    String scheduleType = isScheduleButtonPressed ? 'EVENT' : 'SUBJECT';
+
+    // ScheduleRequestModel 인스턴스 생성
+    ScheduleRequestModel requestModel = ScheduleRequestModel(
+      scheduleType: scheduleType,
+      scheduleDate: _selectedDate,
+    );
+
+    // 모델을 사용하여 데이터를 요청
+    final response = await PlannerApiHelper.findPlanner(requestModel);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        final responseBody = jsonDecode(response.body);
+        plannerData = responseBody['schedules'];  // 서버에서 받아온 데이터를 상태에 저장
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('플래너 데이터를 불러오는 데 실패했습니다.')),
+      );
+    }
+  }
+
+
 
   void _selectDate(BuildContext context) async {
     final DateTime? picked = await showCupertinoModalPopup<DateTime>(
@@ -55,6 +88,8 @@ class _PlannerPageState extends State<PlannerPage> {
               setState(() {
                 _selectedDate = newDate;
               });
+              // 날짜가 변경될 때마다 플래너 데이터를 로드합니다.
+              _loadPlanner();
             },
           ),
         );
@@ -65,6 +100,8 @@ class _PlannerPageState extends State<PlannerPage> {
       setState(() {
         _selectedDate = picked;
       });
+      // 날짜가 변경될 때마다 플래너 데이터를 로드합니다.
+      _loadPlanner();
     }
   }
 
@@ -128,6 +165,7 @@ class _PlannerPageState extends State<PlannerPage> {
   void initState() {
     super.initState();
     _loadReview(); // 페이지 초기화 시 리뷰 로드
+    _loadPlanner(); // 페이지 초기화 시 플래너 데이터 로드
     _textFieldFocusNode.addListener(_onFocusChange); // FocusNode 리스너 추가
   }
 
@@ -228,6 +266,8 @@ class _PlannerPageState extends State<PlannerPage> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
+                    _loadPlanner();
+                    _loadPlanner();
                     setState(() {
                       isStudying = true; // 공부 버튼 활성화
                       isScheduleButtonPressed = false; // 공부 버튼 눌렀을 때 상태 업데이트
@@ -247,6 +287,8 @@ class _PlannerPageState extends State<PlannerPage> {
                 const SizedBox(width: 6),
                 ElevatedButton(
                   onPressed: () {
+                    _loadPlanner();
+                    _loadPlanner();
                     setState(() {
                       isStudying = false; // 일정 버튼 활성화
                       isScheduleButtonPressed = true; // 일정 버튼 상태 업데이트
@@ -370,6 +412,7 @@ class _PlannerPageState extends State<PlannerPage> {
                 color: const Color(0xff333333),
                 borderRadius: BorderRadius.circular(15),
               ),
+
               child: Table(
                 border: TableBorder(
                   verticalInside: BorderSide(color: Colors.black54, width: 2),
@@ -420,14 +463,34 @@ class _PlannerPageState extends State<PlannerPage> {
                       ),
                     ],
                   ),
-                  _buildTimetableRow("am 10:00", "am 11:00", "아아아아아아아아아아아아아아아", "아아아아아아아아아아아아아아아아아", true),
-                  _buildTimetableRow("pm 11:00", "pm 12:00", "과목2", "내용2", false),
-                  _buildTimetableRow("am 10:00", "am 11:00", "아아아아아아아아아아아아아아아", "아아아아아아아아아아아아아아아아아", true),
-                  // 추가로 더 많은 데이터 행을 필요에 맞게 추가하세요.
+
+                  // plannerData가 null일 때 기본 힌트를 표시
+                  ...plannerData.map((schedule) {
+                    // startAt과 endAt을 적절히 포맷팅, null 체크 추가
+                    DateTime startAt = schedule['startAt'] != null
+                        ? DateTime.parse(schedule['startAt'])
+                        : DateTime.now(); // 기본값으로 현재 시간 사용
+                    DateTime endAt = schedule['endAt'] != null
+                        ? DateTime.parse(schedule['endAt'])
+                        : DateTime.now(); // 기본값으로 현재 시간 사용
+
+                    String formattedStartTime = DateFormat.jm().format(startAt); // am/pm 형식으로 포맷
+                    String formattedEndTime = DateFormat.jm().format(endAt);
+
+                    return _buildTimetableRow(
+                      formattedStartTime,
+                      formattedEndTime,
+                      schedule['scheduleTitle'] ?? '제목 없음', // 주제, null일 경우 기본값 설정
+                      schedule['content'] ?? '내용 없음', // 내용, null일 경우 기본값 설정
+                      schedule['feedbackType'] == "DONE", // 달성 여부
+                    );
+                  }).toList(),
+
                 ],
+
               ),
             ),
-          ],
+        ]
         ),
         floatingActionButton: CustomFloatingActionButton(
           onPressed: () {

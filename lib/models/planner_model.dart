@@ -49,6 +49,7 @@ class PlannerModel {
     required this.scheduleAt,
     required this.startAt,
     required this.endAt,
+
   });
 
   // 서버로 보내기 위한 JSON 형태로 변환하는 메서드
@@ -59,6 +60,7 @@ class PlannerModel {
       'scheduleAt': formatDateTimeForJava(scheduleAt),
       'startAt': formatDateTimeForJava(startAt),
       'endAt': formatDateTimeForJava(endAt),
+
     };
   }
 
@@ -70,6 +72,36 @@ class PlannerModel {
       scheduleAt: DateTime.parse(json['scheduleAt']),
       startAt: DateTime.parse(json['startAt']),
       endAt: DateTime.parse(json['endAt']),
+
+    );
+  }
+
+
+}
+
+class ScheduleRequestModel {
+  final String scheduleType;
+  final DateTime scheduleDate;
+
+  ScheduleRequestModel({
+    required this.scheduleType,
+    required this.scheduleDate,
+  });
+
+  // 서버로 보내기 위한 JSON 형태로 변환하는 메서드
+  Map<String, dynamic> toJson() {
+    return {
+      'scheduleType': scheduleType,
+      'scheduleDate': formatDateTimeForJava(scheduleDate), // DateTime을 ISO 8601 형식으로 변환
+    };
+  }
+
+  // 서버에서 받아온 데이터를 모델로 변환하는 메서드 (필요시)
+  factory ScheduleRequestModel.fromJson(Map<String, dynamic> json) {
+    return ScheduleRequestModel(
+      scheduleType: json['scheduleType'],
+      scheduleDate: DateTime.parse(json['scheduleDate']),
     );
   }
 }
+
