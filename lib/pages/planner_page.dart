@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:project1/widgets/feedback_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +8,7 @@ import 'package:project1/widgets/customfloatingactionbutton.dart';
 import 'package:project1/pages/time_circle_planner_page.dart';
 import 'package:project1/utils/planner_api_helper.dart';
 import '../models/planner_model.dart';
+
 
 class PlannerPage extends StatefulWidget {
   const PlannerPage({super.key});
@@ -105,7 +106,7 @@ class _PlannerPageState extends State<PlannerPage> {
     }
   }
 
-  TableRow _buildTimetableRow(String startTime, String endTime, String subject, String content, bool achieved) {
+  TableRow _buildTimetableRow(String startTime, String endTime, String subject, String content,String feedbackType ) {
     return TableRow(
       children: [
         Container(
@@ -148,17 +149,68 @@ class _PlannerPageState extends State<PlannerPage> {
             style: TextStyle(color: Colors.white, fontSize: 12),
           ),
         ),
-        Container(
+          InkWell( // 여기서 InkWell을 사용
+          onTap: () {
+            _showFeedbackTypeDialog();// 클릭했을 때의 행동 정의
+    // 예: 피드백 타입에 따라 다른 페이지로 이동하거나 다이얼로그를 보여줌
+    print("Feedback Type: $feedbackType clicked");
+    // 필요한 행동을 추가할 수 있습니다.
+    },
+    child : Container(
           height: 60,
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
-          child: Icon(
-            achieved ? Icons.check_circle : Icons.cancel,
-            color: achieved ? Colors.green : Colors.red,
-          ),
+          child: _getFeedbackIcon(feedbackType), // 아이콘을 가져오는 함수 호출
         ),
+          ),
       ],
     );
+  }
+  void _showFeedbackTypeDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return FeedbackTypeDialog(
+          onSelected: (String feedbackType) {
+            print('선택된 피드백 타입: $feedbackType');
+            // 여기에 API 호출이나 상태 업데이트 코드를 추가하세요.
+          },
+        );
+      },
+    );
+  }
+
+
+  Widget _getFeedbackIcon(String feedbackType) {
+    switch (feedbackType) {
+      case "DONE":
+        return Icon(
+          Icons.circle, // Ellipse 13에 해당하는 아이콘 (동그라미)
+          color: Colors.green,
+        );
+      case "PARTIAL":
+        return Icon(
+          Icons.change_history, // Polygon 1에 해당하는 아이콘 (삼각형)
+          color: Colors.orange,
+        );
+      case "FAILED":
+        return Icon(
+          Icons.arrow_forward, // Arrow 62에 해당하는 아이콘 (화살표)
+          color: Colors.yellow,
+        );
+      case "POSTPONED":
+        return Icon(
+          Icons.close, // X 아이콘
+          color: Colors.red,
+        );
+      case "NONE":
+      default:
+        return Icon(
+          Icons.remove_circle, // 기본값으로 사용할 아이콘
+          color: Colors.grey,
+        );
+    }
   }
 
   @override
@@ -232,7 +284,7 @@ class _PlannerPageState extends State<PlannerPage> {
               children: [
                 GestureDetector(
                   child: Container(
-                    width: 95,
+                    width: 100,
                     height: 24,
                     alignment: Alignment.center,
                     margin: const EdgeInsets.only(top: 5.0, right: 0.0),
@@ -266,12 +318,13 @@ class _PlannerPageState extends State<PlannerPage> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
-                    _loadPlanner();
-                    _loadPlanner();
+
+
                     setState(() {
                       isStudying = true; // 공부 버튼 활성화
                       isScheduleButtonPressed = false; // 공부 버튼 눌렀을 때 상태 업데이트
                     });
+                    _loadPlanner();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isStudying ? Color(0xFF69EDFF) : Color(0xFF9D9D9D), // 버튼 색상 설정
@@ -287,12 +340,12 @@ class _PlannerPageState extends State<PlannerPage> {
                 const SizedBox(width: 6),
                 ElevatedButton(
                   onPressed: () {
-                    _loadPlanner();
-                    _loadPlanner();
+
                     setState(() {
                       isStudying = false; // 일정 버튼 활성화
                       isScheduleButtonPressed = true; // 일정 버튼 상태 업데이트
                     });
+                    _loadPlanner();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isStudying ? Color(0xFF9D9D9D) : Color(0xFF69EDFF), // 버튼 색상 설정
@@ -474,15 +527,16 @@ class _PlannerPageState extends State<PlannerPage> {
                         ? DateTime.parse(schedule['endAt'])
                         : DateTime.now(); // 기본값으로 현재 시간 사용
 
-                    String formattedStartTime = DateFormat.jm().format(startAt); // am/pm 형식으로 포맷
-                    String formattedEndTime = DateFormat.jm().format(endAt);
+                    String formattedStartTime = DateFormat('a h:mm').format(startAt); // 'AM/PM 시:분' 형식으로 포맷
+                    String formattedEndTime = DateFormat('a h:mm').format(endAt); // 'AM/PM 시:분' 형식으로 포맷
+
 
                     return _buildTimetableRow(
                       formattedStartTime,
                       formattedEndTime,
                       schedule['scheduleTitle'] ?? '제목 없음', // 주제, null일 경우 기본값 설정
                       schedule['content'] ?? '내용 없음', // 내용, null일 경우 기본값 설정
-                      schedule['feedbackType'] == "DONE", // 달성 여부
+                      schedule['feedbackType'] ?? 'NONE', // feedbackType, null일 경우 기본값 설정
                     );
                   }).toList(),
 
