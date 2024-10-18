@@ -297,6 +297,59 @@ class PlannerApiHelper {
     return response;
   }
 
+  Future<http.Response> updateFeedbackType(int plannerScheduleId, FeedbackRequest model) async {
+    final String endpoint = 'planner/schedule/$plannerScheduleId';
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    // 저장된 액세스 토큰 가져오기
+    String? accessToken = await storage.read(key: 'accessToken');
+    if (accessToken == null) {
+      throw Exception('No access token found');
+    }
+
+    // API 요청 함수
+    Future<http.Response> sendRequest(String token) async {
+      final response = await http.patch( // HTTP 메소드를 PATCH로 변경
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(model.toJson()), // 모델을 JSON으로 변환하여 전송
+      );
+
+      // 디버깅 출력
+      debugPrint('Request data: ${model.toJson()}');
+      debugPrint('PATCH $url');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      return response;
+    }
+
+    // API 호출 및 응답 처리
+    http.Response response = await sendRequest(accessToken);
+
+    // 액세스 토큰이 만료된 경우(401 Unauthorized)
+    if (response.statusCode == 401) {
+      try {
+        // 리프레시 토큰을 사용해 액세스 토큰 갱신
+        final refreshTokenResponse = await refreshTokenHelper.refreshToken();
+
+        // 새로운 토큰으로 API 요청 다시 시도
+        response = await sendRequest(refreshTokenResponse.accessToken);
+      } catch (e) {
+        throw Exception('Failed to refresh token: $e');
+      }
+    }
+
+    // 성공적인 응답이 아닌 경우 에러 처리
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update feedback type: ${response.body}');
+    }
+
+    return response; // 최종 응답 반환
+  }
 
 
 }

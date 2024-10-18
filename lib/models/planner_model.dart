@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:intl/intl.dart';
 
 String formatDateTimeForJava(DateTime dateTime) {
@@ -153,3 +155,57 @@ class TimeTableResponseModel {
     );
   }
 }
+class FeedbackRequest {
+  final String scheduleType; // 피드백 타입
+  final int plannerScheduleId; // 일정 ID
+
+  FeedbackRequest({required this.scheduleType, required this.plannerScheduleId});
+
+  Map<String, dynamic> toJson() => {
+    'scheduleType': scheduleType,
+    'plannerScheduleId': plannerScheduleId,
+  };
+}
+
+class FeedbackResponse {
+  final String result; // 요청 결과
+
+  FeedbackResponse({required this.result});
+
+  factory FeedbackResponse.fromJson(Map<String, dynamic> json) {
+    return FeedbackResponse(
+      result: json['result'],
+    );
+  }
+}
+class ScheduleModel {
+  final int plannerScheduleId; // 스케줄 ID
+  final String scheduleTitle;
+  final String content;
+  final DateTime startAt;
+  final DateTime endAt;
+  final String feedbackType;
+
+  ScheduleModel({
+    required this.plannerScheduleId, // 필수로 추가
+    required this.scheduleTitle,
+    required this.content,
+    required this.startAt,
+    required this.endAt,
+    required this.feedbackType,
+  });
+
+  factory ScheduleModel.fromJson(Map<String, dynamic> json) {
+    return ScheduleModel(
+      plannerScheduleId: json['plannerScheduleId'], // JSON에서 ID를 가져오기
+      scheduleTitle: json['scheduleTitle'],
+      content: json['content'],
+      startAt: DateTime.parse(json['startAt']),
+      endAt: DateTime.parse(json['endAt']),
+      feedbackType: json['feedbackType'],
+    );
+  }
+}
+
+
+

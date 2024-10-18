@@ -8,6 +8,7 @@ import 'package:project1/utils/refresh_token_api_helper.dart'; // 이 파일의 
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -47,9 +48,9 @@ class MainContent extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)), // 왼쪽 메뉴버튼
-        title: const Text('사용자 이름'), // 타이틀
+        title: const Text('Hit The Book'), // 타이틀
         centerTitle: false, // 타이틀 텍스트 위치
-        shape: const Border(bottom: BorderSide(color: Colors.grey, width: 1)), //상단바 하단줄
+        shape: const Border(bottom: BorderSide(color: Colors.grey, width: 1)), // 상단바 하단줄
         actions: [
           // 우측의 액션 버튼들
           IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.edit2)),
@@ -58,26 +59,69 @@ class MainContent extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            RefreshTokenApiHelper apiHelper = RefreshTokenApiHelper();
+        child: Column( // Column 위젯으로 변경
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                RefreshTokenApiHelper apiHelper = RefreshTokenApiHelper();
 
-            try {
-              final response = await apiHelper.refreshToken();
-              // 응답 처리
-              print('새로운 Access Token: ${response.accessToken}');
-              print('새로운 Refresh Token: ${response.refreshToken}');
-            } catch (e) {
-              print('토큰 갱신 실패: $e');
-            }
-          },
-          child: const Text('리프레시 토큰 테스트'),
+                try {
+                  final response = await apiHelper.refreshToken();
+                  // 응답 처리
+                  print('새로운 Access Token: ${response.accessToken}');
+                  print('새로운 Refresh Token: ${response.refreshToken}');
+                } catch (e) {
+                  print('토큰 갱신 실패: $e');
+                }
+              },
+              child: const Text('리프레시 토큰 테스트'),
+            ),
+            const SizedBox(height: 20), // 버튼 사이의 간격
+            ElevatedButton(
+              onPressed: () {
+                // 탈퇴하기 버튼 클릭 시 처리할 내용
+                _showConfirmationDialog(context);
+              },
+              child: const Text('탈퇴하기'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red), // 버튼 색상 변경
+            ),
+          ],
         ),
       ),
+    );
+  }
 
+  // 탈퇴 확인 다이얼로그
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('탈퇴 확인'),
+          content: const Text('정말로 탈퇴하시겠습니까?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                // 탈퇴 로직 구현
+                print('탈퇴가 완료되었습니다.');
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: const Text('탈퇴하기', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
+
 
 // void main() {
 //   runApp(const MyApp());

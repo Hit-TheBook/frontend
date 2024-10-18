@@ -2,10 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+
+
 class FeedbackTypeDialog extends StatelessWidget {
   final Function(String) onSelected;
+  final String scheduleTitle;
+  final String content;
+  final String feedbackType;
+  final DateTime startAt;
+  final DateTime endAt;
 
-  const FeedbackTypeDialog({Key? key, required this.onSelected}) : super(key: key);
+  const FeedbackTypeDialog({
+    Key? key,
+    required this.onSelected,
+    required this.scheduleTitle,
+    required this.content,
+    required this.feedbackType,
+    required this.startAt,
+    required this.endAt,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +91,7 @@ class FeedbackTypeDialog extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 5.w), // 수평 패딩 설정
                     alignment: Alignment.center, // 세로 및 가로 중앙 정렬
                     child: Text(
-                      'am 8:13\n~\npm 10:00',
+                      '${startAt.toLocal()}\n~\n${endAt.toLocal()}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
@@ -105,7 +120,7 @@ class FeedbackTypeDialog extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7.50.h), // 패딩 설정
                     alignment: Alignment.center, // 수직 및 수평 중앙 정렬
                     child: Text(
-                      '화학I',
+                      scheduleTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
@@ -135,7 +150,7 @@ class FeedbackTypeDialog extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 5.w), // 수평 패딩 설정
                       alignment: Alignment.center, // 세로 및 가로 중앙 정렬
                       child: Text(
-                        '수능특강 p30~31 풀기(맞힌 문제 제외하고 풀기)',
+                        content,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 12.sp, // 글꼴 크기 설정

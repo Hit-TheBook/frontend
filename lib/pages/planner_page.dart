@@ -108,7 +108,7 @@ class _PlannerPageState extends State<PlannerPage> {
     }
   }
 
-  TableRow _buildTimetableRow(String startTime, String endTime, String subject, String content,String feedbackType ) {
+  TableRow _buildTimetableRow(String startTime, String endTime, String subject, String content,String feedbackType,Map<String, dynamic> schedule, DateTime startAt,DateTime endAt ) {
     return TableRow(
       children: [
         Container(
@@ -153,10 +153,15 @@ class _PlannerPageState extends State<PlannerPage> {
         ),
         InkWell( // 여기서 InkWell을 사용
           onTap: () {
-            _showFeedbackTypeDialog();// 클릭했을 때의 행동 정의
-            // 예: 피드백 타입에 따라 다른 페이지로 이동하거나 다이얼로그를 보여줌
-            print("Feedback Type: $feedbackType clicked");
-            // 필요한 행동을 추가할 수 있습니다.
+            // plannerData에서 가져온 값으로 다이얼로그 호출
+            _showFeedbackTypeDialog(
+              plannerScheduleId: schedule['plannerScheduleId'], // 스케줄 ID
+              scheduleTitle: schedule['scheduleTitle'],
+              content: schedule['content'],
+              feedbackType: schedule['feedbackType'],
+              startAt: startAt,
+              endAt: endAt,
+            );
           },
           child : Container(
             height: 60,
@@ -168,20 +173,34 @@ class _PlannerPageState extends State<PlannerPage> {
       ],
     );
   }
-  void _showFeedbackTypeDialog() {
+  void _showFeedbackTypeDialog({
+    required int plannerScheduleId,
+    required String scheduleTitle,
+    required String content,
+    required String feedbackType,
+    required DateTime startAt,
+    required DateTime endAt,
+  }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return FeedbackTypeDialog(
-          onSelected: (String feedbackType) {
-            print('선택된 피드백 타입: $feedbackType');
-            // 여기에 API 호출이나 상태 업데이트 코드를 추가하세요.
+          onSelected: (selectedFeedbackType) {
+            // 피드백 타입을 저장하기 위해 API 호출
+            //_updateFeedbackType(plannerScheduleId, selectedFeedbackType);
           },
+          scheduleTitle: scheduleTitle,
+          content: content,
+          feedbackType: feedbackType,
+          startAt: startAt,
+          endAt: endAt,
         );
       },
     );
   }
+
+
+
 
 
   Widget _getFeedbackIcon(String feedbackType) {
@@ -527,26 +546,24 @@ class _PlannerPageState extends State<PlannerPage> {
 
                     // plannerData가 null일 때 기본 힌트를 표시
                     ...plannerData.map((schedule) {
-                      // startAt과 endAt을 적절히 포맷팅, null 체크 추가
-                      DateTime startAt = schedule['startAt'] != null
-                          ? DateTime.parse(schedule['startAt'])
-                          : DateTime.now(); // 기본값으로 현재 시간 사용
-                      DateTime endAt = schedule['endAt'] != null
-                          ? DateTime.parse(schedule['endAt'])
-                          : DateTime.now(); // 기본값으로 현재 시간 사용
-
-                      String formattedStartTime = DateFormat('a h:mm').format(startAt); // 'AM/PM 시:분' 형식으로 포맷
-                      String formattedEndTime = DateFormat('a h:mm').format(endAt); // 'AM/PM 시:분' 형식으로 포맷
-
+                      DateTime startAt = schedule['startAt'] != null ? DateTime.parse(schedule['startAt']) : DateTime.now();
+                      DateTime endAt = schedule['endAt'] != null ? DateTime.parse(schedule['endAt']) : DateTime.now();
+                      String formattedStartTime = DateFormat('a h:mm').format(startAt);
+                      String formattedEndTime = DateFormat('a h:mm').format(endAt);
 
                       return _buildTimetableRow(
                         formattedStartTime,
                         formattedEndTime,
-                        schedule['scheduleTitle'] ?? '제목 없음', // 주제, null일 경우 기본값 설정
-                        schedule['content'] ?? '내용 없음', // 내용, null일 경우 기본값 설정
-                        schedule['feedbackType'] ?? 'NONE', // feedbackType, null일 경우 기본값 설정
+                        schedule['scheduleTitle'] ?? '제목 없음',
+                        schedule['content'] ?? '내용 없음',
+                        schedule['feedbackType'] ?? 'NONE',
+                        schedule, // 전체 schedule 데이터를 넘깁니다.
+                        startAt, // startAt 변수를 전달
+                        endAt,   // endAt 변수를 전달
                       );
                     }).toList(),
+
+
 
                   ],
 
