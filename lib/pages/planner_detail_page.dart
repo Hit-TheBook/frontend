@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project1/pages/planner_page.dart';
 import 'package:project1/utils/planner_api_helper.dart';
 import 'package:project1/models/planner_model.dart'; // 모델 파일
 
@@ -50,6 +51,10 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
               // 완료 버튼 클릭 시 동작
 
               await _savePlan();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PlannerPage()), // PlannerPage로 이동
+              );
             } : null, // 버튼이 비활성화될 때는 null 설정
             child: Text(
               '완료',
@@ -95,6 +100,10 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
   }
 
   Future<void> _savePlan() async {
+    // PlannerApiHelper의 인스턴스 생성
+    PlannerApiHelper plannerApiHelper = PlannerApiHelper();
+
+
     // PlanerModel 객체 생성
     PlannerModel model = PlannerModel(
       scheduleTitle: scheduleTitle!,
@@ -105,7 +114,7 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
     );
     String scheduleType = "EVENT";
     // API 호출
-    final response = await PlannerApiHelper.addPlanner(widget.scheduleType, model);
+    final response = await plannerApiHelper.addPlanner(widget.scheduleType, model);
 
     if (response.statusCode == 200) {
       // 성공적으로 저장된 경우
@@ -272,9 +281,10 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
                         '완료',
                         style: TextStyle(color: Colors.black),
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                        onPressed: () {
+                          Navigator.of(context).pop(); // 현재 화면을 닫고
+
+                        },
                     ),
                   ],
                 ),

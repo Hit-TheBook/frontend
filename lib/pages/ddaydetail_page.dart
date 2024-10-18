@@ -140,10 +140,12 @@ class DdaydetailPageState extends State<DdaydetailPage> {
 
       if (widget.isEditing) {
         // 수정일 때 modifyDday 호출
-        response = await ApiHelper.modifyDday(widget.ddayId!, requestDday);
+        final apiHelper = ApiHelper();
+        response = await await apiHelper.modifyDday(widget.ddayId!, requestDday);
       } else {
         // 추가일 때 addDday 호출
-        response = await ApiHelper.addDday('dday', requestDday);
+        final apiHelper = ApiHelper();
+        response = await apiHelper.addDday('dday', requestDday);
       }
 
       final responseData = jsonDecode(response.body);

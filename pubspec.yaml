@@ -17,18 +17,13 @@ dependencies:
   lottie: ^3.1.2 # 스플래쉬 애니메이션
   http: ^1.2.2 #api통신
   shared_preferences: ^2.0.6
-  kakao_flutter_sdk: ^1.9.5 # 전체 추가
-  #kakao_flutter_sdk_user: ^1.9.5 # 카카오 로그인 API 패키지
-  #kakao_flutter_sdk_share: ^1.9.5 # 카카오톡 공유 API 패키지
-  #kakao_flutter_sdk_talk: ^1.9.5 # 카카오톡 채널, 카카오톡 소셜, 카카오톡 메시지 API 패키지
-  #kakao_flutter_sdk_friend: ^1.9.5 # 피커 API 패키지
-  #kakao_flutter_sdk_navi: ^1.9.5 # 카카오내비 API 패키지
   flutter_feather_icons: ^2.0.0 # 상단바 아이콘
   intl: ^0.18.0 #날짜
   stop_watch_timer: #타이머
   flutter_dotenv: ^5.0.2 #서버 ip보안
   google_fonts: ^6.2.1 #아이콘및 폰트
   flutter_screenutil: ^5.9.3 #해상도
+  flutter_secure_storage: ^8.0.0 # 토큰
 
 
 dev_dependencies:

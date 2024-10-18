@@ -3,6 +3,7 @@ import 'package:project1/pages/register_page.dart';
 import 'package:project1/theme.dart'; // 테마 파일 경로
 import 'package:project1/utils/login_api_helper.dart';
 import 'package:project1/models/login_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -14,6 +15,8 @@ class LoginPage extends StatelessWidget {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
     bool isResetPassword = false; // 비밀번호 재설정 플래그
+    final storage = FlutterSecureStorage(); // 추가
+    LoginApiHelper apiHelper = LoginApiHelper(); // 여기서 인스턴스 생성
 
     return Scaffold(
       appBar: AppBar(
@@ -103,6 +106,13 @@ class LoginPage extends StatelessWidget {
                   );
 
                   if (responseModel.accessToken.isNotEmpty) {
+                    print('로그인 성공');
+
+                    // 저장된 토큰 확인
+                    var tokens = await apiHelper.getTokens();
+                    print('저장된 Access Token: ${tokens['accessToken']}');
+                    print('저장된 Refresh Token: ${tokens['refreshToken']}');
+
                     print('로그인 성공');
                     Navigator.pushReplacement(
                       context,

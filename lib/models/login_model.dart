@@ -15,14 +15,16 @@ class LoginRequestModel {
 }
 class LoginResponseModel {
   final String accessToken;
+  final String refreshToken;
   final String message;
 
-  LoginResponseModel({required this.accessToken, required this.message});
+  LoginResponseModel({required this.accessToken,this.refreshToken = '', required this.message});
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
       accessToken: json['accessToken'] ?? '', // accessToken이 없으면 빈 문자열
       message: json['message'] ?? '',
+      refreshToken: json['refresh_token']?? '',
     );
   }
 }

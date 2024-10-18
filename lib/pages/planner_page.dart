@@ -34,7 +34,8 @@ class _PlannerPageState extends State<PlannerPage> {
 
   Future<void> _loadReview() async {
     DateTime currentDateTime = DateTime.now();
-    final response = await PlannerApiHelper.findReview(formatDateTimeForJava(currentDateTime));
+    final plannerHelper = PlannerApiHelper();
+    final response = await plannerHelper.findReview(formatDateTimeForJava(currentDateTime));
 
     if (response.statusCode == 200) {
       // 응답에서 리뷰 내용 추출 (예: response.body에서 내용 추출)
@@ -44,7 +45,7 @@ class _PlannerPageState extends State<PlannerPage> {
     } else {
       // 에러 처리
       //ScaffoldMessenger.of(context).showSnackBar(
-        //const SnackBar(content: Text('리뷰를 불러오는 데 실패했습니다.')),
+      //const SnackBar(content: Text('리뷰를 불러오는 데 실패했습니다.')),
       //);
     }
   }
@@ -59,7 +60,8 @@ class _PlannerPageState extends State<PlannerPage> {
     );
 
     // 모델을 사용하여 데이터를 요청
-    final response = await PlannerApiHelper.findPlanner(requestModel);
+    final plannerHelper = PlannerApiHelper();
+    final response = await plannerHelper.findPlanner(requestModel);
 
     if (response.statusCode == 200) {
       setState(() {
@@ -118,15 +120,15 @@ class _PlannerPageState extends State<PlannerPage> {
             children: [
               Text(
                 startTime,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+                style: const TextStyle(color: Colors.white, fontSize: 9),
               ),
               const Text(
                 '~',
-                style: TextStyle(color: Colors.white, fontSize: 10),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
               Text(
                 endTime,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+                style: const TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
@@ -149,20 +151,20 @@ class _PlannerPageState extends State<PlannerPage> {
             style: TextStyle(color: Colors.white, fontSize: 12),
           ),
         ),
-          InkWell( // 여기서 InkWell을 사용
+        InkWell( // 여기서 InkWell을 사용
           onTap: () {
             _showFeedbackTypeDialog();// 클릭했을 때의 행동 정의
-    // 예: 피드백 타입에 따라 다른 페이지로 이동하거나 다이얼로그를 보여줌
-    print("Feedback Type: $feedbackType clicked");
-    // 필요한 행동을 추가할 수 있습니다.
-    },
-    child : Container(
-          height: 60,
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.center,
-          child: _getFeedbackIcon(feedbackType), // 아이콘을 가져오는 함수 호출
-        ),
+            // 예: 피드백 타입에 따라 다른 페이지로 이동하거나 다이얼로그를 보여줌
+            print("Feedback Type: $feedbackType clicked");
+            // 필요한 행동을 추가할 수 있습니다.
+          },
+          child : Container(
+            height: 60,
+            padding: const EdgeInsets.all(8.0),
+            alignment: Alignment.center,
+            child: _getFeedbackIcon(feedbackType), // 아이콘을 가져오는 함수 호출
           ),
+        ),
       ],
     );
   }
@@ -240,7 +242,8 @@ class _PlannerPageState extends State<PlannerPage> {
     );
 
     // API 호출 (예: modifyReview 메서드 호출)
-    final response = await PlannerApiHelper.modifyReview(formatDateTimeForJava(currentDateTime), _controller.text);
+    final plannerHelper = PlannerApiHelper();
+    final response = await plannerHelper.modifyReview(formatDateTimeForJava(currentDateTime), _controller.text);
 
     // 응답 처리
     if (response.statusCode == 200) {
@@ -277,274 +280,280 @@ class _PlannerPageState extends State<PlannerPage> {
           title: const Text('플래너'),
           centerTitle: true,
         ),
-        body: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  child: Container(
-                    width: 100,
-                    height: 24,
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 5.0, right: 0.0),
-                    child: Text(
-                      formattedDate,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+        body: SingleChildScrollView(
+          child:Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      width: 100,
+                      height: 24,
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.only(top: 5.0, right: 0.0),
+                      child: Text(
+                        formattedDate,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0, left: 0.0), // 원하는 만큼 위쪽 여백 조정
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context), // 아이콘 클릭 시 날짜 선택 모달
+                      child: Icon(
+                        Icons.expand_more,
+                        size: 24,
                         color: Colors.white,
-                        fontSize: 12,
                       ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+
+
+                      setState(() {
+                        isStudying = true; // 공부 버튼 활성화
+                        isScheduleButtonPressed = false; // 공부 버튼 눌렀을 때 상태 업데이트
+                      });
+                      _loadPlanner();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isStudying ? Color(0xFF69EDFF) : Color(0xFF9D9D9D), // 버튼 색상 설정
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      minimumSize: Size(50, 22),
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    ),
+                    child: const Text(
+                      '공부',
+                      style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  ElevatedButton(
+                    onPressed: () {
+
+                      setState(() {
+                        isStudying = false; // 일정 버튼 활성화
+                        isScheduleButtonPressed = true; // 일정 버튼 상태 업데이트
+                      });
+                      _loadPlanner();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isStudying ? Color(0xFF9D9D9D) : Color(0xFF69EDFF), // 버튼 색상 설정
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      minimumSize: Size(50, 22),
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    ),
+                    child: const Text(
+                      '일정',
+                      style: TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TimeCirclePlannerPage()), // TimeCirclePlanner로 이동
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF69EDFF), // 버튼 색상 설정
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      minimumSize: Size(60, 22),
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    ),
+                    child: const Text(
+                      '원시간표',
+                      style: TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 3),
+              Container(
+                width: 380,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: const Color(0xff333333),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5.0, left: 0.0), // 원하는 만큼 위쪽 여백 조정
-                  child: GestureDetector(
-                    onTap: () => _selectDate(context), // 아이콘 클릭 시 날짜 선택 모달
-                    child: Icon(
-                      Icons.expand_more,
-                      size: 24,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Text(
+                              '오늘의',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                            Text(
+                              '총평',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const VerticalDivider(
                       color: Colors.white,
+                      thickness: 1,
+                      width: 10,
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-
-
-                    setState(() {
-                      isStudying = true; // 공부 버튼 활성화
-                      isScheduleButtonPressed = false; // 공부 버튼 눌렀을 때 상태 업데이트
-                    });
-                    _loadPlanner();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isStudying ? Color(0xFF69EDFF) : Color(0xFF9D9D9D), // 버튼 색상 설정
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                    minimumSize: Size(50, 22),
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                  ),
-                  child: const Text(
-                    '공부',
-                    style: TextStyle(color: Color(0xFF333333), fontSize: 12),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                ElevatedButton(
-                  onPressed: () {
-
-                    setState(() {
-                      isStudying = false; // 일정 버튼 활성화
-                      isScheduleButtonPressed = true; // 일정 버튼 상태 업데이트
-                    });
-                    _loadPlanner();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isStudying ? Color(0xFF9D9D9D) : Color(0xFF69EDFF), // 버튼 색상 설정
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                    minimumSize: Size(50, 22),
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                  ),
-                  child: const Text(
-                    '일정',
-                    style: TextStyle(color: Colors.black, fontSize: 12),
-                  ),
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TimeCirclePlannerPage()), // TimeCirclePlanner로 이동
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF69EDFF), // 버튼 색상 설정
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                    minimumSize: Size(60, 22),
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                  ),
-                  child: const Text(
-                    '원시간표',
-                    style: TextStyle(color: Colors.black, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 380,
-              height: 100,
-              decoration: BoxDecoration(
-                color: const Color(0xff333333),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            '오늘의',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                    Expanded(
+                      flex: 7,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextField(
+                          focusNode: _textFieldFocusNode,
+                          controller: _controller,
+                          maxLength: 200,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: '클릭 후 오늘의 총 평을 입력해 보세요.',
+                            hintStyle: const TextStyle(color: Colors.white54),
+                            border: InputBorder.none,
                           ),
-                          Text(
-                            '총평',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const VerticalDivider(
-                    color: Colors.white,
-                    thickness: 1,
-                    width: 10,
-                  ),
-                  Expanded(
-                    flex: 7,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        focusNode: _textFieldFocusNode,
-                        controller: _controller,
-                        maxLength: 200,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: '클릭 후 오늘의 총 평을 입력해 보세요.',
-                          hintStyle: const TextStyle(color: Colors.white54),
-                          border: InputBorder.none,
+                          maxLines: null,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Colors.white,
+                          onTap: () async {
+                            DateTime currentDateTime = DateTime.now();
+
+                            // ReviewModel 인스턴스 생성
+
+                            ReviewModel review = ReviewModel(
+                              reviewAt: currentDateTime,
+
+                            );
+
+                            // API 호출 (예: addReview 메서드 호출)
+                            final plannerHelper = PlannerApiHelper();
+                            final response = await plannerHelper.addReview(formatDateTimeForJava(currentDateTime), review);
+
+
+
+                            // 응답 처리
+                            if (response.statusCode == 200) {
+
+                            } else {
+
+
+
+                            }
+                          },
+
                         ),
-                        maxLines: null,
-                        textAlignVertical: TextAlignVertical.top,
-                        cursorColor: Colors.white,
-                        onTap: () async {
-                          DateTime currentDateTime = DateTime.now();
-
-                          // ReviewModel 인스턴스 생성
-                          ReviewModel review = ReviewModel(
-                            reviewAt: currentDateTime,
-
-                          );
-
-                          // API 호출 (예: addReview 메서드 호출)
-                          final response = await PlannerApiHelper.addReview(formatDateTimeForJava(currentDateTime), review); // reviewAt은 여기서 포맷을 사용
-
-                          // 응답 처리
-                          if (response.statusCode == 200) {
-
-                          } else {
-
-
-
-                          }
-                        },
 
                       ),
-
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: 380,
-              decoration: BoxDecoration(
-                color: const Color(0xff333333),
-                borderRadius: BorderRadius.circular(15),
-              ),
-
-              child: Table(
-                border: TableBorder(
-                  verticalInside: BorderSide(color: Colors.black54, width: 2),
-                  horizontalInside: BorderSide(color: Colors.black54, width: 2),
+                  ],
                 ),
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: {
-                  0: FixedColumnWidth(40),
-                  1: FixedColumnWidth(40),
-                  2: FixedColumnWidth(175),
-                  3: FixedColumnWidth(35),
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(color: Color(0xFF69EDFF), borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '시간',
-                          style: TextStyle(color: Color(0xFF333333), fontSize: 12),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: Text(
-                          isScheduleButtonPressed ? '주제' : '과목', // 조건에 따라 텍스트 변경
-                          style: TextStyle(color: Color(0xFF333333), fontSize: 12),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '내용',
-                          style: TextStyle(color: Color(0xFF333333), fontSize: 12),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '달성',
-                          style: TextStyle(color: Color(0xFF333333), fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // plannerData가 null일 때 기본 힌트를 표시
-                  ...plannerData.map((schedule) {
-                    // startAt과 endAt을 적절히 포맷팅, null 체크 추가
-                    DateTime startAt = schedule['startAt'] != null
-                        ? DateTime.parse(schedule['startAt'])
-                        : DateTime.now(); // 기본값으로 현재 시간 사용
-                    DateTime endAt = schedule['endAt'] != null
-                        ? DateTime.parse(schedule['endAt'])
-                        : DateTime.now(); // 기본값으로 현재 시간 사용
-
-                    String formattedStartTime = DateFormat('a h:mm').format(startAt); // 'AM/PM 시:분' 형식으로 포맷
-                    String formattedEndTime = DateFormat('a h:mm').format(endAt); // 'AM/PM 시:분' 형식으로 포맷
-
-
-                    return _buildTimetableRow(
-                      formattedStartTime,
-                      formattedEndTime,
-                      schedule['scheduleTitle'] ?? '제목 없음', // 주제, null일 경우 기본값 설정
-                      schedule['content'] ?? '내용 없음', // 내용, null일 경우 기본값 설정
-                      schedule['feedbackType'] ?? 'NONE', // feedbackType, null일 경우 기본값 설정
-                    );
-                  }).toList(),
-
-                ],
-
               ),
-            ),
-        ]
+              const SizedBox(height: 20),
+              Container(
+                width: 380,
+                decoration: BoxDecoration(
+                  color: const Color(0xff333333),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+
+                child: Table(
+                  border: TableBorder(
+                    verticalInside: BorderSide(color: Colors.black54, width: 2),
+                    horizontalInside: BorderSide(color: Colors.black54, width: 2),
+                  ),
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: {
+                    0: FixedColumnWidth(40),
+                    1: FixedColumnWidth(40),
+                    2: FixedColumnWidth(175),
+                    3: FixedColumnWidth(35),
+                  },
+                  children: [
+                    TableRow(
+                      decoration: BoxDecoration(color: Color(0xFF69EDFF), borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '시간',
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            isScheduleButtonPressed ? '주제' : '과목', // 조건에 따라 텍스트 변경
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '내용',
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '달성',
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // plannerData가 null일 때 기본 힌트를 표시
+                    ...plannerData.map((schedule) {
+                      // startAt과 endAt을 적절히 포맷팅, null 체크 추가
+                      DateTime startAt = schedule['startAt'] != null
+                          ? DateTime.parse(schedule['startAt'])
+                          : DateTime.now(); // 기본값으로 현재 시간 사용
+                      DateTime endAt = schedule['endAt'] != null
+                          ? DateTime.parse(schedule['endAt'])
+                          : DateTime.now(); // 기본값으로 현재 시간 사용
+
+                      String formattedStartTime = DateFormat('a h:mm').format(startAt); // 'AM/PM 시:분' 형식으로 포맷
+                      String formattedEndTime = DateFormat('a h:mm').format(endAt); // 'AM/PM 시:분' 형식으로 포맷
+
+
+                      return _buildTimetableRow(
+                        formattedStartTime,
+                        formattedEndTime,
+                        schedule['scheduleTitle'] ?? '제목 없음', // 주제, null일 경우 기본값 설정
+                        schedule['content'] ?? '내용 없음', // 내용, null일 경우 기본값 설정
+                        schedule['feedbackType'] ?? 'NONE', // feedbackType, null일 경우 기본값 설정
+                      );
+                    }).toList(),
+
+                  ],
+
+                ),
+              ),
+            ]
+        ),
         ),
         floatingActionButton: CustomFloatingActionButton(
           onPressed: () {
@@ -561,6 +570,7 @@ class _PlannerPageState extends State<PlannerPage> {
         ),
       ),
     );
+
 
   }
 }

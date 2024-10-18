@@ -4,6 +4,7 @@ import 'package:project1/pages/study_page.dart';
 import 'package:project1/pages/test_page.dart';
 import 'package:project1/widgets/bottom_nav_bar.dart'; // BottomNavBar import
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:project1/utils/refresh_token_api_helper.dart'; // 이 파일의 경로에 따라 수정 필요
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -56,9 +57,24 @@ class MainContent extends StatelessWidget {
           IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.share2)),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to the Main Page!'),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            RefreshTokenApiHelper apiHelper = RefreshTokenApiHelper();
+
+            try {
+              final response = await apiHelper.refreshToken();
+              // 응답 처리
+              print('새로운 Access Token: ${response.accessToken}');
+              print('새로운 Refresh Token: ${response.refreshToken}');
+            } catch (e) {
+              print('토큰 갱신 실패: $e');
+            }
+          },
+          child: const Text('리프레시 토큰 테스트'),
+        ),
       ),
+
     );
   }
 }

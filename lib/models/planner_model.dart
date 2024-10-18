@@ -105,3 +105,51 @@ class ScheduleRequestModel {
   }
 }
 
+class TimeTableRequestModel {
+  final DateTime scheduleDate;
+
+
+  TimeTableRequestModel({
+
+    required this.scheduleDate,
+  });
+
+  // 서버로 보내기 위한 JSON 형태로 변환하는 메서드
+  Map<String, dynamic> toJson() {
+    return {
+      'scheduleDate': formatDateTimeForJava(scheduleDate),
+      // DateTime을 ISO 8601 형식으로 변환
+    };
+  }
+
+
+
+}
+class TimeTableResponseModel {
+
+  final String scheduleTitle;
+  final String content;
+  final DateTime startAt;
+  final DateTime endAt;
+
+
+  TimeTableResponseModel({
+    // 선택적 파라미터로 수정
+    required this.startAt,
+    required this.scheduleTitle,
+    required this.content,
+    required this.endAt,
+
+  });
+
+  // JSON에서 객체로 변환하는 메서드
+  factory TimeTableResponseModel.fromJson(Map<String, dynamic> json) {
+    return TimeTableResponseModel(
+      startAt: DateTime.parse(json['startAt']),
+       scheduleTitle: json['scheduleTitle'],
+        content: json['content'],
+      endAt: DateTime.parse(json['endAt']),
+
+    );
+  }
+}

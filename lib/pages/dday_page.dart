@@ -26,7 +26,8 @@ class DdayPageState extends State<DdayPage> {
 
   Future<void> _fetchDdayList() async {
     try {
-      final response = await ApiHelper.findDdayList('dday/list');
+      final apiHelper = ApiHelper();
+      final response = await apiHelper.findDdayList('dday/list');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -204,7 +205,8 @@ class DdayPageState extends State<DdayPage> {
 
     try {
       // API 호출하여 대표 디데이 설정
-      final response = await ApiHelper.setFeaturedDday(ddayId);
+      final apiHelper = ApiHelper();
+      final response = await apiHelper.setFeaturedDday(ddayId);
 
       if (response.statusCode == 200) {
         // 서버에 성공적으로 저장되면 로컬 리스트에서도 변경
@@ -267,7 +269,8 @@ class DdayPageState extends State<DdayPage> {
 
 
     try {
-      final response = await ApiHelper.deleteDday(ddayId);
+      final apiHelper = ApiHelper();
+      final response = await apiHelper.deleteDday(ddayId);
 
       if (response.statusCode == 200) {
         // 서버에서 성공 응답을 받으면, 리스트에서 해당 디데이 제거

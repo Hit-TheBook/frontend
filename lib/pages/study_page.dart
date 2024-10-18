@@ -35,7 +35,8 @@ class _StudyPageState extends State<StudyPage> {
   // API를 호출하여 대표 디데이 이름과 남은 날짜를 가져오는 함수
   Future<void> fetchPrimaryDday() async {
     try {
-      final response = await ApiHelper.fetchDdayList('dday/primary'); // API 호출
+      final apiHelper = ApiHelper(); // ApiHelper 인스턴스 생성
+      final response = await apiHelper.fetchDdayList('dday/primary'); // API 호출
 
       final decodedResponse = jsonDecode(response.body);
 
