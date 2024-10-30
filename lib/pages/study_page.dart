@@ -2,15 +2,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/pages/dday_page.dart';
+import 'package:project1/pages/test_page.dart';
 import 'package:project1/pages/timer.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
 import 'package:project1/pages/count_up_timer_page.dart';
 import '../colors.dart';
+import 'main_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
+import 'package:project1/widgets/bottom_nav_bar.dart'; // BottomNavBar 임포트
+
 
 class StudyPage extends StatefulWidget {
   const StudyPage({super.key});
+
 
   @override
   _StudyPageState createState() => _StudyPageState();
@@ -19,6 +24,7 @@ class StudyPage extends StatefulWidget {
 class _StudyPageState extends State<StudyPage> {
   String? primaryDdayName;
   int? remainingDays;
+  int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -156,21 +162,46 @@ class _StudyPageState extends State<StudyPage> {
                   ),
                   const SizedBox(height: 20),
                   // 개인 미션 섹션
-                  buildSectionContainer(
-                    context: context,
-                    items: [
-                      '개인미션',
-                      '오늘 수행 미션',
-                    ],
-                    onPressed: (String title) {
-                      print('버튼 클릭됨: $title');
-                    },
-                  ),
+                  // buildSectionContainer(
+                  //   context: context,
+                  //   items: [
+                  //     '개인미션',
+                  //     '오늘 수행 미션',
+                  //   ],
+                  //   onPressed: (String title) {
+                  //     print('버튼 클릭됨: $title');
+                  //   },
+                  // ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _selectedIndex,
+        onItemTapped: (index) {
+          if (index != _selectedIndex) {
+            // 선택된 인덱스가 현재 인덱스와 다를 때만 페이지 전환
+            switch (index) {
+              case 0: // Main 탭
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainPage()),
+                );
+                break;
+              case 1: // Study 탭
+              // 이미 현재 페이지이므로 아무 동작도 하지 않음
+                break;
+              // case 2: // Test 탭
+              //   Navigator.pushReplacement(
+              //     context,
+              //     MaterialPageRoute(builder: (context) => const TestPage()),
+              //   );
+            //   break;
+            }
+          }
+        },
       ),
     );
   }

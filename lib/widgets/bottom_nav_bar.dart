@@ -26,7 +26,7 @@ class BottomNavBar extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(FeatherIcons.user), label: 'User'),
         BottomNavigationBarItem(icon: Icon(FeatherIcons.penTool), label: 'Pen'),
-        BottomNavigationBarItem(icon: Icon(FeatherIcons.facebook), label: 'Facebook'),
+        //BottomNavigationBarItem(icon: Icon(FeatherIcons.facebook), label: 'Facebook'),
       ],
     );
   }

@@ -39,7 +39,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
@@ -87,7 +87,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
@@ -134,7 +134,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
@@ -180,7 +180,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
@@ -227,7 +227,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
@@ -273,7 +273,7 @@ class ApiHelper {
     http.Response response = await sendRequest(accessToken);
 
     // 액세스 토큰이 만료된 경우(401 Unauthorized)
-    if (response.statusCode == 401) {
+    if (response.statusCode == 499) {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();

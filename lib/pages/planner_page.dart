@@ -1,4 +1,6 @@
 import 'dart:convert';
+//import 'dart:nativewrappers/_internal/vm/lib/core_patch.dart';
+import 'package:project1/pages/study_page.dart';
 import 'package:project1/widgets/feedback_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +9,11 @@ import 'package:project1/pages/planner_detail_page.dart';
 import 'package:project1/widgets/customfloatingactionbutton.dart';
 import 'package:project1/pages/time_circle_planner_page.dart';
 import 'package:project1/utils/planner_api_helper.dart';
+import '../main.dart';
 import '../models/planner_model.dart';
+import 'package:project1/colors.dart';
+
+import 'main_page.dart';
 
 
 class PlannerPage extends StatefulWidget {
@@ -153,6 +159,7 @@ class _PlannerPageState extends State<PlannerPage> {
         ),
         InkWell( // 여기서 InkWell을 사용
           onTap: () {
+            String scheduleType = isStudying ? 'SUBJECT' : 'EVENT';
             // plannerData에서 가져온 값으로 다이얼로그 호출
             _showFeedbackTypeDialog(
               plannerScheduleId: schedule['plannerScheduleId'], // 스케줄 ID
@@ -161,6 +168,8 @@ class _PlannerPageState extends State<PlannerPage> {
               feedbackType: schedule['feedbackType'],
               startAt: startAt,
               endAt: endAt,
+              scheduleType: scheduleType, // scheduleType을 전달
+
             );
           },
           child : Container(
@@ -180,8 +189,9 @@ class _PlannerPageState extends State<PlannerPage> {
     required String feedbackType,
     required DateTime startAt,
     required DateTime endAt,
-  }) {
-    showModalBottomSheet(
+    required String scheduleType,
+  }) async { // async 추가
+    await showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return FeedbackTypeDialog(
@@ -194,10 +204,16 @@ class _PlannerPageState extends State<PlannerPage> {
           feedbackType: feedbackType,
           startAt: startAt,
           endAt: endAt,
+          plannerScheduleId: plannerScheduleId,
+          scheduleType: scheduleType,
         );
       },
     );
+
+    // 다이얼로그가 닫힌 후 플래너 데이터 새로 고침
+    _loadPlanner();
   }
+
 
 
 
@@ -206,30 +222,29 @@ class _PlannerPageState extends State<PlannerPage> {
   Widget _getFeedbackIcon(String feedbackType) {
     switch (feedbackType) {
       case "DONE":
-        return Icon(
-          Icons.circle, // Ellipse 13에 해당하는 아이콘 (동그라미)
-          color: Colors.green,
+        return const Icon(
+          Icons.circle_outlined, // Ellipse 13에 해당하는 아이콘 (동그라미)
+          color: neonskyblue1,
         );
       case "PARTIAL":
-        return Icon(
+        return const Icon(
           Icons.change_history, // Polygon 1에 해당하는 아이콘 (삼각형)
-          color: Colors.orange,
+          color: neonskyblue1,
         );
       case "FAILED":
-        return Icon(
-          Icons.arrow_forward, // Arrow 62에 해당하는 아이콘 (화살표)
-          color: Colors.yellow,
+        return const Icon(
+          Icons.close, // Arrow 62에 해당하는 아이콘 (화살표)
+          color: neonskyblue1,
         );
       case "POSTPONED":
-        return Icon(
-          Icons.close, // X 아이콘
-          color: Colors.red,
+        return const Icon(
+          Icons.arrow_forward, // X 아이콘
+          color: neonskyblue1,
         );
-      case "NONE":
       default:
-        return Icon(
-          Icons.remove_circle, // 기본값으로 사용할 아이콘
-          color: Colors.grey,
+        return const Icon(
+          Icons.error, // 기본 아이콘 (오류 아이콘)
+          color: Colors.red,
         );
     }
   }
@@ -291,14 +306,34 @@ class _PlannerPageState extends State<PlannerPage> {
           FocusScope.of(context).requestFocus(FocusNode());
         }
       },
+        child: WillPopScope(
+        onWillPop: () async {
+      // StudyPage로 이동
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const StudyPage()),
+            (route) => false, // 모든 이전 페이지를 제거하고 StudyPage로 이동
+      );
+      return false;
+        },
 
 
       child: Scaffold (
         appBar: AppBar(
-          automaticallyImplyLeading: true,
+          automaticallyImplyLeading: false,
           title: const Text('플래너'),
           centerTitle: true,
+          leading: IconButton( // 뒤로 가기 버튼 추가
+            icon: Icon(Icons.arrow_back), // 뒤로 가기 버튼에 사용할 아이콘
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StudyPage()), // 원하는 페이지로 이동
+              );
+            },
+          ),
         ),
+
         body: SingleChildScrollView(
           child:Column(
             children: [
@@ -556,7 +591,7 @@ class _PlannerPageState extends State<PlannerPage> {
                         formattedEndTime,
                         schedule['scheduleTitle'] ?? '제목 없음',
                         schedule['content'] ?? '내용 없음',
-                        schedule['feedbackType'] ?? 'NONE',
+                        schedule['feedbackType'] ?? 'FAIL',
                         schedule, // 전체 schedule 데이터를 넘깁니다.
                         startAt, // startAt 변수를 전달
                         endAt,   // endAt 변수를 전달
@@ -586,6 +621,7 @@ class _PlannerPageState extends State<PlannerPage> {
           },
         ),
       ),
+    ),
     );
 
 

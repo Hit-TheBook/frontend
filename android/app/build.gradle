@@ -23,9 +23,15 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('app/key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.example.project1"
-    compileSdk = 33 // 최신 버전으로 설정
+    compileSdk = 34 // 최신 버전으로 설정
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -34,16 +40,25 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.project1"
-        minSdk = 21 // Flutter secure storage가 필요로 하는 최소 SDK 버전
-        targetSdk = 33 // 적절한 targetSdkVersion 설정
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
+        applicationId = "com.tobehi.hitthebook"
+        minSdk = 23 // Flutter secure storage가 필요로 하는 최소 SDK 버전
+        targetSdk = 34 // 적절한 targetSdkVersion 설정
+        versionCode = 2
+        versionName = "2.0"
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'key'
+            keyPassword 'kong1234!!' // 실제 비밀번호 입력
+            storeFile file('key.jks') // key.jks 파일 경로
+            storePassword 'kong1234!!' // 실제 비밀번호 입력
+        }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release // signingConfig 참조
         }
     }
 }

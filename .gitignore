@@ -11,6 +11,10 @@
 .svn/
 migrate_working_dir/
 
+# Keystore and properties
+key.properties
+key.jks
+
 # IntelliJ related
 *.iml
 *.ipr

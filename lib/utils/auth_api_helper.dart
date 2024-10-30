@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'refresh_token_api_helper.dart';
 
 class AuthApiHelper {
   final String baseUrl = 'http://13.209.78.125';
+  final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
+  final RefreshTokenApiHelper refreshTokenHelper = RefreshTokenApiHelper(); // 리프레시 토큰 헬퍼 인스턴스 생성
+
 
   Future<http.Response> sendAuthCode(String email) async {
     final url = Uri.parse('$baseUrl/mail/join/authorization');
@@ -105,5 +110,95 @@ class AuthApiHelper {
     debugPrint('Response body: ${response.body}');
     return response.statusCode == 200;
 
+  }
+  // DELETE 요청
+  Future<http.Response> deleteAccount(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    // 저장된 액세스 토큰 가져오기
+    String? accessToken = await storage.read(key: 'accessToken');
+    if (accessToken == null) {
+      throw Exception('No access token found');
+    }
+
+    Future<http.Response> sendRequest(String token) async {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // 헤더에 토큰 추가
+          'Content-Type': 'application/json',
+        },
+      );
+
+      debugPrint('DELETE $url');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      return response;
+    }
+
+    // API 호출 및 응답 처리
+    http.Response response = await sendRequest(accessToken);
+
+    // 액세스 토큰이 만료된 경우(401 Unauthorized)
+    if (response.statusCode == 499) {
+      try {
+        // 리프레시 토큰을 사용해 액세스 토큰 갱신
+        final refreshTokenResponse = await refreshTokenHelper.refreshToken();
+        await storage.write(key: 'accessToken', value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
+
+        // 새로운 토큰으로 API 요청 다시 시도
+        response = await sendRequest(refreshTokenResponse.accessToken);
+      } catch (e) {
+        throw Exception('Failed to refresh token: $e');
+      }
+    }
+
+    return response;
+  }
+
+  Future<http.Response> findUserName(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    // 저장된 액세스 토큰 가져오기
+    String? accessToken = await storage.read(key: 'accessToken');
+    if (accessToken == null) {
+      throw Exception('No access token found');
+    }
+
+    Future<http.Response> sendRequest(String token) async {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // 헤더에 토큰 추가
+          'Content-Type': 'application/json',
+        },
+      );
+
+      debugPrint('GET $url');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      return response;
+    }
+
+    // API 호출 및 응답 처리
+    http.Response response = await sendRequest(accessToken);
+
+    // 액세스 토큰이 만료된 경우(401 Unauthorized)
+    if (response.statusCode == 499) {
+      try {
+        // 리프레시 토큰을 사용해 액세스 토큰 갱신
+        final refreshTokenResponse = await refreshTokenHelper.refreshToken();
+        await storage.write(key: 'accessToken', value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
+
+        // 새로운 토큰으로 API 요청 다시 시도
+        response = await sendRequest(refreshTokenResponse.accessToken);
+      } catch (e) {
+        throw Exception('Failed to refresh token: $e');
+      }
+    }
+
+    return response;
   }
 }

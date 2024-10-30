@@ -156,25 +156,27 @@ class TimeTableResponseModel {
   }
 }
 class FeedbackRequest {
-  final String scheduleType; // 피드백 타입
+  final String scheduleType; // 스케줄타입
   final int plannerScheduleId; // 일정 ID
+  final String result;
 
-  FeedbackRequest({required this.scheduleType, required this.plannerScheduleId});
+  FeedbackRequest({required this.scheduleType, required this.plannerScheduleId,required this.result});
 
   Map<String, dynamic> toJson() => {
     'scheduleType': scheduleType,
     'plannerScheduleId': plannerScheduleId,
+    'result' : result,
   };
 }
 
 class FeedbackResponse {
-  final String result; // 요청 결과
+  final String message; // 요청 결과
 
-  FeedbackResponse({required this.result});
+  FeedbackResponse({required this.message});
 
   factory FeedbackResponse.fromJson(Map<String, dynamic> json) {
     return FeedbackResponse(
-      result: json['result'],
+      message: json['message'],
     );
   }
 }

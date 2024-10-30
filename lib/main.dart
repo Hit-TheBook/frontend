@@ -50,7 +50,14 @@ class Login extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            // 로고 이미지 추가
+            Image.asset(
+              'assets/images/logo.png', // 로고 이미지 경로
+              height: 300.h,
+              width: 300.w,// 원하는 높이 설정
+            ),
+            SizedBox(height: 20.h),
+            /*ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: neonskyblue1, // 배경색
                 foregroundColor: black1, // 텍스트 색
@@ -65,7 +72,7 @@ class Login extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const MainPage()),
                 );
               },
-            ),
+            ),*/
             SizedBox(height: 20.h), // 로그인 버튼과 시작하기 버튼 사이의 간격
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -129,7 +136,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
-      splash: Lottie.asset('assets/study.json'),
+      splash: Image.asset('assets/images/hitthebook.jpg'),
       backgroundColor: Colors.cyanAccent,
       nextScreen: const Login(),
       splashIconSize: double.infinity,
