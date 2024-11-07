@@ -32,6 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // 비밀번호 유효성 상태 추가
   bool isPasswordValid = false;
+  bool isButtonEnabled = false; // '완료' 버튼 상태 변수
 
 
   // 비밀번호 유효성 검사 함수
@@ -45,13 +46,35 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    // 비밀번호 입력 리스너 추가
     passwordController.addListener(() {
       setState(() {
         isPasswordValid = _validatePassword(passwordController.text);
       });
+      updateButtonState();
+    });
+
+    // 텍스트 필드 상태 업데이트 리스너 추가
+    emailController.addListener(updateButtonState);
+    codeController.addListener(updateButtonState);
+    confirmPasswordController.addListener(updateButtonState);
+    nicknameController.addListener(updateButtonState);
+  }
+
+  void updateButtonState() {
+    setState(() {
+      // 모든 필드가 채워져 있고, 비밀번호가 유효한 경우에만 버튼 활성화
+      isButtonEnabled = emailController.text.isNotEmpty &&
+          codeController.text.isNotEmpty &&
+          passwordController.text.isNotEmpty &&
+          confirmPasswordController.text.isNotEmpty &&
+          (!widget.isResetPassword || nicknameController.text.isNotEmpty) &&
+          isPasswordValid &&
+          _isCodeVerified; // 인증 코드가 확인된 경우만
     });
   }
+
+  // 기타 메소드들은 그대로 유지합니다.
+
 
 
   Duration _countdownDuration = Duration(minutes: 5);
@@ -439,31 +462,34 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
               // 완료 버튼
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                if (widget.isResetPassword) {
-                  // 비밀번호 재설정 관련 메소드 호출
-                  _isCodeVerified ?_checkPreviousPassword(): null;
-                } else {
-                  // 일반 등록 관련 메소드 호출
-                  _isCodeVerified ? _registerUser() : null;//인증 완료시만 _registerUser 호출
-                }
-              },
-
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(neonskyblue1), // 버튼 배경색
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder( // ShapeDecoration의 shape 부분
-                    borderRadius: BorderRadius.circular(5), // 원하는 둥근 모서리 설정
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isButtonEnabled
+                      ? () {
+                    if (widget.isResetPassword) {
+                      _isCodeVerified ? _checkPreviousPassword() : null;
+                    } else {
+                      _isCodeVerified ? _registerUser() : null;
+                    }
+                  }
+                      : null, // 버튼 비활성화 처리
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return Colors.grey; // 비활성화 상태일 때 회색
+                      }
+                      return neonskyblue1; // 활성화 상태일 때의 색상
+                    }),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
                   ),
+                  child: const Text('완료'),
                 ),
               ),
-              child: const Text('완료'),
-            ),
-          ),
-
             ],
           ),
         ),

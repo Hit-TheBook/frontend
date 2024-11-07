@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:lottie/lottie.dart';
@@ -32,6 +33,16 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           theme: appTheme, // Use the custom theme from theme.dart
           home: const SplashScreen(),
+          // 지역화 설정 추가
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate, // Material Widgets의 지역화
+            GlobalWidgetsLocalizations.delegate, // Flutter Widgets의 지역화
+            GlobalCupertinoLocalizations.delegate, // Cupertino Widgets의 지역화
+          ],
+          supportedLocales: [
+            Locale('en', 'US'), // 영어 (미국)
+            Locale('ko', 'KR'), // 한국어 (한국)
+          ],
         );
       },
     );

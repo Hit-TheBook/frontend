@@ -6,6 +6,7 @@ import 'package:project1/models/login_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project1/widgets/customdialog.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -120,7 +121,23 @@ class LoginPage extends StatelessWidget {
                     );
                   } else {
                     print('로그인 실패: ${responseModel.message}');
-                    // 실패 시 처리 (예: 에러 메시지 표시)
+
+                    // CustomDialog 사용하여 에러 메시지 표시
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CustomDialog(
+                          title: '로그인 실패',
+                          content: const Text(
+                            '로그인 정보를 확인해주세요.',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onConfirm: () {
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      },
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
