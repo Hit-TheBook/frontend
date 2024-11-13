@@ -5,43 +5,102 @@ import 'package:project1/colors.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class WeekCalendarComponent extends StatefulWidget {
-  final Function(List<DateTime>) onWeekSelected;
+  final Function(List<DateTime>, DateTime?) onWeekSelected;
+  final bool isDailySelected;
 
-  const WeekCalendarComponent({Key? key, required this.onWeekSelected}) : super(key: key);
+
+  const WeekCalendarComponent({Key? key, required this.onWeekSelected,required this.isDailySelected, }) : super(key: key);
+
+
+  // 주간 날짜 계산 메서드
+  List<DateTime> getWeekDays(DateTime referenceDate) {
+    final startOfWeek = referenceDate.subtract(Duration(days: referenceDate.weekday - 1));
+    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
+  }
 
   @override
   _WeekCalendarComponentState createState() => _WeekCalendarComponentState();
 }
 
 class _WeekCalendarComponentState extends State<WeekCalendarComponent> {
-  DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();  // 오늘 날짜로 초기화
   List<DateTime> _selectedWeek = [];
+  DateTime? _selectedDay; // 단일 날짜를 위한 변수
+
+  @override
+  void initState() {
+    super.initState();
+    // isDailySelected 값에 따라 초기화
+    _initializeCalendar(widget.isDailySelected);
+  }
+
+  // isDailySelected 값에 따라 초기화하는 메서드
+  void _initializeCalendar(bool isDailySelected) {
+    if (isDailySelected) {
+      // 일간 모드 - 오늘 날짜로 설정
+      _focusedDay = DateTime.now();
+      _selectedDay = _focusedDay;  // 오늘 날짜를 선택
+      _selectedWeek = [];
+    } else {
+      // 주간 모드 - 이번 주의 날짜들로 설정
+      _focusedDay = DateTime.now();
+      _selectedWeek = widget.getWeekDays(_focusedDay);  // 이번 주의 날짜들
+      _selectedDay = null;  // 주간 모드에서는 단일 날짜 선택하지 않음
+    }
+  }
+
+  // 주간 모드로 전환할 때 호출하는 메서드
+  void _updateSelectedWeekToToday() {
+    setState(() {
+      _focusedDay = DateTime.now(); // 오늘 날짜로 변경
+      _selectedWeek = widget.getWeekDays(_focusedDay);  // 오늘 기준으로 주간 날짜 업데이트
+      _selectedDay = null; // 선택된 날짜를 초기화
+    });
+    widget.onWeekSelected(_selectedWeek, _selectedDay);  // 콜백 호출
+  }
+
+  // 주간을 선택했을 때 항상 오늘 기준으로 업데이트
+  void _handleWeekButtonPress() {
+    if (!widget.isDailySelected) {
+      _updateSelectedWeekToToday();  // 오늘 기준으로 주간 강조
+    }
+  }
+
+  @override
+  void didUpdateWidget(WeekCalendarComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // isDailySelected 값이 변경되었을 때 초기화
+    if (oldWidget.isDailySelected != widget.isDailySelected) {
+      _initializeCalendar(widget.isDailySelected);
+    }
+  }
 
   void _selectDateCupertino(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.5), // 배경을 어두운 색으로 설정
+      barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext context) {
         return Container(
-          height: 220.h, // 팝업 높이 설정
-          color: Colors.white, // 배경색 설정
+          height: 220.h,
+          color: Colors.white,
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: SizedBox(
-                  height: 160.h, // 날짜 선택기 높이 설정
+                  height: 160.h,
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.date,
-                    initialDateTime: _focusedDay, // 초기값을 현재 날짜로 설정
+                    initialDateTime: _focusedDay,
                     minimumDate: DateTime.utc(2020, 1, 1),
                     maximumDate: DateTime.utc(2070, 12, 31),
                     onDateTimeChanged: (DateTime newDate) {
                       setState(() {
-                        _focusedDay = newDate; // 선택된 날짜로 _focusedDay 업데이트
-                        _selectedWeek = _getWeekDays(newDate); // 선택한 날짜의 주간 날짜 업데이트
+                        _focusedDay = newDate;
+                        _selectedWeek = widget.getWeekDays(newDate);  // 주간 날짜 업데이트
+                        _selectedDay = newDate; // 단일 날짜 선택
                       });
-                      widget.onWeekSelected(_selectedWeek); // 콜백 호출
+                      widget.onWeekSelected(_selectedWeek, _selectedDay);  // 콜백 호출
                     },
                   ),
                 ),
@@ -115,38 +174,43 @@ class _WeekCalendarComponentState extends State<WeekCalendarComponent> {
               defaultTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
               selectedTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
               todayTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
-              // 선택된 날짜의 배경색과 테두리 설정
               selectedDecoration: BoxDecoration(
-                color: neonskyblue1, // 선택된 날짜 배경색
-                shape: BoxShape.circle, // 원형으로 만들기
+                color: neonskyblue1,
+                shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white, // 테두리 색상
-                  width: 2.w, // 테두리 두께
+                  color: Colors.white,
+                  width: 2.w,
                 ),
               ),
+              todayDecoration: BoxDecoration(),
             ),
-            // 선택된 주간 날짜들을 강조
-            selectedDayPredicate: (day) {
+            selectedDayPredicate: widget.isDailySelected
+                ? (day) {
+              return _selectedDay != null &&
+                  day.year == _selectedDay!.year &&
+                  day.month == _selectedDay!.month &&
+                  day.day == _selectedDay!.day;
+            }
+                : (day) {
+              // 주간 날짜 강조: day.year, day.month, day.day 직접 비교
               return _selectedWeek.any((selectedDay) =>
               selectedDay.year == day.year &&
                   selectedDay.month == day.month &&
                   selectedDay.day == day.day);
             },
-            onDaySelected: null, // 날짜 선택 비활성화
+            onDaySelected: widget.isDailySelected
+                ? (selectedDay, focusedDay) {
+              setState(() {
+                _focusedDay = focusedDay;
+                _selectedWeek = widget.getWeekDays(focusedDay);  // 주간 날짜 업데이트
+                _selectedDay = selectedDay;  // 선택된 날짜 업데이트
+              });
+              widget.onWeekSelected(_selectedWeek, _selectedDay);  // 콜백 호출
+            }
+                : null,
           ),
         ),
       ],
     );
-  }
-
-  List<DateTime> _getWeekDays(DateTime selectedDay) {
-    final int startOffset = selectedDay.weekday - 1;
-    final List<DateTime> weekDays = [];
-
-    for (int i = 0; i < 7; i++) {
-      weekDays.add(selectedDay.subtract(Duration(days: startOffset - i)));
-    }
-
-    return weekDays;
   }
 }

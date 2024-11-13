@@ -12,21 +12,32 @@ class TimerUsageReportPage extends StatefulWidget {
 
 class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
   List<DateTime> selectedWeekDays = [];
-  bool isDailySelected = true; // 플래그 변수: 일간/주간 선택 상태
+  DateTime? selectedDay = DateTime.now();
+  bool isDailySelected = true;
 
   @override
   Widget build(BuildContext context) {
+    final weekCalendarComponent = WeekCalendarComponent(
+      onWeekSelected: (weekDays, selectedDay) {
+        setState(() {
+          selectedWeekDays = weekDays;
+          this.selectedDay = selectedDay;
+        });
+      },
+      isDailySelected: isDailySelected,  // 전달된 값
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           '통계',
-          style: TextStyle(fontSize: 18.sp), // ScreenUtil로 크기 조정
+          style: TextStyle(fontSize: 18.sp),
         ),
         centerTitle: true,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0.w), // ScreenUtil을 활용해 패딩 크기 조정
-        child: SingleChildScrollView(  // 스크롤을 추가한 부분
+        padding: EdgeInsets.all(16.0.w),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -37,19 +48,23 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                     onPressed: () {
                       setState(() {
                         isDailySelected = true;
+                        selectedDay = DateTime.now();
+                        selectedWeekDays.clear();
                       });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDailySelected ? neonskyblue1 : Colors.white,
-                      minimumSize: Size(54.w, 24.h), // ScreenUtil로 버튼 크기 조정
+                      minimumSize: Size(54.w, 24.h),
                     ),
-                    child: Text('일간', style: TextStyle(fontSize: 14.sp)), // 글씨 크기 조정
+                    child: Text('일간', style: TextStyle(fontSize: 14.sp)),
                   ),
                   SizedBox(width: 10.w),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
                         isDailySelected = false;
+                        selectedDay = DateTime.now();
+                        selectedWeekDays = weekCalendarComponent.getWeekDays(DateTime.now());
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -62,29 +77,30 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
               ),
               SizedBox(height: 5.h),
 
-              // 일간 버튼이 활성화되었을 때만 표시
               if (isDailySelected) ...[
-                WeekCalendarComponent(
-                  onWeekSelected: (weekDays) {
-                    setState(() {
-                      selectedWeekDays = weekDays;
-                    });
-                  },
-                ),
+                weekCalendarComponent,
                 SizedBox(height: 20.h),
                 Text(
                   '선택된 날짜',
                   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
-                ...selectedWeekDays.map((day) => Text(
-                  day.toIso8601String(),
-                  style: TextStyle(fontSize: 14.sp),
-                )).toList(),
-              ] else
                 Text(
-                  '주간 통계 보기 화면입니다.',
+                  selectedDay != null ? selectedDay!.toIso8601String() : '',
+                  style: TextStyle(fontSize: 14.sp),
+                ),
+              ] else ...[
+                weekCalendarComponent,
+                Text(
+                  '선택된 주간 날짜',
                   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
+                Text(
+                  selectedWeekDays.isNotEmpty
+                      ? selectedWeekDays.map((date) => date.toIso8601String()).join(', ')
+                      : '',
+                  style: TextStyle(fontSize: 14.sp),
+                ),
+              ],
             ],
           ),
         ),

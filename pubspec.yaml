@@ -27,7 +27,7 @@ dependencies:
   flutter_screenutil: ^5.9.3 #해상도
   flutter_secure_storage: ^8.0.0 # 토큰
   table_calendar: ^3.1.2 #캘린더
-
+  wakelock: ^0.6.2 # 화면잠금
 
 dev_dependencies:
   flutter_test:

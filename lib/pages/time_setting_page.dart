@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // Cupertino 관련 위젯을 사용하기 위한 import
 import 'package:project1/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'study_timer_page.dart';
 
 class TimeSettingPage extends StatefulWidget {
   final int timerId;
@@ -21,18 +22,18 @@ class TimeSettingPage extends StatefulWidget {
 }
 
 class _TimeSettingPageState extends State<TimeSettingPage> {
-  int selectedHours = 0;
-  int selectedMinutes = 0;
+  Duration goalDuration = Duration(hours: 0, minutes: 0, seconds: 0);
 
-  String formatTime(int hours, int minutes) {
-    final formattedHours = hours.toString().padLeft(2, '0');
-    final formattedMinutes = minutes.toString().padLeft(2, '0');
-    return '$formattedHours:$formattedMinutes:00';
+  String formatTime(Duration duration) {
+    final formattedHours = duration.inHours.toString().padLeft(2, '0');
+    final formattedMinutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    final formattedSeconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$formattedHours:$formattedMinutes:$formattedSeconds';
   }
 
   int get goalPoint {
     // 목표시간에 1분당 1점 계산
-    return selectedHours * 60 + selectedMinutes;
+    return goalDuration.inMinutes;
   }
 
   // CupertinoTimePicker를 호출하는 함수
@@ -46,14 +47,13 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
             Container(
               height: 200.h,
               child: CupertinoTimerPicker(
-                initialTimerDuration: Duration(hours: selectedHours, minutes: selectedMinutes),
+                initialTimerDuration: goalDuration,
                 onTimerDurationChanged: (Duration duration) {
                   setState(() {
-                    selectedHours = duration.inHours;
-                    selectedMinutes = duration.inMinutes % 60;
+                    goalDuration = duration;
                   });
                 },
-                mode: CupertinoTimerPickerMode.hm, // 시와 분만 설정할 수 있도록 모드 지정
+                mode: CupertinoTimerPickerMode.hms, // 시, 분, 초 모드로 변경
               ),
             ),
           ],
@@ -68,11 +68,47 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
     );
   }
 
+  // '시작' 텍스트가 활성화될 조건 체크
+  bool get isStartTextEnabled {
+    return goalDuration.inMinutes >= 10;
+  }
+
+  // '시작' 텍스트 클릭 시 이동할 페이지 (예: TimerPage)
+  void _startTimer(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudyTimerPage(
+          timerId: widget.timerId,
+          subjectName: widget.subjectName,
+          studyTimeLength: widget.studyTimeLength,
+          point: widget.point,
+          goalDuration: goalDuration,
+          goalPoint: goalPoint,
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('목표시간 설정', style: TextStyle(fontSize: 18.sp)),
+        actions: [
+          // "시작" 텍스트를 AppBar 오른쪽에 배치
+          TextButton(
+            onPressed: isStartTextEnabled ? () => _startTimer(context) : null,
+            child: Text(
+              '시작',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: isStartTextEnabled ? neonskyblue1 : Colors.grey, // 비활성화 색상
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(10.0.w),
@@ -83,7 +119,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
             Text('목표시간', style: TextStyle(fontSize: 12.sp)),
             SizedBox(height: 10.h),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.0.w, vertical: 10.0.h), // 내부 패딩 조정
+              padding: EdgeInsets.symmetric(horizontal: 10.0.w, vertical: 10.0.h),
               decoration: BoxDecoration(
                 color: gray1,
                 borderRadius: BorderRadius.circular(8.0.r),
@@ -95,15 +131,15 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        formatTime(selectedHours, selectedMinutes),
+                        formatTime(goalDuration),
                         style: TextStyle(fontSize: 12.sp),
                       ),
                       SizedBox(width: 10.w),
                       GestureDetector(
                         onTap: () => _selectTime(context),
                         child: Container(
-                          width: 15.w, // 아이콘의 너비
-                          height: 15.h, // 아이콘의 높이
+                          width: 15.w,
+                          height: 15.h,
                           alignment: Alignment.centerRight,
                           child: Icon(
                             Icons.chevron_right,
@@ -129,7 +165,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
             ),
             SizedBox(height: 30.h),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,  // 기본 설정
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '목표시간 점수 안내',
@@ -137,11 +173,12 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
                 ),
                 Image.asset(
                   'assets/images/timegoal.png',
-                  width: 210.w, // 이미지 너비 설정
-                  height: 270.h, // 이미지 높이 설정
+                  width: 210.w,
+                  height: 270.h,
                 ),
               ],
             ),
+            SizedBox(height: 20.h),
           ],
         ),
       ),

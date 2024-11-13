@@ -27,7 +27,7 @@ class _TimerPageState extends State<TimerPage> {
     {
       'timerId': 0,
       'subjectName': '화학',
-      'studyTimeLength': '10:00:00',
+      'studyTimeLength': '06:00:00',
       'point': 0,
     },
     {
