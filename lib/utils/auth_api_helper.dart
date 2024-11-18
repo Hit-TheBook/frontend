@@ -49,6 +49,7 @@ class AuthApiHelper {
         'nickname': nickname,
       }),
     );
+
     debugPrint('$email,$password,$nickname');
     debugPrint('POST $url');
     debugPrint('Response status: ${response.statusCode}');

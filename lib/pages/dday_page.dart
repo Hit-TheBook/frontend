@@ -324,48 +324,21 @@ class DdayPageState extends State<DdayPage> {
           return true; // 기본 뒤로가기 동작을 막음
         },
       child : Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // 기본 뒤로가기 버튼 제거
-        leading: Align(
-          alignment: Alignment.centerLeft,
-          child: Row(
-            mainAxisSize: MainAxisSize.min, // 최소 크기만 사용
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, size: 20), // 원하는 아이콘 사용
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const StudyPage()), // StudyPage로 이동
-                  );
-                },
-              ),
-              const SizedBox(width: 4.0), // 아이콘과 텍스트 사이의 간격 조정
-              // Text(
-              //   '나의 스터디',
-              //   style: TextStyle(
-              //     color: neonskyblue1, // 원하는 색상으로 변경
-              //     fontSize: 14, // 원하는 크기로 변경
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              //   overflow: TextOverflow.ellipsis, // 텍스트가 넘칠 경우 생략 표시
-              // ),
-            ],
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('디데이'),
+          centerTitle: true,
+          leading: IconButton( // 뒤로 가기 버튼 추가
+            icon: Icon(Icons.arrow_back), // 뒤로 가기 버튼에 사용할 아이콘
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StudyPage()), // 원하는 페이지로 이동
+              );
+            },
           ),
         ),
-        title: Center(
-          child: Text(
-            '디데이',
-            style: TextStyle(
-              color: Colors.white, // 원하는 색상으로 변경
-              fontSize: 16, // 원하는 크기로 변경
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.black, // AppBar 배경색 설정
-      ),
-      body: _ddayList.isEmpty
+        body: _ddayList.isEmpty
           ? const Center(
         child: Text(
           '디데이를 추가해 보세요',

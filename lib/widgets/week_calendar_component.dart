@@ -179,7 +179,7 @@ class _WeekCalendarComponentState extends State<WeekCalendarComponent> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white,
-                  width: 2.w,
+                  width: 1.w,
                 ),
               ),
               todayDecoration: BoxDecoration(),

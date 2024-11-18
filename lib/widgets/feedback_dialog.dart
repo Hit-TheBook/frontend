@@ -126,9 +126,6 @@ class _FeedbackTypeDialogState extends State<FeedbackTypeDialog> {
                   ),
                 ),
 
-
-
-
               ],
             ),
           ),

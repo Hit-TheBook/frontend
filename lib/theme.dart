@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Define your custom colors
 class AppColors {
@@ -15,19 +16,20 @@ class AppColors {
 final ThemeData appTheme = ThemeData(
   primarySwatch: Colors.blue,
   scaffoldBackgroundColor: AppColors.background,
-  appBarTheme: const AppBarTheme(
+  appBarTheme: AppBarTheme(
     color: AppColors.appBarBackground,
     iconTheme: IconThemeData(color: AppColors.appBarText),
     titleTextStyle: TextStyle(
       color: AppColors.appBarText,
-      fontSize: 20,
+      fontSize: 14.sp, // `ScreenUtil`을 사용한 동적 fontSize
       fontWeight: FontWeight.bold,
     ),
     centerTitle: true,  // 타이틀을 중앙에 정렬
+
   ),
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: AppColors.text),
-    bodyMedium: TextStyle(color: AppColors.text),
+  textTheme: TextTheme(
+    bodyLarge: TextStyle(color: AppColors.text, fontSize: 16.sp), // dynamic font size
+    bodyMedium: TextStyle(color: AppColors.text, fontSize: 14.sp), // dynamic font size
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(

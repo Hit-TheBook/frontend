@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project1/widgets/week_calendar_component.dart';
 import 'package:project1/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project1/widgets/bargraph.dart';
 
 class TimerUsageReportPage extends StatefulWidget {
   const TimerUsageReportPage({Key? key}) : super(key: key);
@@ -14,6 +15,15 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
   List<DateTime> selectedWeekDays = [];
   DateTime? selectedDay = DateTime.now();
   bool isDailySelected = true;
+
+  // 일간 및 주간 데이터와 라벨 예시
+  final List<double> dailyData = [30, 70, 110, 90, 60, 80,140];
+  final List<String> dailyLabels = ["10/7", "10/8", "10/9", "10/10", "10/11", "10/12","10/13"]; // 일간 라벨
+
+  final List<double> weeklyData = [50, 100, 150, 80];
+  final List<String> weeklyLabels = ["Week1", "Week2", "Week3", "Week4"]; // 주간 라벨
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +98,8 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                   selectedDay != null ? selectedDay!.toIso8601String() : '',
                   style: TextStyle(fontSize: 14.sp),
                 ),
+                SizedBox(height: 10.h),
+                Divider(color: Colors.grey, thickness: 1),
               ] else ...[
                 weekCalendarComponent,
                 Text(
@@ -100,7 +112,15 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                       : '',
                   style: TextStyle(fontSize: 14.sp),
                 ),
+                SizedBox(height: 10.h),
+                Divider(color: Colors.grey, thickness: 1),
               ],
+
+              SizedBox(height: 20.h),
+              BarGraph(
+                data: isDailySelected ? dailyData : weeklyData,
+                labels: isDailySelected ? dailyLabels : weeklyLabels,
+              ),
             ],
           ),
         ),

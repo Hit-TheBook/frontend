@@ -38,10 +38,11 @@ class _RegisterPageState extends State<RegisterPage> {
   // 비밀번호 유효성 검사 함수
   bool _validatePassword(String password) {
     final RegExp passwordExp = RegExp(
-      r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#\$%\^&\*])[A-Za-z\d!@#\$%\^&\*]{8,}$',
+      r'^(?=.*[A-Za-z])(?=.*\d)|(?=.*[A-Za-z])(?=.*[!@#\$%\^&\*])|(?=.*\d)(?=.*[!@#\$%\^&\*]).{8,}$',
     );
     return passwordExp.hasMatch(password);
   }
+
 
   @override
   void initState() {
@@ -411,7 +412,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 8),
               Text(
-                '* 8자리 이상 영어, 숫자, 특수문자를 조합해야 합니다.',
+                '*8자리 이상 영어 대소문자, 숫자, 특수문자 중 2종류 이상을 조합해야 합니다. ',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: neonskyblue1), // 직접 정의한 색상 사용
               ),
              SizedBox(height: 16.h),
