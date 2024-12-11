@@ -13,6 +13,7 @@ import '../main.dart';
 import '../models/planner_model.dart';
 import 'package:project1/colors.dart';
 
+import '../widgets/custom_appbar.dart';
 import 'main_page.dart';
 
 
@@ -319,19 +320,9 @@ class _PlannerPageState extends State<PlannerPage> {
 
 
       child: Scaffold (
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('플래너'),
-          centerTitle: true,
-          leading: IconButton( // 뒤로 가기 버튼 추가
-            icon: Icon(Icons.arrow_back), // 뒤로 가기 버튼에 사용할 아이콘
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const StudyPage()), // 원하는 페이지로 이동
-              );
-            },
-          ),
+        appBar:  const CustomAppBar(
+          title: '플래너',
+          showBackButton: true,
         ),
 
         body: SingleChildScrollView(

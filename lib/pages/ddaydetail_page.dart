@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/src/response.dart';
 import 'package:intl/intl.dart';
+import 'package:project1/colors.dart';
 import 'package:project1/models/dday_model.dart';
 import 'package:project1/pages/dday_page.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API helper import
@@ -241,9 +242,6 @@ class DdaydetailPageState extends State<DdaydetailPage> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -254,7 +252,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                           child: ElevatedButton(
                             onPressed: _selectStartDate,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: gray1,
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(12),
@@ -272,7 +270,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                                 ),
                                 Text(
                                   _formatDate(_selectedStartDate),
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: neonskyblue1),
                                 ),
                               ],
                             ),
@@ -287,7 +285,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                           child: ElevatedButton(
                             onPressed: _selectEndDate,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: gray1,
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
                                   bottomLeft: Radius.circular(12),
@@ -305,7 +303,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                                 ),
                                 Text(
                                   _formatDate(_selectedEndDate),
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: neonskyblue1),
                                 ),
                               ],
                             ),

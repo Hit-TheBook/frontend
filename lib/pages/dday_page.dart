@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/pages/study_page.dart';
 import '../utils/dday_api_helper.dart';
+import '../widgets/custom_appbar.dart';
 import '../widgets/customfloatingactionbutton.dart';
 
 class DdayPage extends StatefulWidget {
@@ -324,19 +325,9 @@ class DdayPageState extends State<DdayPage> {
           return true; // 기본 뒤로가기 동작을 막음
         },
       child : Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('디데이'),
-          centerTitle: true,
-          leading: IconButton( // 뒤로 가기 버튼 추가
-            icon: Icon(Icons.arrow_back), // 뒤로 가기 버튼에 사용할 아이콘
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const StudyPage()), // 원하는 페이지로 이동
-              );
-            },
-          ),
+        appBar:  const CustomAppBar(
+          title: '디데이',
+          showBackButton: true,
         ),
         body: _ddayList.isEmpty
           ? const Center(

@@ -7,22 +7,34 @@ import 'study_timer_page.dart';
 class TimeSettingPage extends StatefulWidget {
   final int timerId;
   final String subjectName;
-  final String studyTimeLength;
-  final int point;
+  final Duration totalStudyTime;
+  final int totalScore;
 
   TimeSettingPage({
     required this.timerId,
     required this.subjectName,
-    required this.studyTimeLength,
-    required this.point,
+    required this.totalStudyTime,
+    required this.totalScore,
   });
+
+
 
   @override
   _TimeSettingPageState createState() => _TimeSettingPageState();
 }
 
 class _TimeSettingPageState extends State<TimeSettingPage> {
-  Duration goalDuration = Duration(hours: 0, minutes: 0, seconds: 0);
+  Duration targetTime = Duration(hours: 0, minutes: 0, seconds: 0);
+  @override
+  void initState() {
+    super.initState();
+
+    // 이전 페이지에서 전달된 값들을 출력
+    debugPrint('받은 timerId: ${widget.timerId}');
+    debugPrint('받은 subjectName: ${widget.subjectName}');
+    debugPrint('받은 totalStudyTime: ${widget.totalStudyTime}');
+    debugPrint('받은 totalScore: ${widget.totalScore}');
+  }
 
   String formatTime(Duration duration) {
     final formattedHours = duration.inHours.toString().padLeft(2, '0');
@@ -31,9 +43,9 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
     return '$formattedHours:$formattedMinutes:$formattedSeconds';
   }
 
-  int get goalPoint {
+  int get targetscore {
     // 목표시간에 1분당 1점 계산
-    return goalDuration.inMinutes;
+    return targetTime.inMinutes;
   }
 
   // CupertinoTimePicker를 호출하는 함수
@@ -47,10 +59,10 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
             Container(
               height: 200.h,
               child: CupertinoTimerPicker(
-                initialTimerDuration: goalDuration,
+                initialTimerDuration: targetTime,
                 onTimerDurationChanged: (Duration duration) {
                   setState(() {
-                    goalDuration = duration;
+                    targetTime = duration;
                   });
                 },
                 mode: CupertinoTimerPickerMode.hms, // 시, 분, 초 모드로 변경
@@ -70,7 +82,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
 
   // '시작' 텍스트가 활성화될 조건 체크
   bool get isStartTextEnabled {
-    return goalDuration.inMinutes >= 10;
+    return targetTime.inMinutes >= 10;
   }
 
   // '시작' 텍스트 클릭 시 이동할 페이지 (예: TimerPage)
@@ -81,10 +93,11 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
         builder: (context) => StudyTimerPage(
           timerId: widget.timerId,
           subjectName: widget.subjectName,
-          studyTimeLength: widget.studyTimeLength,
-          point: widget.point,
-          goalDuration: goalDuration,
-          goalPoint: goalPoint,
+          totalStudyTime: widget.totalStudyTime,
+          //point: widget.totalScore,
+          targetTime: targetTime,
+          targetscore: targetscore,
+
         ),
       ),
     );
@@ -131,7 +144,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        formatTime(goalDuration),
+                        formatTime(targetTime),
                         style: TextStyle(fontSize: 12.sp),
                       ),
                       SizedBox(width: 10.w),
@@ -152,7 +165,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    '목표시간 달성 시 획득 점수: $goalPoint',
+                    '목표시간 달성 시 획득 점수: $targetscore',
                     style: TextStyle(fontSize: 12.sp),
                   ),
                 ],

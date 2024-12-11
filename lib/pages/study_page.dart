@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/pages/dday_page.dart';
-import 'package:project1/pages/test_page.dart';
+
 import 'package:project1/pages/timer.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
-import 'package:project1/pages/count_up_timer_page.dart';
+
 import '../colors.dart';
 import 'main_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
@@ -23,6 +23,8 @@ class StudyPage extends StatefulWidget {
 class _StudyPageState extends State<StudyPage> {
   String? primaryDdayName;
   int? remainingDays;
+
+
 
   @override
   void initState() {
@@ -51,7 +53,7 @@ class _StudyPageState extends State<StudyPage> {
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
-    String formattedDate = DateFormat('MM월 dd일', 'ko_KR').format(now);
+    String formattedDate = DateFormat('yyyy년 MM월 dd일', 'ko_KR').format(now);
     String weekDay = DateFormat('EEEE', 'ko_KR').format(now);
     String firstLetterOfWeekDay = weekDay.isNotEmpty ? weekDay[0] : '';
 
@@ -83,15 +85,15 @@ class _StudyPageState extends State<StudyPage> {
                   const Text(
                     '나의 스터디',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+                      color: neonskyblue1,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     '$formattedDate ($firstLetterOfWeekDay)', // 날짜 표시
                     style: const TextStyle(
-                      color: Color(0xFF8E8E8E),
+                      color: white1,
                       fontSize: 14.0,
                     ),
                   ),
@@ -99,6 +101,23 @@ class _StudyPageState extends State<StudyPage> {
               ),
             ),
             const SizedBox(height: 20), // 여백 추가
+
+            buildSectionContainer(
+              context: context,
+              items: [
+                '타이머',
+                '00:00:00',
+              ],
+              onPressed: (String title) {
+                if (title == '타이머') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const TimerPage()),
+                  );
+                }
+              },
+            ),
+                    const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -110,7 +129,7 @@ class _StudyPageState extends State<StudyPage> {
                       items: [
                         '디데이',
                         primaryDdayName != null && remainingDays != null
-                            ? '$primaryDdayName                                          D -$remainingDays'
+                            ? '$primaryDdayName D -$remainingDays'
                             : '로딩 중...',
                       ],
                       onPressed: (String title) {
@@ -122,22 +141,7 @@ class _StudyPageState extends State<StudyPage> {
                         }
                       },
                     ),
-                    const SizedBox(height: 20),
-                    buildSectionContainer(
-                      context: context,
-                      items: [
-                        '타이머',
-                        '00:00:00',
-                      ],
-                      onPressed: (String title) {
-                        if (title == '타이머') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const TimerPage()),
-                          );
-                        }
-                      },
-                    ),
+
                     const SizedBox(height: 20),
                     buildSectionContainer(
                       context: context,
@@ -155,6 +159,7 @@ class _StudyPageState extends State<StudyPage> {
             ),
           ],
         ),
+        
       ),
     );
   }

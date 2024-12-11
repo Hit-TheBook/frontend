@@ -44,3 +44,6 @@ flutter:
     - assets/images/logo.png
     - assets/images/hitthebook.jpg
     - assets/images/timegoal.png
+    - assets/levels/
+    - assets/emblem/
+    - assets/images/blue_v.png

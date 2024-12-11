@@ -33,6 +33,10 @@ class _RegisterPageState extends State<RegisterPage> {
   // 비밀번호 유효성 상태 추가
   bool isPasswordValid = false;
   bool isButtonEnabled = false; // '완료' 버튼 상태 변수
+  bool _isNicknameAvailable = false; // 상태 변수 추가
+
+
+
 
 
   // 비밀번호 유효성 검사 함수
@@ -63,18 +67,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void updateButtonState() {
     setState(() {
-      // 모든 필드가 채워져 있고, 비밀번호가 유효한 경우에만 버튼 활성화
+      // 디버그 로그 추가: 각 조건의 현재 상태를 출력
+      print("email.isNotEmpty: ${emailController.text.isNotEmpty}");
+      print("code.isNotEmpty: ${codeController.text.isNotEmpty}");
+      print("password.isNotEmpty: ${passwordController.text.isNotEmpty}");
+      print("confirmPassword.isNotEmpty: ${confirmPasswordController.text.isNotEmpty}");
+      print("nickname.isNotEmpty: ${nicknameController.text.isNotEmpty} (ResetPassword: ${widget.isResetPassword})");
+      print("isPasswordValid: $isPasswordValid");
+      print("_isCodeVerified: $_isCodeVerified");
+
+      // 비밀번호 재설정인 경우, 닉네임 필드를 체크하지 않도록 수정
       isButtonEnabled = emailController.text.isNotEmpty &&
           codeController.text.isNotEmpty &&
           passwordController.text.isNotEmpty &&
           confirmPasswordController.text.isNotEmpty &&
-          (!widget.isResetPassword || nicknameController.text.isNotEmpty) &&
           isPasswordValid &&
-          _isCodeVerified; // 인증 코드가 확인된 경우만
+          _isCodeVerified; // nickname 체크를 제거
+
+      print("isButtonEnabled: $isButtonEnabled"); // 최종 버튼 활성화 상태 출력
     });
   }
 
-  // 기타 메소드들은 그대로 유지합니다.
 
 
 
@@ -217,6 +230,25 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  Future<void> _checkNicknameAvailability() async {
+    String nickname = nicknameController.text;
+
+    bool isAvailable = await registerViewModel.checkNicknameAvailability(nickname);
+
+    setState(() {
+      _isNicknameAvailable = isAvailable; // 상태 변수 업데이트
+    });
+
+    if (isAvailable) {
+      setState(() {
+
+      });
+    } else {
+      // 닉네임 중복 -> 다이얼로그 표시
+      _showCustomDialog(context, '이메일 확인', '잘못된 요청입니다. 이메일 주소를 다시 한번 확인해주세요.');
+    }
+  }
+
 
   void _startCountdown() {
     if (_countdownTimer != null) {
@@ -296,6 +328,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               // 이메일 입력 필드
               Text('이메일 주소', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
               SizedBox(height: 8.h),
@@ -343,7 +376,8 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 200.w,
+                    height: 37.h,
                     child: TextField(
                       controller: codeController,
                       decoration: const InputDecoration(
@@ -352,6 +386,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
                       ),
+
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -443,15 +478,40 @@ class _RegisterPageState extends State<RegisterPage> {
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8.h),
-                    TextField(
-                      controller: nicknameController,
-                      decoration: const InputDecoration(
-                        fillColor: Color(0xFF333333),
-                        filled: true,
-                        border: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
-                      ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 200.w, // Adjust width as needed
+                          height: 37.h, // Set height to 37.h
+                          child: TextField(
+                            controller: nicknameController,
+                            decoration: const InputDecoration(
+                              fillColor: Color(0xFF333333),
+                              filled: true,
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 35.w),
+                        ElevatedButton(
+                          onPressed: () {
+                            _checkNicknameAvailability(); // 버튼이 눌렸을 때 "클릭"이 콘솔에 출력됩니다.
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(neonskyblue1), // 버튼 배경색
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder( // 둥근 모서리 설정
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                          child: Text(_isNicknameAvailable ? '사용가능' : '중복확인'), // 닉네임이 사용 가능한지에 따라 텍스트 업데이트
+                        ),
+
+                      ],
                     ),
+
                     SizedBox(height: 8.h),
                     Text(
                       '* 최소 2글자 이상 6글자 이하(공백 제외)',

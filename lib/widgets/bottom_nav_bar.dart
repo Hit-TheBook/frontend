@@ -24,8 +24,8 @@ class BottomNavBar extends StatelessWidget {
       selectedItemColor: neonskyblue1,
       onTap: onItemTapped,
       items: const [
-        BottomNavigationBarItem(icon: Icon(FeatherIcons.user), label: 'User'),
-        BottomNavigationBarItem(icon: Icon(FeatherIcons.penTool), label: 'Pen'),
+        BottomNavigationBarItem(icon: Icon(Icons.workspace_premium_outlined), label: 'main'),
+        BottomNavigationBarItem(icon: Icon(Icons.mode_edit_outline_outlined), label: 'study'),
         //BottomNavigationBarItem(icon: Icon(FeatherIcons.facebook), label: 'Facebook'),
       ],
     );

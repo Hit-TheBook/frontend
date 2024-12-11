@@ -202,4 +202,29 @@ class AuthApiHelper {
 
     return response;
   }
+  Future<bool> checkNicknameAvailability(String nickname) async {
+    final url = Uri.parse('$baseUrl/member/nickname/check');  // 실제 API 주소로 변경
+
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode({'nickname': nickname}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답이 200일 때 처리 (중복되지 않음)
+        var data = json.decode(response.body);
+        return data['available'] == true; // 'available'이 true이면 사용 가능
+      } else {
+        // 오류 처리
+        throw Exception('닉네임 중복 확인 실패');
+      }
+    } catch (e) {
+      // 예외 처리
+      print('Error: $e');
+      return false; // 실패 시 false 반환
+    }
+  }
 }
+

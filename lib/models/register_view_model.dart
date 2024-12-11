@@ -25,5 +25,9 @@ class RegisterViewModel {
     return await _authApiHelper.registerUser(email, password, nickname);
 
   }
+  Future<bool> checkNicknameAvailability(String nickname)  async {
+    return await _authApiHelper.checkNicknameAvailability(nickname);
+
+  }
 
 }
