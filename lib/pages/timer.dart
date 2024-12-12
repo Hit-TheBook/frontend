@@ -52,11 +52,63 @@ class _TimerPageState extends State<TimerPage> {
   void initState() {
     super.initState();
     fetchTimerContentList(); // 화면이 로드될 때 API 호출
+    fetchStudyTime();
+  }
+  // fetchStudyTime API를 호출하여 studyTime과 score를 가져옵니다.
+  Future<void> fetchStudyTime() async {
+    try {
+      final studyTimeData = await _timerApiHelper.fetchStudyTime();
+
+      // studyTimeLength가 문자열로 제공되는 경우
+      final studyTimeLength = studyTimeData.studyTimeLength;
+      if (studyTimeLength != null) {
+        // ISO 8601 형식의 문자열을 Duration 객체로 변환
+        Duration studyTimeDuration = _parseDuration(studyTimeLength);
+
+        setState(() {
+          displayedTime = formatDuration(studyTimeDuration); // Duration 형식으로 변환하여 표시
+          totalScore = studyTimeData.score; // 점수 업데이트
+        });
+      } else {
+        // studyTimeLength가 null인 경우 처리
+        setState(() {
+          displayedTime = '00:00:00'; // 기본값
+          totalScore = studyTimeData.score;
+        });
+      }
+    } catch (error) {
+      print('studyTime 가져오기 실패: $error');
+    }
+  }
+
+// ISO 8601 문자열을 Duration으로 변환하는 함수
+  Duration _parseDuration(String durationString) {
+    final RegExp regExp = RegExp(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?");
+    final match = regExp.firstMatch(durationString);
+
+    if (match != null) {
+      final hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+      final minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+      final seconds = int.tryParse(match.group(3) ?? '0') ?? 0;
+
+      return Duration(hours: hours, minutes: minutes, seconds: seconds);
+    }
+
+    return Duration.zero; // 문자열이 잘못된 형식일 경우 0초 반환
+  }
+
+
+
+
+// Duration을 'HH:mm:ss' 형식으로 변환
+  String formatDuration(Duration duration) {
+    return '${duration.inHours.toString().padLeft(2, '0')}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
   }
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     fetchTimerContentList(); // 화면에 다시 진입할 때 API 호출
+    fetchStudyTime();
   }
   /// API를 호출하여 타이머 데이터를 가져옵니다.
   Future<void> fetchTimerContentList() async {

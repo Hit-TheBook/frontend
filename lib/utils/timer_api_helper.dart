@@ -163,7 +163,7 @@ class TimerApiHelper {
   Future<List<Map<String, dynamic>>> getTimerList() async {
     final response = await _sendApiRequest(
       method: 'GET',
-      endpoint: 'timer/list', // 실제 API endpoint에 맞게 수정
+      endpoint: 'timer/list',
     );
 
     if (response.statusCode == 200) {
@@ -180,7 +180,6 @@ class TimerApiHelper {
 
           // 변환된 값을 포함한 새로운 데이터 구조 반환
           return {
-
             'timerId': entry['timerId'],
             'subjectName': entry['subjectName'],
             'totalStudyTime': totalDuration, // Duration 값 포함
@@ -202,7 +201,29 @@ class TimerApiHelper {
       body: request.toJson(),
     );
   }
+  Future<TimerData> fetchStudyTime() async {
+    final response = await _sendApiRequest(
+      method: 'GET',
+      endpoint: 'timer/today/data',
+    );
 
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+
+      // studyTimeLength가 String 타입으로 제공되므로 이를 그대로 사용
+      final studyTimeLength = jsonData['studyTimeLength'] as String?;
+      final score = jsonData['score'] ?? 0;
+      final presentLevel = jsonData['presentLevel'] ?? 0;
+
+      return TimerData(
+        studyTimeLength: studyTimeLength, // String 타입으로 저장
+        score: score,
+        presentLevel: presentLevel,
+      );
+    } else {
+      throw Exception('Failed to load study time');
+    }
+  }
 
 }
 

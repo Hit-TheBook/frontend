@@ -48,6 +48,7 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
   void _showCustomDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return TimerDialog(
           title: '획득한 점수 안내',
@@ -129,6 +130,15 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  Duration get parsedStudyTimeLength {
+    // studyTimeLength를 "hh:mm:ss" 형식에서 Duration으로 변환
+    final parts = studyTimeLength.split(':'); // "hh:mm:ss" 형태를 ':'로 분리
+    final hours = int.parse(parts[0]);
+    final minutes = int.parse(parts[1]);
+    final seconds = int.parse(parts[2]);
+    return Duration(hours: hours, minutes: minutes, seconds: seconds);
+  }
+
   String get formattedTargetTime {
     final int hours = widget.targetTime.inHours;
     final int minutes = widget.targetTime.inMinutes % 60;
@@ -144,29 +154,35 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
   }
 
   Duration get extraTime {
-    return _studyDuration > widget.targetTime
-        ? _studyDuration - widget.targetTime
+    return parsedStudyTimeLength > widget.targetTime
+        ? parsedStudyTimeLength - widget.targetTime
         : Duration.zero;
   }
+
   int get extraTimeInSeconds {
-    int studyTimeInSeconds = _studyDuration.inSeconds;
+    // studyTimeLength를 Duration으로 변환
+    int studyTimeInSeconds = parsedStudyTimeLength.inSeconds;
     int targetTimeInSeconds = widget.targetTime.inSeconds;
     return studyTimeInSeconds - targetTimeInSeconds; // 음수, 0, 양수 모두 가능
   }
 
 
+
   int get score {
-    if (_studyDuration <= widget.targetTime) {
+    final studyDuration = parsedStudyTimeLength; // studyTimeLength를 Duration으로 변환
+
+    if (studyDuration <= widget.targetTime) {
       // 목표 시간보다 같거나 적을 때, 1분당 1점
-      return _studyDuration.inMinutes;
+      return studyDuration.inMinutes;
     } else {
       // 목표 시간을 초과했을 때, 10분당 20점
-      int extraMinutes = extraTime.inMinutes;
+      int extraMinutes = (studyDuration - widget.targetTime).inMinutes;
       int scoreForExtraTime = (extraMinutes ~/ 10) * 20; // 10분당 20점
       int remainingMinutes = extraMinutes % 10; // 10분 이내 나머지 시간은 1분당 1점
       return widget.targetTime.inMinutes + scoreForExtraTime + remainingMinutes;
     }
   }
+
 
 
 

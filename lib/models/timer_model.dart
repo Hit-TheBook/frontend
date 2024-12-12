@@ -80,4 +80,35 @@ class TimerEndRequest {
       score: json['score'],
     );
   }
+
 }
+class TimerData {
+  final String? studyTimeLength; // studyTimeLength는 이제 String으로 변경
+  final int score;
+  final int presentLevel;
+
+  TimerData({
+    this.studyTimeLength,
+    required this.score,
+    required this.presentLevel,
+  });
+
+  // JSON으로 변환하는 메서드
+  Map<String, dynamic> toJson() {
+    return {
+      'studyTimeLength': studyTimeLength,
+      'score': score,
+      'presentLevel': presentLevel,
+    };
+  }
+
+  // JSON에서 객체로 변환하는 팩토리 생성자
+  factory TimerData.fromJson(Map<String, dynamic> json) {
+    return TimerData(
+      studyTimeLength: json['studyTimeLength'] as String?, // studyTimeLength는 String 타입으로 처리
+      score: json['score'] ?? 0,
+      presentLevel: json['presentLevel'] ?? 0,
+    );
+  }
+}
+
