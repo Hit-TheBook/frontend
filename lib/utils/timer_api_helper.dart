@@ -224,6 +224,47 @@ class TimerApiHelper {
       throw Exception('Failed to load study time');
     }
   }
+  Future<List<String>> fetchSubjects() async {
+    final response = await _sendApiRequest(
+      method: 'GET',
+      endpoint: 'timer/list', // 실제 과목 목록을 반환하는 API 엔드포인트
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      if (jsonData.containsKey('timerContentList') && jsonData['timerContentList'] != null) {
+        final List<dynamic> timerContentList = jsonData['timerContentList'];
+        return timerContentList
+            .map((timerContent) => timerContent['subjectName'] as String)
+            .toList();
+      } else {
+        throw Exception('Subjects not found');
+      }
+    } else {
+      throw Exception('Failed to load subjects');
+    }
+  }
+  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
+    try {
+      // _sendApiRequest 호출
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'timer/Statistics/daily/subject/$targetDate/$subjectName',
+      );
+
+      // 상태 코드가 200이면 데이터 처리
+      if (response.statusCode == 200) {
+        print('Data fetched successfully');
+        // 추가 작업: JSON 파싱 등
+      } else {
+        throw Exception('Failed to fetch daily subject statistics');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+
 
 }
 

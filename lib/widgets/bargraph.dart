@@ -4,12 +4,22 @@ import 'package:project1/colors.dart';
 
 class BarGraph extends StatelessWidget {
   final List<double> data;
-  final List<String> labels; // 각 막대의 라벨 리스트 추가
+  final List<String> labels;
+  final int? highlightedIndex; // 색칠할 인덱스
 
-  const BarGraph({Key? key, required this.data, required this.labels}) : super(key: key);
+  const BarGraph({
+    Key? key,
+    required this.data,
+    required this.labels,
+    this.highlightedIndex, // 추가
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    double maxValue = data.reduce((a, b) => a > b ? a : b);
+    double containerHeight = 80.h;
+    double scaleFactor = containerHeight / maxValue;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -17,31 +27,32 @@ class BarGraph extends StatelessWidget {
       ),
       padding: EdgeInsets.all(8.0.w),
       child: SizedBox(
-        height: 200.h,
+        height: containerHeight,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: data.asMap().entries.map((entry) {
             int index = entry.key;
             double value = entry.value;
-            Color barColor = (index == data.length - 1) ? neonskyblue1 : gray1;
+
+            // 선택된 막대의 색상을 변경
+            Color barColor = (index == highlightedIndex) ? neonskyblue1 : gray1;
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                Text(
+                  value.toStringAsFixed(0),
+                  style: TextStyle(fontSize: 12.sp, color: black1),
+                ),
                 Container(
-                  width: 20.w,
-                  height: value,
+                  width: 15.w,
+                  height: value * scaleFactor,
                   color: barColor,
                 ),
                 SizedBox(height: 5.h),
                 Text(
-                  value.toString(),
-                  style: TextStyle(fontSize: 10.sp),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  labels[index], // 각 막대의 라벨 표시
-                  style: TextStyle(fontSize: 10.sp,color: black1),
+                  labels[index],
+                  style: TextStyle(fontSize: 12.sp, color: black1),
                 ),
               ],
             );
