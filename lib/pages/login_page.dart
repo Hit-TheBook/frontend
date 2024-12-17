@@ -7,9 +7,37 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/widgets/customdialog.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 패키지 추가
+import 'package:encrypt/encrypt.dart' as encrypt; // encrypt 패키지 추가
+import 'dart:convert'; // JSON 인코딩
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
+
+  // AES 암호화 함수
+  String encryptPassword(String password) {
+    // .env에서 Base64로 인코딩된 키 가져오기
+    String base64Key = dotenv.get('SECRET_KEY', fallback: '');
+
+    // Base64 디코딩
+    final decodedKey = base64.decode(base64Key);
+
+    // 디코딩된 키 길이 확인
+    print('Decoded Key Length: ${decodedKey.length} bytes');
+    if (decodedKey.length != 16 && decodedKey.length != 24 && decodedKey.length != 32) {
+      throw Exception('Invalid AES key length after Base64 decoding. Must be 16, 24, or 32 bytes.');
+    }
+
+    // AES 암호화 준비
+    final key = encrypt.Key(decodedKey);
+    final iv = encrypt.IV.fromLength(16); // 16바이트 IV
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+    // 비밀번호 암호화
+    final encrypted = encrypter.encrypt(password, iv: iv);
+    print('암호화된 비밀번호: ${encrypted.base64}');
+    return encrypted.base64; // 암호화된 비밀번호 반환
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +124,15 @@ class LoginPage extends StatelessWidget {
                   String email = emailController.text;
                   String password = passwordController.text;
 
+                  // 비밀번호 암호화
+                  String encryptedPassword = encryptPassword(password);
+                  // **콘솔에 입력된 비밀번호와 암호화된 비밀번호 출력**
+                  print('입력된 비밀번호: $password');
+                  print('암호화된 비밀번호: $encryptedPassword');
+
                   LoginRequestModel requestModel = LoginRequestModel(
                     email: email,
-                    password: password,
+                    password: password//password encryptedPassword, // 암호화된 비밀번호 사용
                   );
 
                   LoginResponseModel responseModel = await apiHelper.login(

@@ -253,37 +253,41 @@ class TimerApiHelper {
     }
   }
 
-  Future<Map<String, dynamic>> fetchDailySubjectStatistics(String targetDate,
+  Future<Map<String, double>> fetchDailySubjectStatistics(String targetDate,
       String subjectName) async {
     try {
-      // 타겟 날짜와 과목 이름을 로그에 출력
-      print('Fetching data for targetDate: $targetDate, subjectName: $subjectName');
-
+      print(
+          'Fetching data for targetDate: $targetDate, subjectName: $subjectName');
       final response = await _sendApiRequest(
         method: 'GET',
         endpoint: 'timer/Statistics/daily/subject/$targetDate/$subjectName',
       );
 
       if (response.statusCode == 200) {
-        // JSON 파싱
         Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('Response data: $responseData'); // 응답 데이터 출력
 
-        // 응답 데이터가 null이 아니고, 값이 적절한 형식인지 확인
         if (responseData != null) {
           Map<String, double> durationData = {};
 
-          // map 호출 전에 각 값이 null이 아닌지 확인
           responseData.forEach((key, value) {
-            if (value != null && value is String) {
-              final duration = Duration(seconds: int.parse(value.replaceAll(RegExp(r'\D'), '')));
-              durationData[key] = duration.inSeconds.toDouble();
+
+
+            // 'PT'로 시작하는 값만 처리
+            if (value is String && value.startsWith('PT')) {
+              try {
+                final duration = _parseDuration(value);
+                print("duration = $duration, type = ${duration.runtimeType}");
+                durationData[key] = duration.inSeconds.toDouble();
+              } catch (e) {
+                print('Skipping invalid duration format: $value');
+              }
             } else {
-              // 값이 null이거나 올바르지 않으면 0으로 처리
-              durationData[key] = 0.0;
+              print('Skipping non-duration value: $value');
             }
           });
 
-          return durationData;  // Duration을 처리한 값을 반환
+          return durationData;
         } else {
           throw Exception('Response data is null');
         }
@@ -291,41 +295,67 @@ class TimerApiHelper {
         throw Exception('Failed to fetch daily subject statistics');
       }
     } catch (e) {
-      print('Error fetching data: $e');
-      rethrow; // 에러를 상위에서 처리하도록 던짐
+      print('Error fetching daily data: $e');
+      rethrow;
     }
   }
+
+  Duration _parseDuration(String iso8601Duration) {
+    try {
+      final regex = RegExp(r'PT(\d+H)?(\d+M)?(\d+S)?');
+      final match = regex.firstMatch(iso8601Duration);
+
+      if (match != null) {
+        final hours = match.group(1) != null ? int.parse(
+            match.group(1)!.replaceAll('H', '')) : 0;
+        final minutes = match.group(2) != null ? int.parse(
+            match.group(2)!.replaceAll('M', '')) : 0;
+        final seconds = match.group(3) != null ? int.parse(
+            match.group(3)!.replaceAll('S', '')) : 0;
+
+        return Duration(hours: hours, minutes: minutes, seconds: seconds);
+      } else {
+        throw FormatException('Invalid ISO 8601 duration format');
+      }
+    } catch (e) {
+      print('Error parsing duration: $e');
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> fetchWeeklySubjectStatistics(String targetDate,
       String subjectName) async {
     try {
-      // 타겟 날짜와 과목 이름을 로그에 출력
-      print('Fetching weekly data for targetDate: $targetDate, subjectName: $subjectName');
-
+      print(
+          'Fetching weekly data for targetDate: $targetDate, subjectName: $subjectName');
       final response = await _sendApiRequest(
         method: 'GET',
-        endpoint: 'timer/Statistics/weekly/subject/$targetDate/$subjectName',  // 엔드포인트 변경
+        endpoint: 'timer/Statistics/weekly/subject/$targetDate/$subjectName',
       );
 
       if (response.statusCode == 200) {
-        // JSON 파싱
         Map<String, dynamic> responseData = jsonDecode(response.body);
 
-        // 응답 데이터가 null이 아니고, 값이 적절한 형식인지 확인
         if (responseData != null) {
           Map<String, double> durationData = {};
 
-          // map 호출 전에 각 값이 null이 아닌지 확인
           responseData.forEach((key, value) {
             if (value != null && value is String) {
-              final duration = Duration(seconds: int.parse(value.replaceAll(RegExp(r'\D'), '')));
-              durationData[key] = duration.inSeconds.toDouble();
+              try {
+                // Duration으로 변환 (PT10H -> Duration)
+                final duration = _parseDuration(value);
+                durationData[key] = duration.inSeconds.toDouble();
+              } catch (e) {
+                print('Error parsing weekly duration for key $key: $e');
+                durationData[key] = 0.0;
+              }
             } else {
-              // 값이 null이거나 올바르지 않으면 0으로 처리
+              // 값이 null이거나 형식이 잘못된 경우 0으로 처리
               durationData[key] = 0.0;
             }
           });
 
-          return durationData;  // Duration을 처리한 값을 반환
+          return durationData;
         } else {
           throw Exception('Response data is null');
         }
@@ -334,8 +364,7 @@ class TimerApiHelper {
       }
     } catch (e) {
       print('Error fetching weekly data: $e');
-      rethrow; // 에러를 상위에서 처리하도록 던짐
+      rethrow;
     }
   }
-
 }

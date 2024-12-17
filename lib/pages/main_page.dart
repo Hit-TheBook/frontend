@@ -10,6 +10,7 @@ import 'package:project1/utils/auth_api_helper.dart';
 import 'package:project1/widgets/customdialog.dart';
 import 'package:project1/models/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project1/models/user_model.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -76,30 +77,38 @@ class _MainContentState extends State<MainContent> {
   int? point;
   double progress = 0.66; // 0.0 ~ 1.0 (기본 66%로 설정)
   final AuthApiHelper authApiHelper = AuthApiHelper();
-  List<String> emblemImages = [
-    'assets/emblem/achieved_1hour_subject.png',
-    'assets/emblem/achieved_2hour_subject.png',
-    'assets/emblem/achieved_3hour_subject.png',
-    'assets/emblem/achieved_3hour_subject.png',
-    'assets/emblem/achieved_15hour_subject.png',
-    // 이미지 파일 경로 추가
-  ];
+  List<Emblem> emblems = []; // 서버에서 받은 엠블럼 데이터를 저장할 리스트
 
 
   @override
   void initState() {
     super.initState();
     _loadUserInfo(); // 사용자 정보를 로드
+    _fetchEmblems();
   }
+  Future<void> _fetchEmblems() async {
+    try {
+      // authApiHelper.fetchEmblems() 호출로 엠블럼 리스트 가져오기
+      List<Emblem> fetchedEmblems = await authApiHelper.fetchEmblems();
+
+      setState(() {
+        // 서버에서 가져온 엠블럼 데이터를 상태에 설정
+        emblems = fetchedEmblems;
+      });
+    } catch (e) {
+      print('엠블럼을 가져오는 중 오류 발생: $e');
+    }
+  }
+
 
   Future<void> _loadUserInfo() async {
     try {
-      final response = await authApiHelper.findUserName('member'); // 엔드포인트 수정
+      final response = await authApiHelper.findUserName('nickname'); // 엔드포인트 수정
       if (response.statusCode == 200) {
         final userInfo = UserResponse.fromJson(jsonDecode(response.body));
         setState(() {
           nickname = userInfo.nickname;
-          point = userInfo.point;
+         // point = userInfo.point;
           //progress = point != null ? (point! / 100) : 0.0; // 경험치 퍼센트 계산
           progress = 0.6; // 경험치 퍼센트 계산
         });
@@ -282,7 +291,7 @@ class _MainContentState extends State<MainContent> {
                   Align(
                     alignment: Alignment.centerRight, // 오른쪽 정렬
                     child: Text(
-                      '총 수집 개수: ${emblemImages.isNotEmpty ? emblemImages.length : 0}',
+                      '총 수집 개수: ${emblems.isNotEmpty ? emblems.length : 0}',
                       style: TextStyle(
                         fontSize: 10.sp, // 반응형 텍스트 크기
                         color: Colors.white, // 텍스트 색상
@@ -292,26 +301,53 @@ class _MainContentState extends State<MainContent> {
                 ],
               ),
             ),
-            if (emblemImages.isNotEmpty) ...[
+            if (emblems.isNotEmpty) ...[
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: GridView.builder(
+                child: // MainContent 내부의 GridView.builder 부분 수정
+                GridView.builder(
                   shrinkWrap: true, // 스크롤뷰 안에서 작동하도록 설정
                   physics: const NeverScrollableScrollPhysics(), // 내부 스크롤 비활성화
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3, // 한 줄에 3개의 이미지
-                    crossAxisSpacing: 10.w, // 이미지 간격
-                    mainAxisSpacing: 10.h,
+                    crossAxisSpacing: 5.w, // 이미지 간격
+                    mainAxisSpacing: 10.h, // 이미지 세로 간격
                     childAspectRatio: 1, // 이미지의 가로 세로 비율
                   ),
-                  itemCount: emblemImages.length,
+                  itemCount: emblems.length,
                   itemBuilder: (context, index) {
-                    return Image.asset(
-                      emblemImages[index],
-                      fit: BoxFit.contain,
+                    final emblem = emblems[index]; // 각 엠블럼 데이터 가져오기
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Image.asset(
+                            'assets/emblem/${emblem.emblemName}.png',  // 동적 이미지 경로
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        SizedBox(height: 5.h), // 이미지와 텍스트 사이 간격
+                        Text(
+                          emblem.emblemCreateAt, // 생성일 텍스트
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 2.h), // 이미지와 텍스트 사이 간격
+                        Text(
+                          emblem.emblemContent, // 엠블럼 내용 텍스트
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
+
               ),
             ] else ...[
               Center(

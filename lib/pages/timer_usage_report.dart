@@ -56,48 +56,66 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
   double parseDurationToHours(String duration) {
     try {
-      // 시간(H)을 추출하는 정규식
-      final regexH = RegExp(r'PT(\d+)H');
-      final matchH = regexH.firstMatch(duration);
-      if (matchH != null) {
-        return double.parse(matchH.group(1)!);
-      }
+      debugPrint('@@@@@@@@@@@@@@@@@@@@@');
+      // 정규식에서 시간, 분, 초를 처리
+      final regex = RegExp(r'PT(\d+)([A-Za-z]+)');
+      final match = regex.firstMatch(duration);
+      debugPrint('@@@@@@@@@@@@@@@@@@@@@');
+      debugPrint('@@@@@@@@@@ regex = $regex , match = $match');
+      if (match != null) {
+        final value = int.parse(match.group(1)!);
+        final unit = match.group(2);
 
-      // 분(M)을 추출하는 정규식
-      final regexM = RegExp(r'PT(\d+)M');
-      final matchM = regexM.firstMatch(duration);
-      if (matchM != null) {
-        return double.parse(matchM.group(1)!) / 60.0; // 분을 시간으로 변환
+        debugPrint('@@@@@@@@@@ regex = $regex , match = $match');
+        debugPrint('Parsing $duration: value = $value, unit = $unit'); // 디버깅 로그 추가
+        print("@@@@@@@@@@");
+        // 각 단위에 맞게 계산
+        if (unit == 'H') {
+          return value.toDouble();
+        } else if (unit == 'M') {
+          return value / 60.0;
+        } else if (unit == 'S') {
+          return value / 3600.0;
+        }
       }
-
-      // 초(S)을 추출하는 정규식
-      final regexS = RegExp(r'PT(\d+)S');
-      final matchS = regexS.firstMatch(duration);
-      if (matchS != null) {
-        return double.parse(matchS.group(1)!) / 3600.0; // 초를 시간으로 변환
-      }
-
-      return 0.0; // 시간이 없으면 0 반환
     } catch (e) {
-      return 0.0; // 오류 발생 시 0 반환
+      print('Error parsing duration: $e');
     }
+    return 0.0; // 기본값 0.0 반환
   }
+
+
 
 
   Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
     try {
       final response = await TimerApiHelper().fetchDailySubjectStatistics(targetDate, subjectName);
 
-      // 응답이 null이거나 "daily" 키가 없을 경우 빈 리스트로 초기화
-      List<dynamic> dailyData = response["daily"] ?? [];
+      // 응답 로그 확인
+      print('Received daily statistics: $response');
 
-      // 데이터를 List<double>로 변환
-      List<double> dailyDataInHours = dailyData
-          .map((item) => parseDurationToHours(item.toString()))
-          .toList();
+      // 응답에서 날짜별 데이터를 가져오기
+      Map<String, dynamic> dailyData = response; // 예시 응답: monday, tuesday 등 포함
+      print('*************************');
+      print('$dailyData');
+      print("dailyData = $dailyData, type = ${dailyData.runtimeType}");
 
-      // 데이터가 부족할 경우 0으로 채움
+      // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
+      List<double> dailyDataInHours = [
+        dailyData['monday'] ?? 'PT0S',
+        dailyData['tuesday'] ?? 'PT0S',
+       dailyData['wednesday'] ?? 'PT0S',
+        dailyData['thursday'] ?? 'PT0S',
+        dailyData['friday'] ?? 'PT0S',
+       dailyData['saturday'] ?? 'PT0S',
+        dailyData['sunday'] ?? 'PT0S',
+      ];
+      debugPrint('@@@@@@@@@@ $dailyDataInHours');
+
+
+      // 부족한 데이터는 0으로 채움
       dailyDataInHours = fillMissingData(dailyDataInHours, 7); // 7일로 맞추기
+      debugPrint('@@@@@@@@@@ $dailyDataInHours');
 
       setState(() {
         subjectData[subjectName] = {
@@ -108,6 +126,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
       print('Error fetching daily data: $e');
     }
   }
+
 
   Future<void> fetchWeeklySubjectStatistics(String targetDate, String subjectName) async {
     try {
@@ -337,31 +356,45 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
               SizedBox(height: 10.h),
               // BarGraph 위젯에 선택된 과목과 일간/주간 데이터를 전달
+              // BarGraph에 데이터를 전달하는 부분 수정
+
               Container(
                 height: 150.h, // 원하는 높이로 설정
-                child: BarGraph(
-                  data: isDailySelected
-                      ? fillMissingData(
-                    subjectData[selectedSubject]?["daily"] ?? [],  // null일 경우 빈 리스트로 처리
-                    7, // 일간 데이터는 7일로 맞춤
-                  )
-                      : fillMissingData(
-                    subjectData[selectedSubject]?["weekly"] ?? [],  // null일 경우 빈 리스트로 처리
-                    4, // 주간 데이터는 4주로 맞춤
-                  ),
-                  labels: isDailySelected ? dailyLabels : weeklyLabels,
-                  highlightedIndex: selectedDay != null
-                      ? (isDailySelected
-                      ? getDayIndex(selectedDay!)
-                      : getWeekIndex(selectedDay!))
-                      : null,
-                )
+                child: Builder(
+                  builder: (context) {
+                    // 데이터 전달 전 로그 추가
+                    final graphData = isDailySelected
+                        ? fillMissingData(
+                      subjectData[selectedSubject]?["daily"] ?? [],
+                      7,  // 일간 데이터는 7일로 맞춤
+                    )
+                        : fillMissingData(
+                      subjectData[selectedSubject]?["weekly"] ?? [],
+                      4,  // 주간 데이터는 4주로 맞춤
+                    );
 
+                    // 로그 출력
+                    print('Data passed to BarGraph: $graphData');
 
+                    return BarGraph(
+                      data: graphData,
+                      labels: isDailySelected ? dailyLabels : weeklyLabels,
+                      highlightedIndex: selectedDay != null
+                          ? (isDailySelected
+                          ? getDayIndex(selectedDay!)  // 일간 모드에서 선택된 날짜의 요일 인덱스
+                          : getWeekIndex(selectedDay!))  // 주간 모드에서 선택된 주의 인덱스
+                          : null,
+                    );
+                  },
+                ),
               ),
+
+
+
               SizedBox(height: 20.h),
               Divider(color: white1, thickness: 2),
             ],
+
           ),
         ),
       ),

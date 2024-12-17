@@ -28,6 +28,7 @@ dependencies:
   flutter_secure_storage: ^8.0.0 # 토큰
   table_calendar: ^3.1.2 #캘린더
   wakelock: ^0.6.2 # 화면잠금
+  encrypt: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -47,3 +48,4 @@ flutter:
     - assets/levels/
     - assets/emblem/
     - assets/images/blue_v.png
+    - .env

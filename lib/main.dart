@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project1/colors.dart';
@@ -12,12 +14,32 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter의 초기화 보장
+  // 현재 작업 디렉토리 출력
+  print('--- Debugging Env File ---');
+  print('Current working directory: ${Directory.current.path}');
 
+  // .env 파일 존재 여부 확인
+  final envFile = File('.env');
+  if (await envFile.exists()) {
+    print('.env file found at: ${envFile.path}');
+  } else {
+    print('.env file NOT found at: ${envFile.path}');
+  }
+
+  try {
+    // .env 파일 로드 시도
+    await dotenv.load(fileName: ".env");
+    print('.env file successfully loaded');
+  } catch (e) {
+    print('Error loading .env file: $e');
+  }
   await initializeDateFormatting('ko_KR'); // 'ko_KR' 로케일 데이터 초기화
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

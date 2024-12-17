@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/user_model.dart';
 import 'refresh_token_api_helper.dart';
 
 class AuthApiHelper {
@@ -21,7 +22,6 @@ class AuthApiHelper {
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
     return response;
-
   }
 
   Future<bool> verifyAuthCode(String email, String code) async {
@@ -35,10 +35,10 @@ class AuthApiHelper {
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
     return response.statusCode == 200;
-
   }
 
-  Future<bool> registerUser(String email, String password, String nickname) async {
+  Future<bool> registerUser(String email, String password,
+      String nickname) async {
     final url = Uri.parse('$baseUrl/join');
     final response = await http.post(
       Uri.parse('$baseUrl/join'),
@@ -55,7 +55,6 @@ class AuthApiHelper {
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
     return response.statusCode == 200;
-
   }
 
   Future<bool> sendResetAuthCode(String email) async {
@@ -69,11 +68,11 @@ class AuthApiHelper {
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
     return response.statusCode == 200;
-
   }
 
 
-  Future<http.Response> checkPreviousPassword(String email, String password) async {
+  Future<http.Response> checkPreviousPassword(String email,
+      String password) async {
     final url = Uri.parse('$baseUrl/forget/password/current');
     final response = await http.post(
       url,
@@ -93,7 +92,6 @@ class AuthApiHelper {
   }
 
 
-
   Future<bool> resetPassword(String email, String password) async {
     final url = Uri.parse('$baseUrl/forget/password/reset');
     final response = await http.post(
@@ -110,8 +108,8 @@ class AuthApiHelper {
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
     return response.statusCode == 200;
-
   }
+
   // DELETE 요청
   Future<http.Response> deleteAccount(String endpoint) async {
     final url = Uri.parse('$baseUrl/$endpoint');
@@ -146,7 +144,8 @@ class AuthApiHelper {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
-        await storage.write(key: 'accessToken', value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
+        await storage.write(key: 'accessToken',
+            value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
 
         // 새로운 토큰으로 API 요청 다시 시도
         response = await sendRequest(refreshTokenResponse.accessToken);
@@ -191,7 +190,8 @@ class AuthApiHelper {
       try {
         // 리프레시 토큰을 사용해 액세스 토큰 갱신
         final refreshTokenResponse = await refreshTokenHelper.refreshToken();
-        await storage.write(key: 'accessToken', value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
+        await storage.write(key: 'accessToken',
+            value: refreshTokenResponse.accessToken); // 새로운 토큰 저장
 
         // 새로운 토큰으로 API 요청 다시 시도
         response = await sendRequest(refreshTokenResponse.accessToken);
@@ -202,8 +202,9 @@ class AuthApiHelper {
 
     return response;
   }
+
   Future<bool> checkNicknameAvailability(String nickname) async {
-    final url = Uri.parse('$baseUrl/member/nickname/check');  // 실제 API 주소로 변경
+    final url = Uri.parse('$baseUrl/member/nickname/check'); // 실제 API 주소로 변경
 
     try {
       final response = await http.post(
@@ -226,5 +227,157 @@ class AuthApiHelper {
       return false; // 실패 시 false 반환
     }
   }
-}
 
+  // 공통 API 요청 함수
+  Future<http.Response> _sendApiRequest({
+    required String method,
+    required String endpoint,
+    Map<String, dynamic>? body,
+  }) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    // 저장된 액세스 토큰 가져오기
+    String? accessToken = await storage.read(key: 'accessToken');
+    if (accessToken == null) {
+      throw Exception('No access token found');
+    }
+
+    Future<http.Response> sendRequest(String token) async {
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      http.Response response;
+
+      switch (method) {
+        case 'POST':
+          debugPrint('POST Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          debugPrint('Body: ${jsonEncode(body)}');
+          response =
+          await http.post(url, headers: headers, body: jsonEncode(body));
+          break;
+        case 'PATCH':
+          debugPrint('PATCH Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          debugPrint('Body: ${jsonEncode(body)}');
+          response =
+          await http.patch(url, headers: headers, body: jsonEncode(body));
+          break;
+        case 'DELETE':
+          debugPrint('DELETE Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          response = await http.delete(url, headers: headers);
+          break;
+        case 'GET': // 추가된 부분: GET 메소드 처리
+          debugPrint('GET Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          response = await http.get(url, headers: headers);
+          break;
+        default:
+          throw Exception('Unsupported HTTP method: $method');
+      }
+
+      // 응답 디버그 출력
+      debugPrint('Response Status Code: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
+
+      return response;
+    }
+
+    // API 호출 및 토큰 갱신 처리
+    http.Response response = await sendRequest(accessToken);
+
+    // 토큰 만료 처리 (499 상태)
+    if (response.statusCode == 499) {
+      try {
+        final refreshTokenResponse = await refreshTokenHelper.refreshToken();
+        response = await sendRequest(refreshTokenResponse.accessToken);
+      } catch (e) {
+        throw Exception('Failed to refresh token: $e');
+      }
+    }
+
+    return response;
+  }
+
+  Future<List<Emblem>> fetchEmblems() async {
+    try {
+      // API 호출
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'emblem', // 엠블럼 API 엔드포인트
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답을 JSON으로 파싱
+        List<dynamic> data = jsonDecode(response.body)['emblemDtoContents'];
+        // 데이터 파싱
+        List<Emblem> emblems = data.map((item) => Emblem.fromJson(item))
+            .toList();
+
+        // 필요 없는 추가 리스트는 제거하고 바로 반환
+        return emblems;
+      } else {
+        throw Exception('엠블럼 데이터를 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('엠블럼 데이터를 가져오는 중 오류 발생: $e');
+      throw e;
+    }
+  }
+  Future<List<Emblem>> fetchlevel() async {
+    try {
+      // API 호출
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'level', // 엠블럼 API 엔드포인트
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답을 JSON으로 파싱
+        List<dynamic> data = jsonDecode(response.body)['emblemDtoContents'];
+        // 데이터 파싱
+        List<Emblem> emblems = data.map((item) => Emblem.fromJson(item))
+            .toList();
+
+        // 필요 없는 추가 리스트는 제거하고 바로 반환
+        return emblems;
+      } else {
+        throw Exception('엠블럼 데이터를 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('엠블럼 데이터를 가져오는 중 오류 발생: $e');
+      throw e;
+    }
+  }
+  Future<Level> fetchLevel() async {
+    try {
+      // API 호출
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'level', // 레벨 API 엔드포인트
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답을 JSON으로 파싱
+        var data = jsonDecode(response.body); // 단일 객체 반환
+        // 데이터 파싱
+        Level level = Level.fromJson(data); // 단일 객체로 변환
+
+        return level; // Level 객체 반환
+      } else {
+        throw Exception('레벨 데이터를 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('레벨 데이터를 가져오는 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+}
