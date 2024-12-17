@@ -12,19 +12,22 @@ class TimerApiHelper {
   final RefreshTokenApiHelper refreshTokenHelper = RefreshTokenApiHelper(); // 리프레시 토큰 헬퍼 인스턴스 생성
 
   Duration convertToDuration(String iso8601String) {
-    final regex = RegExp(r'PT(\d+H)?(\d+M)?(\d+S)?');  // "PT2H22M52S"와 "PT22M52S" 모두 처리
+    final regex = RegExp(
+        r'PT(\d+H)?(\d+M)?(\d+S)?'); // "PT2H22M52S"와 "PT22M52S" 모두 처리
     final match = regex.firstMatch(iso8601String);
 
     if (match != null) {
-      final hours = match.group(1) != null ? int.parse(match.group(1)!.replaceAll('H', '')) : 0;
-      final minutes = match.group(2) != null ? int.parse(match.group(2)!.replaceAll('M', '')) : 0;
-      final seconds = match.group(3) != null ? int.parse(match.group(3)!.replaceAll('S', '')) : 0;
+      final hours = match.group(1) != null ? int.parse(
+          match.group(1)!.replaceAll('H', '')) : 0;
+      final minutes = match.group(2) != null ? int.parse(
+          match.group(2)!.replaceAll('M', '')) : 0;
+      final seconds = match.group(3) != null ? int.parse(
+          match.group(3)!.replaceAll('S', '')) : 0;
       return Duration(hours: hours, minutes: minutes, seconds: seconds);
     } else {
       throw FormatException('Invalid duration format');
     }
   }
-
 
 
   // 공통 API 요청 함수
@@ -55,14 +58,16 @@ class TimerApiHelper {
           debugPrint('URL: $url');
           debugPrint('Headers: $headers');
           debugPrint('Body: ${jsonEncode(body)}');
-          response = await http.post(url, headers: headers, body: jsonEncode(body));
+          response =
+          await http.post(url, headers: headers, body: jsonEncode(body));
           break;
         case 'PATCH':
           debugPrint('PATCH Request:');
           debugPrint('URL: $url');
           debugPrint('Headers: $headers');
           debugPrint('Body: ${jsonEncode(body)}');
-          response = await http.patch(url, headers: headers, body: jsonEncode(body));
+          response =
+          await http.patch(url, headers: headers, body: jsonEncode(body));
           break;
         case 'DELETE':
           debugPrint('DELETE Request:');
@@ -70,16 +75,14 @@ class TimerApiHelper {
           debugPrint('Headers: $headers');
           response = await http.delete(url, headers: headers);
           break;
-      case 'GET': // 추가된 부분: GET 메소드 처리
-      debugPrint('GET Request:');
-      debugPrint('URL: $url');
-      debugPrint('Headers: $headers');
-      response = await http.get(url, headers: headers);
-      break;
-      default:
-      throw Exception('Unsupported HTTP method: $method');
-
-
+        case 'GET': // 추가된 부분: GET 메소드 처리
+          debugPrint('GET Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          response = await http.get(url, headers: headers);
+          break;
+        default:
+          throw Exception('Unsupported HTTP method: $method');
       }
 
       // 응답 디버그 출력
@@ -115,7 +118,7 @@ class TimerApiHelper {
 
 
   // 과목 수정
-  Future<http.Response> modifySubject(int timerId,String subjectName) async {
+  Future<http.Response> modifySubject(int timerId, String subjectName) async {
     return await _sendApiRequest(
       method: 'PATCH',
       endpoint: 'timer/$timerId/$subjectName',
@@ -138,6 +141,7 @@ class TimerApiHelper {
       return false;
     }
   }
+
   // Future<List<TimerSubjectRequest>> fetchTimerContentList() async {
   //   final response = await _sendApiRequest(
   //     method: 'GET',
@@ -193,14 +197,16 @@ class TimerApiHelper {
       throw Exception('Failed to load timer list');
     }
   }
+
   // 타이머 종료
-  Future<http.Response> endTimer(int timerId,TimerEndRequest request) async {
+  Future<http.Response> endTimer(int timerId, TimerEndRequest request) async {
     return await _sendApiRequest(
       method: 'POST',
       endpoint: 'timer/history/$timerId',
       body: request.toJson(),
     );
   }
+
   Future<TimerData> fetchStudyTime() async {
     final response = await _sendApiRequest(
       method: 'GET',
@@ -224,6 +230,7 @@ class TimerApiHelper {
       throw Exception('Failed to load study time');
     }
   }
+
   Future<List<String>> fetchSubjects() async {
     final response = await _sendApiRequest(
       method: 'GET',
@@ -232,7 +239,8 @@ class TimerApiHelper {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonData = jsonDecode(response.body);
-      if (jsonData.containsKey('timerContentList') && jsonData['timerContentList'] != null) {
+      if (jsonData.containsKey('timerContentList') &&
+          jsonData['timerContentList'] != null) {
         final List<dynamic> timerContentList = jsonData['timerContentList'];
         return timerContentList
             .map((timerContent) => timerContent['subjectName'] as String)
@@ -244,27 +252,90 @@ class TimerApiHelper {
       throw Exception('Failed to load subjects');
     }
   }
-  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
+
+  Future<Map<String, dynamic>> fetchDailySubjectStatistics(String targetDate,
+      String subjectName) async {
     try {
-      // _sendApiRequest 호출
+      // 타겟 날짜와 과목 이름을 로그에 출력
+      print('Fetching data for targetDate: $targetDate, subjectName: $subjectName');
+
       final response = await _sendApiRequest(
         method: 'GET',
         endpoint: 'timer/Statistics/daily/subject/$targetDate/$subjectName',
       );
 
-      // 상태 코드가 200이면 데이터 처리
       if (response.statusCode == 200) {
-        print('Data fetched successfully');
-        // 추가 작업: JSON 파싱 등
+        // JSON 파싱
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // 응답 데이터가 null이 아니고, 값이 적절한 형식인지 확인
+        if (responseData != null) {
+          Map<String, double> durationData = {};
+
+          // map 호출 전에 각 값이 null이 아닌지 확인
+          responseData.forEach((key, value) {
+            if (value != null && value is String) {
+              final duration = Duration(seconds: int.parse(value.replaceAll(RegExp(r'\D'), '')));
+              durationData[key] = duration.inSeconds.toDouble();
+            } else {
+              // 값이 null이거나 올바르지 않으면 0으로 처리
+              durationData[key] = 0.0;
+            }
+          });
+
+          return durationData;  // Duration을 처리한 값을 반환
+        } else {
+          throw Exception('Response data is null');
+        }
       } else {
         throw Exception('Failed to fetch daily subject statistics');
       }
     } catch (e) {
       print('Error fetching data: $e');
+      rethrow; // 에러를 상위에서 처리하도록 던짐
+    }
+  }
+  Future<Map<String, dynamic>> fetchWeeklySubjectStatistics(String targetDate,
+      String subjectName) async {
+    try {
+      // 타겟 날짜와 과목 이름을 로그에 출력
+      print('Fetching weekly data for targetDate: $targetDate, subjectName: $subjectName');
+
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'timer/Statistics/weekly/subject/$targetDate/$subjectName',  // 엔드포인트 변경
+      );
+
+      if (response.statusCode == 200) {
+        // JSON 파싱
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // 응답 데이터가 null이 아니고, 값이 적절한 형식인지 확인
+        if (responseData != null) {
+          Map<String, double> durationData = {};
+
+          // map 호출 전에 각 값이 null이 아닌지 확인
+          responseData.forEach((key, value) {
+            if (value != null && value is String) {
+              final duration = Duration(seconds: int.parse(value.replaceAll(RegExp(r'\D'), '')));
+              durationData[key] = duration.inSeconds.toDouble();
+            } else {
+              // 값이 null이거나 올바르지 않으면 0으로 처리
+              durationData[key] = 0.0;
+            }
+          });
+
+          return durationData;  // Duration을 처리한 값을 반환
+        } else {
+          throw Exception('Response data is null');
+        }
+      } else {
+        throw Exception('Failed to fetch weekly subject statistics');
+      }
+    } catch (e) {
+      print('Error fetching weekly data: $e');
+      rethrow; // 에러를 상위에서 처리하도록 던짐
     }
   }
 
-
-
 }
-

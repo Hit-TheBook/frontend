@@ -29,21 +29,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
   String selectedSubject = '';     // 선택된 과목 (초기값을 빈 문자열로 설정)
 
-  // 일간 및 주간 데이터 예시
-  final Map<String, Map<String, List<double>>> subjectData = {
-    "Math": {
-      "daily": [30, 50, 80, 60, 100],
-      "weekly": [200, 250, 300, 300],
-    },
-    // "English": {
-    //   "daily": [40, 60, 90, 110, 130, 300, 300],
-    //   "weekly": [220, 270, 350, 300],
-    // },
-    // "Scienceaaaaaaaaaaaa": {
-    //   "daily": [20, 30, 60, 40, 70, 300, 300],
-    //   "weekly": [150, 180, 240, 300],
-    // },
-  };
+  late Map<String, Map<String, List<double>>> subjectData = {};
 
   List<double> fillMissingData(List<double> data, int targetLength) {
     // 데이터 길이가 targetLength에 미치지 못하면 0으로 채움
@@ -55,34 +41,98 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
     return date.weekday - 1;
   }
 
-  int getWeekIndex(DateTime date) {
-    // 현재 월의 첫 번째 날
+  int getWeekIndex(DateTime? date) {
+    if (date == null) {
+      return -1;  // null일 경우 기본값을 반환하거나 오류를 처리
+    }
+
     DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
-    // 첫 번째 날의 요일 (월요일 기준으로 설정하기 위해 조정)
-    int firstWeekday = firstDayOfMonth.weekday == 7 ? 0 : firstDayOfMonth.weekday; // 일요일 = 0
-
-    // 첫 번째 월요일의 날짜
+    int firstWeekday = firstDayOfMonth.weekday == 7 ? 0 : firstDayOfMonth.weekday;
     DateTime firstMonday = firstDayOfMonth.subtract(Duration(days: firstWeekday - 1));
-
-    // 주차 계산
     int weekIndex = ((date.difference(firstMonday).inDays) / 7).floor();
 
     return weekIndex;
   }
-  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
-    try {
-      // fetchDailySubjectStatistics가 void를 반환한다면 상태 확인을 위해 다른 방식으로 처리해야 함
-      await TimerApiHelper().fetchDailySubjectStatistics(targetDate, subjectName);
 
-      // 정상 처리 후의 로직
-      print('Data fetched successfully');
-      // 상태 코드 체크를 못 하므로, 성공적인 결과를 처리할 로직을 작성해야 함.
+  double parseDurationToHours(String duration) {
+    try {
+      // 시간(H)을 추출하는 정규식
+      final regexH = RegExp(r'PT(\d+)H');
+      final matchH = regexH.firstMatch(duration);
+      if (matchH != null) {
+        return double.parse(matchH.group(1)!);
+      }
+
+      // 분(M)을 추출하는 정규식
+      final regexM = RegExp(r'PT(\d+)M');
+      final matchM = regexM.firstMatch(duration);
+      if (matchM != null) {
+        return double.parse(matchM.group(1)!) / 60.0; // 분을 시간으로 변환
+      }
+
+      // 초(S)을 추출하는 정규식
+      final regexS = RegExp(r'PT(\d+)S');
+      final matchS = regexS.firstMatch(duration);
+      if (matchS != null) {
+        return double.parse(matchS.group(1)!) / 3600.0; // 초를 시간으로 변환
+      }
+
+      return 0.0; // 시간이 없으면 0 반환
     } catch (e) {
-      // 오류 처리
-      print('Error fetching data: $e');
+      return 0.0; // 오류 발생 시 0 반환
     }
   }
 
+
+  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
+    try {
+      final response = await TimerApiHelper().fetchDailySubjectStatistics(targetDate, subjectName);
+
+      // 응답이 null이거나 "daily" 키가 없을 경우 빈 리스트로 초기화
+      List<dynamic> dailyData = response["daily"] ?? [];
+
+      // 데이터를 List<double>로 변환
+      List<double> dailyDataInHours = dailyData
+          .map((item) => parseDurationToHours(item.toString()))
+          .toList();
+
+      // 데이터가 부족할 경우 0으로 채움
+      dailyDataInHours = fillMissingData(dailyDataInHours, 7); // 7일로 맞추기
+
+      setState(() {
+        subjectData[subjectName] = {
+          "daily": dailyDataInHours,
+        };
+      });
+    } catch (e) {
+      print('Error fetching daily data: $e');
+    }
+  }
+
+  Future<void> fetchWeeklySubjectStatistics(String targetDate, String subjectName) async {
+    try {
+      final response = await TimerApiHelper().fetchWeeklySubjectStatistics(targetDate, subjectName);
+
+      // 응답이 null이거나 "weekly" 키가 없을 경우 빈 리스트로 초기화
+      List<dynamic> weeklyData = response["weekly"] ?? [];
+
+      // 데이터를 List<double>로 변환
+      List<double> weeklyDataInHours = weeklyData
+          .map((item) => parseDurationToHours(item.toString()))
+          .toList();
+
+      // 데이터가 부족할 경우 0으로 채움
+      weeklyDataInHours = fillMissingData(weeklyDataInHours, 4); // 4주로 맞추기
+
+      setState(() {
+        subjectData[subjectName] = {
+          "weekly": weeklyDataInHours,
+        };
+      });
+    } catch (e) {
+      print('Error fetching weekly data: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -102,7 +152,8 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
       // 과목이 로드되면 초기 선택 날짜와 첫 번째 과목을 서버에 보내는 API 호출
       if (selectedSubject.isNotEmpty && selectedDay != null) {
         final targetDate = selectedDay!.toIso8601String().split('T').first; // YYYY-MM-DD 형식으로 변환
-        await fetchDailySubjectStatistics(targetDate, selectedSubject); // API 호출
+        await fetchDailySubjectStatistics(targetDate, selectedSubject);
+        fetchWeeklySubjectStatistics(targetDate, selectedSubject);// API 호출
       }
     } catch (e) {
       print('Failed to load subjects: $e');
@@ -117,9 +168,21 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
         setState(() {
           selectedWeekDays = weekDays;
           this.selectedDay = selectedDay;
+
+          // 날짜 변경 시 API 호출
+          if (selectedSubject.isNotEmpty && selectedDay != null) {
+            final targetDate = selectedDay!.toIso8601String().split('T').first;
+
+            // 일간/주간 모드에 맞는 API 호출
+            if (isDailySelected) {
+              fetchDailySubjectStatistics(targetDate, selectedSubject); // 일간 모드에서는 daily API 호출
+            } else {
+              fetchWeeklySubjectStatistics(targetDate, selectedSubject); // 주간 모드에서는 weekly API 호출
+            }
+          }
         });
       },
-      isDailySelected: isDailySelected,  // 전달된 값
+      isDailySelected: isDailySelected,
     );
 
     return Scaffold(
@@ -146,7 +209,13 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                         selectedDay = DateTime.now();
                         selectedWeekDays.clear();
                       });
+                      // 일간 모드로 변경 시 해당 API 호출
+                      if (selectedSubject.isNotEmpty && selectedDay != null) {
+                        final targetDate = selectedDay!.toIso8601String().split('T').first;
+                        fetchDailySubjectStatistics(targetDate, selectedSubject); // 일간 API 호출
+                      }
                     },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDailySelected ? neonskyblue1 : Colors.white,
                       minimumSize: Size(54.w, 24.h),
@@ -161,6 +230,11 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                         selectedDay = DateTime.now();
                         selectedWeekDays = weekCalendarComponent.getWeekDays(DateTime.now());
                       });
+                      // 주간 모드로 변경 시 해당 API 호출
+                      if (selectedSubject.isNotEmpty && selectedDay != null) {
+                        final targetDate = selectedDay!.toIso8601String().split('T').first;
+                        fetchWeeklySubjectStatistics(targetDate, selectedSubject); // 주간 API 호출
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDailySelected ? Colors.white : neonskyblue1,
@@ -168,6 +242,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                     ),
                     child: Text('주간', style: TextStyle(fontSize: 14.sp)),
                   ),
+
                 ],
               ),
               SizedBox(height: 5.h),
@@ -230,13 +305,24 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
               SubjectDropdown(
                 selectedSubject: selectedSubject,
-                subjectsList: subjectsList, // API로 받은 과목 목록 전달
+                subjectsList: subjectsList,
                 onSubjectChanged: (newSubject) {
                   setState(() {
-                    selectedSubject = newSubject ?? ''; // 선택된 과목이 null일 경우 빈 문자열로 설정
+                    selectedSubject = newSubject ?? '';
                   });
+
+                  // 과목 변경 시 API 호출
+                  if (selectedDay != null && selectedSubject.isNotEmpty) {
+                    final targetDate = selectedDay!.toIso8601String().split('T').first;
+                    if (isDailySelected) {
+                      fetchDailySubjectStatistics(targetDate, selectedSubject);
+                    } else {
+                      fetchWeeklySubjectStatistics(targetDate, selectedSubject);
+                    }
+                  }
                 },
               ),
+
 
               SizedBox(height: 10.h),
               // 그래프 표시
@@ -254,27 +340,27 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
               Container(
                 height: 150.h, // 원하는 높이로 설정
                 child: BarGraph(
-                  data: [],//isDailySelected
-                  //     ? fillMissingData(
-                  //   subjectData.containsKey(selectedSubject)
-                  //       ? subjectData[selectedSubject]!["daily"]!
-                  //       : [],
-                  //   7,
-                  // ) // 7일 고정
-                  //     : fillMissingData(
-                  //   subjectData.containsKey(selectedSubject)
-                  //       ? subjectData[selectedSubject]!["weekly"]!
-                  //       : [],
-                  //   4,
-                  // ), // 4주 고정
+                  data: isDailySelected
+                      ? fillMissingData(
+                    subjectData[selectedSubject]?["daily"] ?? [],  // null일 경우 빈 리스트로 처리
+                    7, // 일간 데이터는 7일로 맞춤
+                  )
+                      : fillMissingData(
+                    subjectData[selectedSubject]?["weekly"] ?? [],  // null일 경우 빈 리스트로 처리
+                    4, // 주간 데이터는 4주로 맞춤
+                  ),
                   labels: isDailySelected ? dailyLabels : weeklyLabels,
-                  highlightedIndex: isDailySelected && selectedDay != null
+                  highlightedIndex: selectedDay != null
+                      ? (isDailySelected
                       ? getDayIndex(selectedDay!)
-                      : !isDailySelected && selectedDay != null
-                      ? getWeekIndex(selectedDay!)
-                      : null, // 하이라이트 없음
-                ),
+                      : getWeekIndex(selectedDay!))
+                      : null,
+                )
+
+
               ),
+              SizedBox(height: 20.h),
+              Divider(color: white1, thickness: 2),
             ],
           ),
         ),
