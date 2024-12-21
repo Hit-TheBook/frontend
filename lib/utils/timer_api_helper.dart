@@ -323,11 +323,11 @@ class TimerApiHelper {
     }
   }
 
-  Future<Map<String, dynamic>> fetchWeeklySubjectStatistics(String targetDate,
+  Future<Map<String, double>> fetchWeeklySubjectStatistics(String targetDate,
       String subjectName) async {
     try {
       print(
-          'Fetching weekly data for targetDate: $targetDate, subjectName: $subjectName');
+          'Fetching data for targetDate: $targetDate, subjectName: $subjectName');
       final response = await _sendApiRequest(
         method: 'GET',
         endpoint: 'timer/Statistics/weekly/subject/$targetDate/$subjectName',
@@ -335,23 +335,25 @@ class TimerApiHelper {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('Response data: $responseData'); // 응답 데이터 출력
 
         if (responseData != null) {
           Map<String, double> durationData = {};
 
           responseData.forEach((key, value) {
-            if (value != null && value is String) {
+
+
+            // 'PT'로 시작하는 값만 처리
+            if (value is String && value.startsWith('PT')) {
               try {
-                // Duration으로 변환 (PT10H -> Duration)
                 final duration = _parseDuration(value);
+                print("duration = $duration, type = ${duration.runtimeType}");
                 durationData[key] = duration.inSeconds.toDouble();
               } catch (e) {
-                print('Error parsing weekly duration for key $key: $e');
-                durationData[key] = 0.0;
+                print('Skipping invalid duration format: $value');
               }
             } else {
-              // 값이 null이거나 형식이 잘못된 경우 0으로 처리
-              durationData[key] = 0.0;
+              print('Skipping non-duration value: $value');
             }
           });
 
@@ -360,10 +362,10 @@ class TimerApiHelper {
           throw Exception('Response data is null');
         }
       } else {
-        throw Exception('Failed to fetch weekly subject statistics');
+        throw Exception('Failed to fetch daily subject statistics');
       }
     } catch (e) {
-      print('Error fetching weekly data: $e');
+      print('Error fetching daily data: $e');
       rethrow;
     }
   }

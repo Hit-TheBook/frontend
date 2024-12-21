@@ -5,12 +5,11 @@ import 'package:project1/pages/login_page.dart';
 import 'package:project1/pages/study_page.dart';
 import 'package:project1/pages/test_page.dart';
 import 'package:project1/widgets/bottom_nav_bar.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:project1/utils/auth_api_helper.dart';
 import 'package:project1/widgets/customdialog.dart';
 import 'package:project1/models/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:project1/models/user_model.dart';
+import 'package:project1/level_images.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,6 +20,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   static final List<Widget> pages = <Widget>[
     const MainContent(),
@@ -75,7 +75,17 @@ class MainContent extends StatefulWidget {
 class _MainContentState extends State<MainContent> {
   String? nickname;
   int? point;
-  double progress = 0.66; // 0.0 ~ 1.0 (기본 66%로 설정)
+  String? levelName;
+  int? minPoint;
+  int? maxPoint;
+  int? level;
+
+  double calculateProgress() {
+    if (minPoint != null && maxPoint != null && point != null) {
+      return (point! - minPoint!) / (maxPoint! - minPoint!);
+    }
+    return 0.0; // null이 있는 경우 기본값 설정
+  } // 0.0 ~ 1.0
   final AuthApiHelper authApiHelper = AuthApiHelper();
   List<Emblem> emblems = []; // 서버에서 받은 엠블럼 데이터를 저장할 리스트
 
@@ -85,6 +95,7 @@ class _MainContentState extends State<MainContent> {
     super.initState();
     _loadUserInfo(); // 사용자 정보를 로드
     _fetchEmblems();
+    _fetchLevel();
   }
   Future<void> _fetchEmblems() async {
     try {
@@ -99,18 +110,41 @@ class _MainContentState extends State<MainContent> {
       print('엠블럼을 가져오는 중 오류 발생: $e');
     }
   }
+  bool isLoading = true; // 로딩 상태 추가
+
+  Future<void> _fetchLevel() async {
+    print('레벨 데이터를 가져오기 시작');
+    try {
+      Level level = await authApiHelper.fetchLevel();
+      setState(() {
+        this.level = level.level;
+        levelName = level.levelName;
+        point = level.point;
+        minPoint = level.minPoint;
+        maxPoint = level.maxPoint;
+        isLoading = false; // 데이터 로드 완료
+      });
+      print('레벨 데이터 로드 완료');
+    } catch (e) {
+      print('레벨 데이터를 가져오는 중 오류 발생: $e');
+      setState(() {
+        isLoading = false; // 오류 발생 시 로딩 종료
+      });
+    }
+  }
+
+
 
 
   Future<void> _loadUserInfo() async {
     try {
-      final response = await authApiHelper.findUserName('nickname'); // 엔드포인트 수정
+      final response = await authApiHelper.findUserName('member/nickname'); // 엔드포인트 수정
       if (response.statusCode == 200) {
         final userInfo = UserResponse.fromJson(jsonDecode(response.body));
         setState(() {
           nickname = userInfo.nickname;
-         // point = userInfo.point;
-          //progress = point != null ? (point! / 100) : 0.0; // 경험치 퍼센트 계산
-          progress = 0.6; // 경험치 퍼센트 계산
+
+
         });
       } else {
         print('사용자 정보를 가져오는 중 오류 발생: ${response.body}');
@@ -122,23 +156,41 @@ class _MainContentState extends State<MainContent> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // 자동으로 생성되는 뒤로가기 버튼 제거
         title: Padding(
-          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0), // 상단 10, 좌우 20
-          child: nickname != null
-              ? Text(
-            '$nickname', // 닉네임만 표시
-            style: TextStyle(
-              fontSize: 14.sp, // 화면 크기에 맞게 텍스트 크기 조정
-            ),
-          )
-              : Text(
-            'Loading...', // 닉네임이 로드되지 않았을 때 로딩 표시
-            style: TextStyle(
-              fontSize: 14.sp, // 기본 텍스트 크기 설정
-            ),
+          padding: const EdgeInsets.only(left: 0.0, right: 20.0, top: 10.0), // 왼쪽 여백을 0으로 설정
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.menu, // 메뉴 아이콘
+                  color: neonskyblue1, // 아이콘 색상
+                  size: 25,
+                ),
+                onPressed: () {
+                  // 메뉴 버튼 클릭 시 사이드바 열기
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+              SizedBox(width: 8), // 아이콘과 닉네임 간의 간격
+              nickname != null
+                  ? Text(
+                '$nickname', // 닉네임만 표시
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+                  : Text(
+                'Loading...', // 닉네임이 로드되지 않았을 때 로딩 표시
+                style: TextStyle(
+                  fontSize: 14.sp,
+                ),
+              ),
+            ],
           ),
         ),
         centerTitle: false,
@@ -150,7 +202,6 @@ class _MainContentState extends State<MainContent> {
               size: 25,
             ),
             onPressed: () {
-              // 메뉴 아이콘을 눌렀을 때 동작 추가
               print("Menu button pressed");
             },
           ),
@@ -160,12 +211,45 @@ class _MainContentState extends State<MainContent> {
               size: 25,
             ),
             onPressed: () {
-              // 메뉴 아이콘을 눌렀을 때 동작 추가
               print("Menu button pressed");
             },
           ),
         ],
       ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  '사이드바 제목',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                title: Text('메뉴 항목 1'),
+                onTap: () {
+                  // 항목을 탭했을 때 동작
+                  Navigator.pop(context); // Drawer 닫기
+                },
+              ),
+              ListTile(
+                title: Text('메뉴 항목 2'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              // 필요에 따라 더 많은 항목을 추가할 수 있습니다.
+            ],
+          ),
+        ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -184,7 +268,7 @@ class _MainContentState extends State<MainContent> {
                 children: [
                   SizedBox(height: 10.h),
                   Text(
-                    'Blue V',
+                    levelName ?? 'Loading...',
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -198,11 +282,15 @@ class _MainContentState extends State<MainContent> {
                       mainAxisAlignment: MainAxisAlignment.center, // 이미지를 가로로 중앙 정렬
                       children: [
                         Image.asset(
-                          'assets/levels/blue_v.png',
+                          level != null && levelImages.containsKey(level)
+                              ? levelImages[level]!  // level을 사용하여 이미지 경로 가져오기
+                              : 'assets/images/hitthebook.jpg', // 기본 이미지
                           width: 150.w,
                           height: 150.h,
                           fit: BoxFit.contain,
                         ),
+
+
                         //SizedBox(width: 10.w), // 이미지와 아이콘 사이에 여백 추가
                         Padding(
                           padding: EdgeInsets.only(top: 110.h), // 아이콘 위쪽에 10.h 만큼 패딩 추가
@@ -222,9 +310,9 @@ class _MainContentState extends State<MainContent> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(left: 160.w),
+                        padding: EdgeInsets.only(left: 165.w),
                         child: Text(
-                          '현재 점수',
+                          '${point ?? 0}',  // point가 null일 경우 0 표시
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: neonskyblue1,
@@ -234,7 +322,7 @@ class _MainContentState extends State<MainContent> {
                       Padding(
                         padding: EdgeInsets.only(right: 45.w),
                         child: Text(
-                          '다음 레벨 점수',
+                          '${maxPoint ?? 0}',  // maxPoint가 null일 경우 0 표시
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Colors.white,
@@ -243,25 +331,37 @@ class _MainContentState extends State<MainContent> {
                       ),
                     ],
                   ),
+
                   Container(
-                    width: 268.w,
-                    height: 12.h,
-                    decoration: BoxDecoration(
-                      color: white1,
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 268.w * progress,
-                          height: 12.h,
-                          decoration: BoxDecoration(
-                            color: neonskyblue1,
-                            borderRadius: BorderRadius.circular(9),
+                      child: Stack(
+                        children: [
+                          // 배경: 전체 길이를 보여주는 배경
+                          Container(
+                            width: 268.w,
+                            height: 12.h,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300], // 배경색
+                              borderRadius: BorderRadius.circular(9),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          // 진행 상태: 실제 경험치 바가 채워지는 부분
+                          Container(
+                            width: (point != null && minPoint != null && maxPoint != null && maxPoint != minPoint)
+                                ? 268.w * ((point! - minPoint!) / (maxPoint! - minPoint!)).clamp(0.0, 1.0) // 0~1 범위로 제한
+                                : 0,
+                            height: 12.h,
+                            decoration: BoxDecoration(
+                              color: neonskyblue1, // 경험치 진행 부분 색상
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(9),
+                                bottomLeft: Radius.circular(9),
+                              ),
+                            ),
+                          ),
+
+                        ],
+                      ),
+
                   ),
                 ],
               ),

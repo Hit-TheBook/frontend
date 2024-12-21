@@ -47,5 +47,5 @@ flutter:
     - assets/images/timegoal.png
     - assets/levels/
     - assets/emblem/
-    - assets/images/blue_v.png
+
     - .env

@@ -56,33 +56,29 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
   double parseDurationToHours(String duration) {
     try {
-      debugPrint('@@@@@@@@@@@@@@@@@@@@@');
-      // 정규식에서 시간, 분, 초를 처리
-      final regex = RegExp(r'PT(\d+)([A-Za-z]+)');
-      final match = regex.firstMatch(duration);
-      debugPrint('@@@@@@@@@@@@@@@@@@@@@');
-      debugPrint('@@@@@@@@@@ regex = $regex , match = $match');
-      if (match != null) {
-        final value = int.parse(match.group(1)!);
-        final unit = match.group(2);
+      debugPrint('Parsing duration: $duration');
 
-        debugPrint('@@@@@@@@@@ regex = $regex , match = $match');
-        debugPrint('Parsing $duration: value = $value, unit = $unit'); // 디버깅 로그 추가
-        print("@@@@@@@@@@");
-        // 각 단위에 맞게 계산
-        if (unit == 'H') {
-          return value.toDouble();
-        } else if (unit == 'M') {
-          return value / 60.0;
-        } else if (unit == 'S') {
-          return value / 3600.0;
-        }
+      // 정규식을 사용해 시간(H), 분(M), 초(S)을 각각 추출
+      final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?');
+      final match = regex.firstMatch(duration);
+
+      if (match != null) {
+        final hours = match.group(1) != null ? int.parse(match.group(1)!) : 0;
+        final minutes = match.group(2) != null ? int.parse(match.group(2)!) : 0;
+        final seconds = match.group(3) != null ? int.parse(match.group(3)!) : 0;
+
+        debugPrint('Parsed values: hours = $hours, minutes = $minutes, seconds = $seconds');
+
+        // 시간, 분, 초를 시간 단위로 환산하여 합산
+        return hours.toDouble() + (minutes / 60.0) + (seconds / 3600.0);
       }
     } catch (e) {
       print('Error parsing duration: $e');
     }
+
     return 0.0; // 기본값 0.0 반환
   }
+
 
 
 
@@ -132,16 +128,29 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
     try {
       final response = await TimerApiHelper().fetchWeeklySubjectStatistics(targetDate, subjectName);
 
-      // 응답이 null이거나 "weekly" 키가 없을 경우 빈 리스트로 초기화
-      List<dynamic> weeklyData = response["weekly"] ?? [];
+      // 응답 로그 확인
+      print('Received weekly statistics: $response');
 
-      // 데이터를 List<double>로 변환
-      List<double> weeklyDataInHours = weeklyData
-          .map((item) => parseDurationToHours(item.toString()))
-          .toList();
+      // 응답에서 날짜별 데이터를 가져오기
+      Map<String, dynamic> weeklyData = response; //
+      print('*************************');
+      print('$weeklyData');
+      print("weeklyData = $weeklyData, type = ${weeklyData.runtimeType}");
 
-      // 데이터가 부족할 경우 0으로 채움
+      // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
+      List<double> weeklyDataInHours = [
+        weeklyData['firstWeek'] ?? 'PT0S',
+        weeklyData['secondWeek'] ?? 'PT0S',
+        weeklyData['thirdWeek'] ?? 'PT0S',
+        weeklyData['fourthWeek'] ?? 'PT0S',
+
+      ];
+      debugPrint('@@@@@@@@@@ $weeklyDataInHours');
+
+
+      // 부족한 데이터는 0으로 채움
       weeklyDataInHours = fillMissingData(weeklyDataInHours, 4); // 4주로 맞추기
+      debugPrint('@@@@@@@@@@ $weeklyDataInHours');
 
       setState(() {
         subjectData[subjectName] = {
@@ -158,6 +167,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
     super.initState();
     // 페이지가 처음 로드될 때 과목 목록을 API에서 가져오기
     _loadSubjects();
+
   }
 
   Future<void> _loadSubjects() async {
@@ -314,7 +324,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                   highlightedIndex: isDailySelected && selectedDay != null
                       ? getDayIndex(selectedDay!) // 일간 모드에서 선택된 날짜의 요일 인덱스
                       : !isDailySelected && selectedDay != null
-                      ? getWeekIndex(selectedDay!) // 주간 모드에서 선택된 주의 인덱스
+                      ?  getWeekIndex(selectedDay!) // 주간: 선택된 주의 인덱스 // 주간 모드에서 선택된 주의 인덱스
                       : null, // 하이라이트 없음
                 ),
               ),

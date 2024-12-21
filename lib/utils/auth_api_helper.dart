@@ -311,7 +311,7 @@ class AuthApiHelper {
       // API 호출
       final response = await _sendApiRequest(
         method: 'GET',
-        endpoint: 'emblem', // 엠블럼 API 엔드포인트
+        endpoint: 'member/emblem', // 엠블럼 API 엔드포인트
       );
 
       if (response.statusCode == 200) {
@@ -331,37 +331,13 @@ class AuthApiHelper {
       throw e;
     }
   }
-  Future<List<Emblem>> fetchlevel() async {
-    try {
-      // API 호출
-      final response = await _sendApiRequest(
-        method: 'GET',
-        endpoint: 'level', // 엠블럼 API 엔드포인트
-      );
 
-      if (response.statusCode == 200) {
-        // 서버 응답을 JSON으로 파싱
-        List<dynamic> data = jsonDecode(response.body)['emblemDtoContents'];
-        // 데이터 파싱
-        List<Emblem> emblems = data.map((item) => Emblem.fromJson(item))
-            .toList();
-
-        // 필요 없는 추가 리스트는 제거하고 바로 반환
-        return emblems;
-      } else {
-        throw Exception('엠블럼 데이터를 불러오는 데 실패했습니다.');
-      }
-    } catch (e) {
-      print('엠블럼 데이터를 가져오는 중 오류 발생: $e');
-      throw e;
-    }
-  }
   Future<Level> fetchLevel() async {
     try {
       // API 호출
       final response = await _sendApiRequest(
         method: 'GET',
-        endpoint: 'level', // 레벨 API 엔드포인트
+        endpoint: 'member/level', // 레벨 API 엔드포인트
       );
 
       if (response.statusCode == 200) {

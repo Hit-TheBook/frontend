@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/pages/study_page.dart';
 import 'package:project1/pages/time_setting_page.dart';
 import 'package:project1/pages/timer_usage_report.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -150,10 +151,20 @@ class _TimerPageState extends State<TimerPage> {
         '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일';
 
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         title: '타이머',
         showBackButton: true,
+        onBackPressed: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => StudyPage()),  // 첫 번째 페이지로 이동
+                (Route<dynamic> route) => false,  // 이전 페이지 모두 제거
+          );
+        },
       ),
+
+
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -22,21 +22,43 @@ class LoginPage extends StatelessWidget {
     // Base64 디코딩
     final decodedKey = base64.decode(base64Key);
 
-    // 디코딩된 키 길이 확인
-    print('Decoded Key Length: ${decodedKey.length} bytes');
-    if (decodedKey.length != 16 && decodedKey.length != 24 && decodedKey.length != 32) {
-      throw Exception('Invalid AES key length after Base64 decoding. Must be 16, 24, or 32 bytes.');
-    }
-
     // AES 암호화 준비
     final key = encrypt.Key(decodedKey);
-    final iv = encrypt.IV.fromLength(16); // 16바이트 IV
-    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+    final iv = encrypt.IV.fromSecureRandom(16); // 고유한 IV 생성
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc)); // CBC 모드
 
     // 비밀번호 암호화
     final encrypted = encrypter.encrypt(password, iv: iv);
-    print('암호화된 비밀번호: ${encrypted.base64}');
-    return encrypted.base64; // 암호화된 비밀번호 반환
+
+    // IV와 암호화된 데이터를 Base64로 인코딩 후 반환
+    final combined = iv.bytes + encrypted.bytes;
+    return base64.encode(combined); // Base64로 변환
+  }
+
+// AES 복호화 함수
+  String decryptPassword(String encryptedPassword) {
+    // .env에서 Base64로 인코딩된 키 가져오기
+    String base64Key = dotenv.get('SECRET_KEY', fallback: '');
+
+    // Base64 디코딩
+    final decodedKey = base64.decode(base64Key);
+
+    // Base64 디코딩된 암호화된 데이터
+    final decoded = base64.decode(encryptedPassword);
+
+    // IV와 암호화된 데이터 분리
+    final iv = encrypt.IV(decoded.sublist(0, 16)); // IV는 첫 16바이트
+    final encryptedBytes = decoded.sublist(16); // 나머지는 암호화된 데이터
+
+    // AES 복호화 준비
+    final key = encrypt.Key(decodedKey);
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc)); // CBC 모드
+
+    // 복호화
+    return encrypter.decrypt(
+      encrypt.Encrypted(encryptedBytes),
+      iv: iv,
+    );
   }
 
   @override
@@ -123,6 +145,9 @@ class LoginPage extends StatelessWidget {
 
                   String email = emailController.text;
                   String password = passwordController.text;
+                  // AES 복호화 함수
+
+
 
                   // 비밀번호 암호화
                   String encryptedPassword = encryptPassword(password);
@@ -130,9 +155,19 @@ class LoginPage extends StatelessWidget {
                   print('입력된 비밀번호: $password');
                   print('암호화된 비밀번호: $encryptedPassword');
 
+                  // 암호화된 비밀번호 복호화
+                  String decryptedPassword = decryptPassword(encryptedPassword);
+                  print('복호화된 비밀번호: $decryptedPassword');
+
+                  // 복호화된 비밀번호와 입력된 비밀번호가 동일한지 확인
+                  if (password == decryptedPassword) {
+                    print('복호화 성공: 원래 비밀번호와 동일합니다.');
+                  } else {
+                    print('복호화 실패: 원래 비밀번호와 다릅니다.');
+                  }
                   LoginRequestModel requestModel = LoginRequestModel(
                     email: email,
-                    password: password//password encryptedPassword, // 암호화된 비밀번호 사용
+                    password:encryptedPassword//password encryptedPassword, // 암호화된 비밀번호 사용
                   );
 
                   LoginResponseModel responseModel = await apiHelper.login(
