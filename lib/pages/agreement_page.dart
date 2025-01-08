@@ -1,4 +1,5 @@
 import 'package:project1/pages/privacy_consent_page.dart';
+import 'package:project1/pages/register_page.dart';
 import 'package:project1/pages/terms_of_use_page.dart';
 import 'package:project1/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -194,8 +195,12 @@ class _AgreementPageState extends State<AgreementPage> {
                 child: ElevatedButton(
                   onPressed: (_agreeTerms && _agreePrivacy)
                       ? () {
-                    // 동의 후 다음 단계로 이동
-                    // TODO: 페이지 이동 또는 추가 작업
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegisterPage(),
+                      ),
+                    );
                   }
                       : null, // 비활성화 상태로 유지
                   style: ElevatedButton.styleFrom(
