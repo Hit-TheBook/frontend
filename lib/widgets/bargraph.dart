@@ -16,9 +16,13 @@ class BarGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 초 -> 시간 변환 (정수)
+    final List<double> hourData = data.map((seconds) => (seconds ~/ 3600).toDouble()).toList();
+
+
     // 데이터가 비어있다면 기본값 0으로 채운다.
-    List<double> processedData = data.isEmpty ? List.generate(
-        labels.length, (index) => 0.0) : data;
+    List<double> processedData = hourData.isEmpty ? List.generate(
+        labels.length, (index) => 0.0) : hourData;
 
     // Get max value, and set a minimum value to avoid disappearing bars
     double maxValue = processedData.reduce((a, b) => a > b ? a : b);
@@ -53,9 +57,10 @@ class BarGraph extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  value.toStringAsFixed(0),
+                  '${value.toInt()}',  // 시간 단위로 정수만 표시
                   style: TextStyle(fontSize: 12.sp, color: black1),
                 ),
+
                 Container(
                   width: 15.w,
                   height: value * scaleFactor < 1 ? 1 : value * scaleFactor,
@@ -97,7 +102,7 @@ class BarGraph extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  value.toStringAsFixed(0),
+                  '${value.toInt()}',
                   style: TextStyle(fontSize: 12.sp, color: black1),
                 ),
                 Container(

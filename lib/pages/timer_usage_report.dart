@@ -19,17 +19,16 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
   bool isDailySelected = true;
 
   // 일간 및 주간 데이터와 라벨 예시
-  final List<double> dailyData = [30, 70, 110, 90, 60, 80, 20];
   final List<String> dailyLabels = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]; // 일간 라벨
-
-  final List<double> weeklyData = [50, 100, 150, 80];
   final List<String> weeklyLabels = ["첫째주", "둘째주", "셋째주", "넷째주"]; // 주간 라벨
+
 
   late List<String> subjectsList = [];  // 빈 리스트로 초기화
 
   String selectedSubject = '';     // 선택된 과목 (초기값을 빈 문자열로 설정)
 
   late Map<String, Map<String, List<double>>> subjectData = {};
+  late Map<String, Map<String, List<double>>> totalData = {};
 
   List<double> fillMissingData(List<double> data, int targetLength) {
     // 데이터 길이가 targetLength에 미치지 못하면 0으로 채움
@@ -81,11 +80,9 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
 
 
-
-
-  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
+  Future<void> fetchDailyTotalStatistics(String targetDate) async {
     try {
-      final response = await TimerApiHelper().fetchDailySubjectStatistics(targetDate, subjectName);
+      final response = await TimerApiHelper().fetchDailyTotalStatistics(targetDate);
 
       // 응답 로그 확인
       print('Received daily statistics: $response');
@@ -97,6 +94,46 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
       print("dailyData = $dailyData, type = ${dailyData.runtimeType}");
 
       // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
+      List<double> totalDailyDataInHours = [
+        dailyData['monday'] ?? 'PT0S',
+        dailyData['tuesday'] ?? 'PT0S',
+        dailyData['wednesday'] ?? 'PT0S',
+        dailyData['thursday'] ?? 'PT0S',
+        dailyData['friday'] ?? 'PT0S',
+        dailyData['saturday'] ?? 'PT0S',
+        dailyData['sunday'] ?? 'PT0S',
+      ];
+      debugPrint('@@@@@@@@@@ 총 일간 $totalDailyDataInHours');
+
+
+      // 부족한 데이터는 0으로 채움
+      totalDailyDataInHours = fillMissingData(totalDailyDataInHours, 7); // 7일로 맞추기
+      debugPrint('@@@@@@@@@@ 총 일간 $totalDailyDataInHours');
+
+      setState(() {
+        totalData["daily"] = {
+          "daily": totalDailyDataInHours, // 올바른 Map 구조로 변경
+        };
+      });
+    } catch (e) {
+      print('Error fetching daily data: $e');
+    }
+  }
+
+  Future<void> fetchDailySubjectStatistics(String targetDate, String subjectName) async {
+    try {
+      final response = await TimerApiHelper().fetchDailySubjectStatistics(targetDate, subjectName);
+
+      // 응답 로그 확인
+      //print('Received daily statistics: $response');
+
+      // 응답에서 날짜별 데이터를 가져오기
+      Map<String, dynamic> dailyData = response; // 예시 응답: monday, tuesday 등 포함
+     // print('*************************');
+      //print('$dailyData');
+      //print("dailyData = $dailyData, type = ${dailyData.runtimeType}");
+
+      // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
       List<double> dailyDataInHours = [
         dailyData['monday'] ?? 'PT0S',
         dailyData['tuesday'] ?? 'PT0S',
@@ -106,12 +143,12 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
        dailyData['saturday'] ?? 'PT0S',
         dailyData['sunday'] ?? 'PT0S',
       ];
-      debugPrint('@@@@@@@@@@ $dailyDataInHours');
+     // debugPrint('@@@@@@@@@@ $dailyDataInHours');
 
 
       // 부족한 데이터는 0으로 채움
       dailyDataInHours = fillMissingData(dailyDataInHours, 7); // 7일로 맞추기
-      debugPrint('@@@@@@@@@@ $dailyDataInHours');
+      //debugPrint('@@@@@@@@@@ $dailyDataInHours');
 
       setState(() {
         subjectData[subjectName] = {
@@ -129,13 +166,13 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
       final response = await TimerApiHelper().fetchWeeklySubjectStatistics(targetDate, subjectName);
 
       // 응답 로그 확인
-      print('Received weekly statistics: $response');
+      //print('Received weekly statistics: $response');
 
       // 응답에서 날짜별 데이터를 가져오기
       Map<String, dynamic> weeklyData = response; //
-      print('*************************');
-      print('$weeklyData');
-      print("weeklyData = $weeklyData, type = ${weeklyData.runtimeType}");
+      //print('*************************');
+      //print('$weeklyData');
+      //print("weeklyData = $weeklyData, type = ${weeklyData.runtimeType}");
 
       // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
       List<double> weeklyDataInHours = [
@@ -145,16 +182,54 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
         weeklyData['fourthWeek'] ?? 'PT0S',
 
       ];
-      debugPrint('@@@@@@@@@@ $weeklyDataInHours');
+      //debugPrint('@@@@@@@@@@ $weeklyDataInHours');
 
 
       // 부족한 데이터는 0으로 채움
       weeklyDataInHours = fillMissingData(weeklyDataInHours, 4); // 4주로 맞추기
-      debugPrint('@@@@@@@@@@ $weeklyDataInHours');
+      //debugPrint('@@@@@@@@@@ $weeklyDataInHours');
 
       setState(() {
         subjectData[subjectName] = {
           "weekly": weeklyDataInHours,
+        };
+      });
+    } catch (e) {
+      print('Error fetching weekly data: $e');
+    }
+  }
+  Future<void> fetchWeeklyTotalStatistics(String targetDate) async {
+    try {
+      final response = await TimerApiHelper().fetchWeeklyTotalStatistics(targetDate);
+
+      // 응답 로그 확인
+      print('Received weekly statistics: $response');
+
+      // 응답에서 날짜별 데이터를 가져오기
+      Map<String, dynamic> weeklyData = response; //
+      print('*************************');
+      print('$weeklyData');
+      print("weeklyData = $weeklyData, type = ${weeklyData.runtimeType}");
+
+      // 각 요일에 대해 데이터를 변환하여 List<double>로 저장
+      List<double> totalWeeklyDataInHours = [
+        weeklyData['firstWeek'] ?? 'PT0S',
+        weeklyData['secondWeek'] ?? 'PT0S',
+        weeklyData['thirdWeek'] ?? 'PT0S',
+        weeklyData['fourthWeek'] ?? 'PT0S',
+
+      ];
+      debugPrint('@@@@@@@@@@ 총 주간시간  $totalWeeklyDataInHours');
+
+
+      // 부족한 데이터는 0으로 채움
+      totalWeeklyDataInHours = fillMissingData(totalWeeklyDataInHours, 4); // 올바른 변수명 사용
+
+      debugPrint('@@@@@@@@@@ 총 주간시간 $totalWeeklyDataInHours');
+
+      setState(() {
+        totalData["weekly"] = {
+          "weekly": totalWeeklyDataInHours, // 올바른 Map 구조로 변경
         };
       });
     } catch (e) {
@@ -167,7 +242,11 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
     super.initState();
     // 페이지가 처음 로드될 때 과목 목록을 API에서 가져오기
     _loadSubjects();
-
+    // 페이지가 처음 로드될 때 일간 통계 데이터를 가져오기
+    if (selectedDay != null) {
+      final targetDate = selectedDay!.toIso8601String().split('T').first; // 날짜를 YYYY-MM-DD 형식으로 변환
+      fetchDailyTotalStatistics(targetDate);  // 일간 통계 호출
+    }
   }
 
   Future<void> _loadSubjects() async {
@@ -204,8 +283,10 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
             // 일간/주간 모드에 맞는 API 호출
             if (isDailySelected) {
+              fetchDailyTotalStatistics(targetDate);
               fetchDailySubjectStatistics(targetDate, selectedSubject); // 일간 모드에서는 daily API 호출
             } else {
+              fetchWeeklyTotalStatistics(targetDate);
               fetchWeeklySubjectStatistics(targetDate, selectedSubject); // 주간 모드에서는 weekly API 호출
             }
           }
@@ -242,6 +323,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                       if (selectedSubject.isNotEmpty && selectedDay != null) {
                         final targetDate = selectedDay!.toIso8601String().split('T').first;
                         fetchDailySubjectStatistics(targetDate, selectedSubject); // 일간 API 호출
+                        fetchDailyTotalStatistics(targetDate);
                       }
                     },
 
@@ -263,6 +345,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                       if (selectedSubject.isNotEmpty && selectedDay != null) {
                         final targetDate = selectedDay!.toIso8601String().split('T').first;
                         fetchWeeklySubjectStatistics(targetDate, selectedSubject); // 주간 API 호출
+                        fetchWeeklyTotalStatistics(targetDate);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -278,29 +361,29 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
 
               if (isDailySelected) ...[
                 weekCalendarComponent,
-                SizedBox(height: 20.h),
-                Text(
-                  '선택된 날짜',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  selectedDay != null ? selectedDay!.toIso8601String() : '',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
+                // SizedBox(height: 20.h),
+                // Text(
+                //   '선택된 날짜',
+                //   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                // ),
+                // Text(
+                //   selectedDay != null ? selectedDay!.toIso8601String() : '',
+                //   style: TextStyle(fontSize: 14.sp),
+                // ),
                 SizedBox(height: 10.h),
                 Divider(color: white1, thickness: 2),
               ] else ...[
                 weekCalendarComponent,
-                Text(
-                  '선택된 주간 날짜',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  selectedWeekDays.isNotEmpty
-                      ? selectedWeekDays.map((date) => date.toIso8601String()).join(', ')
-                      : '',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
+                // Text(
+                //   '선택된 주간 날짜',
+                //   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                // ),
+                // Text(
+                //   selectedWeekDays.isNotEmpty
+                //       ? selectedWeekDays.map((date) => date.toIso8601String()).join(', ')
+                //       : '',
+                //   style: TextStyle(fontSize: 14.sp),
+                // ),
                 SizedBox(height: 10.h),
                 Divider(color: white1, thickness: 2),
               ],
@@ -316,16 +399,30 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
               ),
 
               SizedBox(height: 5.h),
+
               Container(
                 height: 150.h, // 원하는 높이로 설정
-                child: BarGraph(
-                  data: isDailySelected ? dailyData : weeklyData,
-                  labels: isDailySelected ? dailyLabels : weeklyLabels,
-                  highlightedIndex: isDailySelected && selectedDay != null
-                      ? getDayIndex(selectedDay!) // 일간 모드에서 선택된 날짜의 요일 인덱스
-                      : !isDailySelected && selectedDay != null
-                      ?  getWeekIndex(selectedDay!) // 주간: 선택된 주의 인덱스 // 주간 모드에서 선택된 주의 인덱스
-                      : null, // 하이라이트 없음
+                child: Builder(
+                  builder: (context) {
+                    // 데이터 전달 전 로그 추가
+                    final totalGraphData = isDailySelected
+                        ? fillMissingData(totalData["daily"]?["daily"] ?? [], 7)  // 일간 데이터 (7일)
+                        : fillMissingData(totalData["weekly"]?["weekly"] ?? [], 4); // 주간 데이터 (4주)
+
+
+                    // 로그 출력
+                    print('Data passed to BarGraph: $totalGraphData');
+
+                    return BarGraph(
+                      data: totalGraphData,
+                      labels: isDailySelected ? dailyLabels : weeklyLabels,
+                      highlightedIndex: selectedDay != null
+                          ? (isDailySelected
+                          ? getDayIndex(selectedDay!)  // 일간 모드에서 선택된 날짜의 요일 인덱스
+                          : getWeekIndex(selectedDay!))  // 주간 모드에서 선택된 주의 인덱스
+                          : null,
+                    );
+                  },
                 ),
               ),
 

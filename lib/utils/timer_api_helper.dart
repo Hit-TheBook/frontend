@@ -369,4 +369,87 @@ class TimerApiHelper {
       rethrow;
     }
   }
+  Future<Map<String, double>> fetchWeeklyTotalStatistics(String targetDate) async {
+    try {
+      print('Fetching total weekly data for targetDate: $targetDate');
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'timer/Statistics/weekly/total/$targetDate',
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('Response data: $responseData');
+
+        if (responseData != null) {
+          Map<String, double> durationData = {};
+
+          responseData.forEach((key, value) {
+            if (value is String && value.startsWith('PT')) {
+              try {
+                final duration = _parseDuration(value);
+                print("duration = $duration, type = ${duration.runtimeType}");
+                durationData[key] = duration.inSeconds.toDouble();
+              } catch (e) {
+                print('Skipping invalid duration format: $value');
+              }
+            } else {
+              print('Skipping non-duration value: $value');
+            }
+          });
+
+          return durationData;
+        } else {
+          throw Exception('Response data is null');
+        }
+      } else {
+        throw Exception('Failed to fetch weekly total statistics');
+      }
+    } catch (e) {
+      print('Error fetching weekly total data: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, double>> fetchDailyTotalStatistics(String targetDate) async {
+    try {
+      print('Fetching total daily data for targetDate: $targetDate');
+      final response = await _sendApiRequest(
+        method: 'GET',
+        endpoint: 'timer/Statistics/daily/total/$targetDate',
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('Response data: $responseData');
+
+        if (responseData != null) {
+          Map<String, double> durationData = {};
+
+          responseData.forEach((key, value) {
+            if (value is String && value.startsWith('PT')) {
+              try {
+                final duration = _parseDuration(value);
+                print("duration = $duration, type = ${duration.runtimeType}");
+                durationData[key] = duration.inSeconds.toDouble();
+              } catch (e) {
+                print('Skipping invalid duration format: $value');
+              }
+            } else {
+              print('Skipping non-duration value: $value');
+            }
+          });
+
+          return durationData;
+        } else {
+          throw Exception('Response data is null');
+        }
+      } else {
+        throw Exception('Failed to fetch daily total statistics');
+      }
+    } catch (e) {
+      print('Error fetching daily total data: $e');
+      rethrow;
+    }
+  }
 }
