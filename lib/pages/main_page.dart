@@ -3,13 +3,48 @@ import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 import 'package:project1/pages/login_page.dart';
 import 'package:project1/pages/study_page.dart';
-import 'package:project1/pages/test_page.dart';
-import 'package:project1/widgets/bottom_nav_bar.dart';
+import 'package:project1/pages/planner_page.dart';
+import 'package:project1/pages/dday_page.dart';
+import 'package:project1/pages/timer.dart';
 import 'package:project1/utils/auth_api_helper.dart';
 import 'package:project1/widgets/customdialog.dart';
 import 'package:project1/models/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/level_images.dart';
+
+
+// class MainPage extends StatefulWidget {
+//   const MainPage({super.key});
+//
+//   @override
+//   State<MainPage> createState() => _MainPageState();
+// }
+
+// class _MainPageState extends State<MainPage> {
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return WillPopScope(
+//       onWillPop: () async {
+//         // 뒤로가기 버튼을 눌렀을 때 로그인 화면으로 이동
+//         Navigator.pushAndRemoveUntil(
+//           context,
+//           MaterialPageRoute(builder: (context) => const LoginPage()),
+//               (route) => false, // 기존 라우트를 모두 제거하고 LoginPage로 이동
+//         );
+//         return false; // 기본 뒤로가기 동작을 막음
+//       },
+//       child: Scaffold(
+//
+//       ),
+//     );
+//   }
+// }
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -19,67 +54,13 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  static final List<Widget> pages = <Widget>[
-    const MainContent(),
-    const StudyPage(),
-    const TestPage(),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // 뒤로가기 버튼을 눌렀을 때 로그인 화면으로 이동
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-              (route) => false, // 기존 라우트를 모두 제거하고 LoginPage로 이동
-        );
-        return false; // 기본 뒤로가기 동작을 막음
-      },
-      child: Scaffold(
-        body: pages[_selectedIndex],
-        bottomNavigationBar: _selectedIndex == 0 || _selectedIndex == 1 // MainPage와 StudyPage에서만 하단바 표시
-            ? BottomNavBar(
-          currentIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        )
-            : null, // 다른 페이지에서는 하단바 숨김
-      ),
-
-    );
-  }
-}
-
-class MainContent extends StatefulWidget {
-  const MainContent({super.key});
-
-  @override
-  _MainContentState createState() => _MainContentState();
-}
-
-class _MainContentState extends State<MainContent> {
   String? nickname;
   int? point;
   String? levelName;
   int? minPoint;
   int? maxPoint;
   int? level;
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   double calculateProgress() {
     if (minPoint != null && maxPoint != null && point != null) {
       return (point! - minPoint!) / (maxPoint! - minPoint!);
@@ -156,8 +137,17 @@ class _MainContentState extends State<MainContent> {
 
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+      );
+      return false;
+    },
+    child: Scaffold(
+    key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false, // 자동으로 생성되는 뒤로가기 버튼 제거
         title: Padding(
@@ -171,21 +161,20 @@ class _MainContentState extends State<MainContent> {
                   size: 25,
                 ),
                 onPressed: () {
-                  // 메뉴 버튼 클릭 시 사이드바 열기
-                  Scaffold.of(context).openDrawer();
+                  _scaffoldKey.currentState?.openDrawer(); // 사이드바 열기
                 },
               ),
               SizedBox(width: 8), // 아이콘과 닉네임 간의 간격
               nickname != null
                   ? Text(
-                '$nickname', // 닉네임만 표시
+                '$nickname', // 닉네임 표시
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               )
                   : Text(
-                'Loading...', // 닉네임이 로드되지 않았을 때 로딩 표시
+                'Loading...', // 닉네임 로딩 중 표시
                 style: TextStyle(
                   fontSize: 14.sp,
                 ),
@@ -202,7 +191,7 @@ class _MainContentState extends State<MainContent> {
               size: 25,
             ),
             onPressed: () {
-              print("Menu button pressed");
+              print("Edit button pressed");
             },
           ),
           IconButton(
@@ -211,44 +200,89 @@ class _MainContentState extends State<MainContent> {
               size: 25,
             ),
             onPressed: () {
-              print("Menu button pressed");
+              print("Notification button pressed");
             },
           ),
         ],
       ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text(
-                  '사이드바 제목',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
-                ),
+
+
+      drawer: Drawer(
+        backgroundColor: neonskyblue1,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: black1,
               ),
-              ListTile(
-                title: Text('메뉴 항목 1'),
-                onTap: () {
-                  // 항목을 탭했을 때 동작
-                  Navigator.pop(context); // Drawer 닫기
-                },
+              child: Text(
+                  '$nickname',
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
-              ListTile(
-                title: Text('메뉴 항목 2'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+            ),
+            ListTile(
+              leading: Icon(Icons.timer_sharp, color: black1),
+              title: Text(
+                '타이머',
+                style: TextStyle(color: black1, fontSize: 18),
               ),
-              // 필요에 따라 더 많은 항목을 추가할 수 있습니다.
-            ],
-          ),
+              tileColor: neonskyblue1,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TimerPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.event_outlined, color: black1),
+              title: Text(
+                '디데이',
+                style: TextStyle(color: black1, fontSize: 18),
+              ),
+              tileColor: neonskyblue1,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DdayPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.check_box_outlined, color: black1),
+              title: Text(
+                '플래너',
+                style: TextStyle(color: black1, fontSize: 18),
+              ),
+              tileColor: neonskyblue1,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PlannerPage()),
+                );
+              },
+            ),
+
+
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: Colors.redAccent),
+              title: Text(
+                '탈퇴하기',
+                style: TextStyle(color: Colors.redAccent, fontSize: 18),
+              ),
+              tileColor: neonskyblue1,
+              onTap: () {
+                _showConfirmationDialog(context);
+              },
+            ),
+          ],
         ),
+      ),
+
+
+
+
 
       body: SingleChildScrollView(
         child: Column(
@@ -474,21 +508,13 @@ class _MainContentState extends State<MainContent> {
                     Text('포인트: $point', style: TextStyle(fontSize: 18.sp)),
                     const SizedBox(height: 20),
                   ],
-                  ElevatedButton(
-                    onPressed: () {
-                      _showConfirmationDialog(context);
-                    },
-                    child: const Text('탈퇴하기'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
+    ),
     );
   }
 

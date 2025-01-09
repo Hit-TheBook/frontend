@@ -2,15 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/pages/dday_page.dart';
-
 import 'package:project1/pages/timer.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
-
 import '../colors.dart';
 import 'main_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
-import 'package:project1/widgets/bottom_nav_bar.dart'; // BottomNavBar 임포트
+
 
 
 class StudyPage extends StatefulWidget {
@@ -68,6 +66,7 @@ class _StudyPageState extends State<StudyPage> {
         return false; // 기본 뒤로 가기 동작 방지
       },
       child: Scaffold(
+
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -159,6 +158,7 @@ class _StudyPageState extends State<StudyPage> {
             ),
           ],
         ),
+
         
       ),
     );

@@ -7,6 +7,8 @@ import 'package:project1/pages/study_page.dart';
 import '../utils/dday_api_helper.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/customfloatingactionbutton.dart';
+import 'home_screen.dart';
+import 'main_page.dart';
 
 class DdayPage extends StatefulWidget {
   const DdayPage({super.key});
@@ -326,9 +328,18 @@ class DdayPageState extends State<DdayPage> {
         return false; // 기본 뒤로가기 동작을 막음
       },
       child : Scaffold(
-        appBar:  const CustomAppBar(
+        appBar: CustomAppBar(
           title: '디데이',
           showBackButton: true,
+          onBackPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(initialIndex: 1), // StudyPage가 보이도록 설정
+              ),
+                  (route) => false, // 모든 이전 페이지 제거
+            );
+          },
         ),
         body: _ddayList.isEmpty
           ? const Center(

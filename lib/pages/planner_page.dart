@@ -14,6 +14,7 @@ import '../models/planner_model.dart';
 import 'package:project1/colors.dart';
 
 import '../widgets/custom_appbar.dart';
+import 'home_screen.dart';
 import 'main_page.dart';
 
 
@@ -320,9 +321,18 @@ class _PlannerPageState extends State<PlannerPage> {
 
 
       child: Scaffold (
-        appBar:  const CustomAppBar(
+        appBar: CustomAppBar(
           title: '플래너',
           showBackButton: true,
+          onBackPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(initialIndex: 1), // StudyPage가 보이도록 설정
+              ),
+                  (route) => false, // 모든 이전 페이지 제거
+            );
+          },
         ),
 
         body: SingleChildScrollView(

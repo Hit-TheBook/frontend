@@ -4,6 +4,8 @@ import 'package:project1/theme.dart'; // 테마 파일 경로
 import 'package:project1/utils/login_api_helper.dart';
 import 'package:project1/models/login_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
+import '../main.dart';
+import 'home_screen.dart';
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/widgets/customdialog.dart';
@@ -186,7 +188,7 @@ class LoginPage extends StatelessWidget {
                     print('로그인 성공');
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const MainPage()),
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
                     );
                   } else {
                     print('로그인 실패: ${responseModel.message}');

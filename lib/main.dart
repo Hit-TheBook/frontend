@@ -1,14 +1,15 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:project1/pages/main_page.dart';
 import 'package:project1/pages/register_page.dart';
 import 'package:project1/pages/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:project1/pages/study_page.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/pages/agreement_page.dart';
@@ -205,6 +206,50 @@ class Main extends StatelessWidget {
     );
   }
 }
+// class HomeScreen extends StatefulWidget {
+//   const HomeScreen({super.key});
+//
+//   @override
+//   _HomeScreenState createState() => _HomeScreenState();
+// }
+//
+// class _HomeScreenState extends State<HomeScreen> {
+//   int _selectedIndex = 0; // 기본값: MainPage
+//
+//   // 페이지 목록
+//   static final List<Widget> _pages = <Widget>[
+//     MainPage(),
+//     StudyPage(),
+//   ];
+//
+//   void _onItemTapped(int index) {
+//     setState(() {
+//       _selectedIndex = index;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: _pages[_selectedIndex], // 선택된 페이지 표시
+//       bottomNavigationBar: BottomNavigationBar(
+//         items: const <BottomNavigationBarItem>[
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.home),
+//             label: '홈',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.school),
+//             label: '스터디',
+//           ),
+//         ],
+//         currentIndex: _selectedIndex,
+//         selectedItemColor: Colors.blueAccent,
+//         onTap: _onItemTapped,
+//       ),
+//     );
+//   }
+// }
 
 // 스플래쉬 화면 시작
 class SplashScreen extends StatelessWidget {

@@ -6,11 +6,13 @@ import 'package:project1/pages/timer_usage_report.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../colors.dart';
+import '../main.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/customfloatingactionbutton.dart';
 import 'package:project1/pages/timer_detail_page.dart';
 import 'package:project1/utils/timer_api_helper.dart';
 import 'dart:convert';
+import 'package:project1/pages/home_screen.dart';
 
 
 
@@ -157,14 +159,13 @@ class _TimerPageState extends State<TimerPage> {
         onBackPressed: () {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => StudyPage()),  // 첫 번째 페이지로 이동
-                (Route<dynamic> route) => false,  // 이전 페이지 모두 제거
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(initialIndex: 1), // StudyPage가 보이도록 설정
+            ),
+                (route) => false, // 모든 이전 페이지 제거
           );
         },
       ),
-
-
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -527,18 +528,8 @@ class _TimerPageState extends State<TimerPage> {
                                         );
                                       },
                                     );
-
-
-
-
-
-
                                   },
                                 ),
-
-
-
-
                               ),
                             ],
                           ),
