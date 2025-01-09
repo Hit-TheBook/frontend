@@ -13,38 +13,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/level_images.dart';
 
 
-// class MainPage extends StatefulWidget {
-//   const MainPage({super.key});
-//
-//   @override
-//   State<MainPage> createState() => _MainPageState();
-// }
-
-// class _MainPageState extends State<MainPage> {
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return WillPopScope(
-//       onWillPop: () async {
-//         // 뒤로가기 버튼을 눌렀을 때 로그인 화면으로 이동
-//         Navigator.pushAndRemoveUntil(
-//           context,
-//           MaterialPageRoute(builder: (context) => const LoginPage()),
-//               (route) => false, // 기존 라우트를 모두 제거하고 LoginPage로 이동
-//         );
-//         return false; // 기본 뒤로가기 동작을 막음
-//       },
-//       child: Scaffold(
-//
-//       ),
-//     );
-//   }
-// }
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
