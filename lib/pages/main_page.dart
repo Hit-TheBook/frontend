@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 import 'package:project1/pages/login_page.dart';
-import 'package:project1/pages/study_page.dart';
 import 'package:project1/pages/planner_page.dart';
 import 'package:project1/pages/dday_page.dart';
 import 'package:project1/pages/timer.dart';

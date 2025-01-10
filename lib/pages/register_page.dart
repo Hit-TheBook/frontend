@@ -34,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool isPasswordValid = false;
   bool isButtonEnabled = false; // '완료' 버튼 상태 변수
   bool _isNicknameAvailable = false; // 상태 변수 추가
-
+  bool _isNicknameValid = false;
 
 
 
@@ -241,11 +241,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (isAvailable) {
       setState(() {
-
       });
     } else {
       // 닉네임 중복 -> 다이얼로그 표시
-      _showCustomDialog(context, '이메일 확인', '잘못된 요청입니다. 이메일 주소를 다시 한번 확인해주세요.');
+      _showCustomDialog(context, '닉네임 확인', '중복된 닉네임입니다.');
     }
   }
 
@@ -489,17 +488,23 @@ class _RegisterPageState extends State<RegisterPage> {
                               fillColor: Color(0xFF333333),
                               filled: true,
                               border: OutlineInputBorder(),
-                              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: AppColors.primary),
+                              ),
                             ),
+                            onChanged: (text) {
+                              setState(() {
+                                // 입력된 닉네임 길이가 2~6글자면 버튼 활성화, 아니면 비활성화
+                                _isNicknameValid = text.trim().length >= 2 && text.trim().length <= 6;
+                              });
+                            },
                           ),
                         ),
                         SizedBox(width: 35.w),
                         ElevatedButton(
-                          onPressed: () {
-                            _checkNicknameAvailability(); // 버튼이 눌렸을 때 "클릭"이 콘솔에 출력됩니다.
-                          },
+                          onPressed: _isNicknameValid ? _checkNicknameAvailability : null, // 조건에 따라 활성/비활성화
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(neonskyblue1), // 버튼 배경색
+                            backgroundColor: MaterialStateProperty.all(_isNicknameValid ? neonskyblue1 : Colors.grey,), // 버튼 배경색
                             shape: MaterialStateProperty.all(
                               RoundedRectangleBorder( // 둥근 모서리 설정
                                 borderRadius: BorderRadius.circular(5),
@@ -508,10 +513,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           child: Text(_isNicknameAvailable ? '사용가능' : '중복확인'), // 닉네임이 사용 가능한지에 따라 텍스트 업데이트
                         ),
-
                       ],
                     ),
-
                     SizedBox(height: 8.h),
                     Text(
                       '* 최소 2글자 이상 6글자 이하(공백 제외)',
