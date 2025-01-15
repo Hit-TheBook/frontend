@@ -416,11 +416,9 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                     return BarGraph(
                       data: totalGraphData,
                       labels: isDailySelected ? dailyLabels : weeklyLabels,
-                      highlightedIndex: selectedDay != null
-                          ? (isDailySelected
-                          ? getDayIndex(selectedDay!)  // 일간 모드에서 선택된 날짜의 요일 인덱스
-                          : getWeekIndex(selectedDay!))  // 주간 모드에서 선택된 주의 인덱스
-                          : null,
+                      highlightedIndex: isDailySelected
+                          ? (selectedDay != null ? getDayIndex(selectedDay!) : null)
+                          : null,  // 주간 모드에서는 하이라이트 인덱스를 설정하지 않음
                     );
                   },
                 ),
@@ -486,11 +484,9 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
                     return BarGraph(
                       data: graphData,
                       labels: isDailySelected ? dailyLabels : weeklyLabels,
-                      highlightedIndex: selectedDay != null
-                          ? (isDailySelected
-                          ? getDayIndex(selectedDay!)  // 일간 모드에서 선택된 날짜의 요일 인덱스
-                          : getWeekIndex(selectedDay!))  // 주간 모드에서 선택된 주의 인덱스
-                          : null,
+                      highlightedIndex: isDailySelected
+                          ? (selectedDay != null ? getDayIndex(selectedDay!) : null)
+                          : null,  // 주간 모드에서는 하이라이트 인덱스를 설정하지 않음
                     );
                   },
                 ),

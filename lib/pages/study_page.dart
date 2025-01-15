@@ -6,6 +6,7 @@ import 'package:project1/pages/dday_page.dart';
 import 'package:project1/pages/timer.dart';
 import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
+import 'package:project1/utils/timer_api_helper.dart'; // 타이머 API 헬퍼 추가
 import '../colors.dart';
 import 'main_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
@@ -20,11 +21,14 @@ class StudyPage extends StatefulWidget {
 class _StudyPageState extends State<StudyPage> {
   String? primaryDdayName;
   int? remainingDays;
+  String displayedTime = '00:00:00';
+  final TimerApiHelper _timerApiHelper = TimerApiHelper();
 
   @override
   void initState() {
     super.initState();
     fetchPrimaryDday();
+    fetchStudyTime();
   }
 
   Future<void> fetchPrimaryDday() async {
@@ -45,6 +49,43 @@ class _StudyPageState extends State<StudyPage> {
     }
   }
 
+  Future<void> fetchStudyTime() async {
+    try {
+      final studyTimeData = await _timerApiHelper.fetchStudyTime();
+      final studyTimeLength = studyTimeData.studyTimeLength;
+      if (studyTimeLength != null) {
+        Duration studyTimeDuration = _parseDuration(studyTimeLength);
+        setState(() {
+          displayedTime = formatDuration(studyTimeDuration);
+        });
+      }
+    } catch (error) {
+      print('studyTime 가져오기 실패: $error');
+    }
+  }
+  Duration _parseDuration(String durationString) {
+    final RegExp regExp = RegExp(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?");
+    final match = regExp.firstMatch(durationString);
+
+    if (match != null) {
+      final hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+      final minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+      final seconds = int.tryParse(match.group(3) ?? '0') ?? 0;
+
+      return Duration(hours: hours, minutes: minutes, seconds: seconds);
+    }
+
+    return Duration.zero; // 문자열이 잘못된 형식일 경우 0초 반환
+  }
+
+
+
+
+// Duration을 'HH:mm:ss' 형식으로 변환
+  String formatDuration(Duration duration) {
+    return '${duration.inHours.toString().padLeft(2, '0')}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
@@ -63,101 +104,106 @@ class _StudyPageState extends State<StudyPage> {
         return false; // 기본 뒤로 가기 동작 방지
       },
       child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // 상단 배너 부분
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: const BoxDecoration(
-                color: black1, // 배경색 설정
-                borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(15)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 80), // 상단 여백
-                  const Text(
-                    '나의 스터디',
-                    style: TextStyle(
-                      color: neonskyblue1,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$formattedDate ($firstLetterOfWeekDay)', // 날짜 표시
-                    style: const TextStyle(
-                      color: white1,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10), // 여백 추가
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // 상단 배너 부분
+              Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: black1, // 배경색 설정
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(15.r)),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    buildSectionContainer(
-                      context: context,
-                      title: ' 타이머',
-                      subtitle: '오늘 총 누적시간',
-                      subtitleValue: '00:00:00',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const TimerPage()),
-                        );
-                      },
+                  children: [
+                    SizedBox(height: 70.h), // 상단 여백
+                    Text(
+                      '나의 스터디',
+                      style: TextStyle(
+                        color: neonskyblue1,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    buildSectionContainer(
-                      context: context,
-                      title: ' 디데이',
-                      subtitle: primaryDdayName ?? '대표 디데이를 설정해주세요.',
-                      subtitleValue: remainingDays == null
-                          ? '로딩 중...'
-                          : (remainingDays == 0
-                          ? "D-day"
-                          : "D ${remainingDays! > 0 ? "-" : "+"}${remainingDays!.abs()}"),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DdayPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    buildSectionContainer(
-                      context: context,
-                      title: ' 플래너',
-                      height: 40.h,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PlannerPage()),
-                        );
-                      },
-                      showDivider: false,
+                    Text(
+                      '$formattedDate ($firstLetterOfWeekDay)', // 날짜 표시
+                      style: TextStyle(
+                        color: white1,
+                        fontSize: 12.sp,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: 10.h), // 여백 추가
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      buildSectionContainer(
+                        context: context,
+                        title: ' 타이머',
+                        subtitle: '오늘 총 누적시간',
+                        subtitleValue: displayedTime,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const TimerPage()),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 20.h),
+                      buildSectionContainer(
+                        context: context,
+                        title: ' 디데이',
+                        subtitle: primaryDdayName ?? '대표 디데이를 설정해주세요.',
+                        subtitleValue: remainingDays == null
+                            ? '로딩 중...'
+                            : (remainingDays == 0
+                            ? "D-day"
+                            : "D ${remainingDays! > 0 ? "-" : "+"}${remainingDays!.abs()}"),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => DdayPage()),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 20.h),
+                      buildSectionContainer(
+                        context: context,
+                        title: ' 플래너',
+                        height: 38.h,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PlannerPage()),
+                          );
+                        },
+                        showDivider: false,
+                      ),
+                      SizedBox(height: 10.h),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildSectionContainer({
+
+
+Widget buildSectionContainer({
     required BuildContext context,
     required String title,
     String? subtitle,
