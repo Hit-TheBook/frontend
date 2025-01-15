@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:project1/pages/ddaydetail_page.dart';
 import 'package:project1/pages/study_page.dart';
@@ -8,7 +7,7 @@ import '../utils/dday_api_helper.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/customfloatingactionbutton.dart';
 import 'home_screen.dart';
-import 'main_page.dart';
+
 
 class DdayPage extends StatefulWidget {
   const DdayPage({super.key});

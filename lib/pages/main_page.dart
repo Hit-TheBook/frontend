@@ -11,6 +11,8 @@ import 'package:project1/models/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/level_images.dart';
 
+import 'nickname_change_page.dart';
+
 
 
 class MainPage extends StatefulWidget {
@@ -158,7 +160,10 @@ class _MainPageState extends State<MainPage> {
               size: 25,
             ),
             onPressed: () {
-              print("Edit button pressed");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NicknameChangePage()), // TimeCirclePlanner로 이동
+              );
             },
           ),
           IconButton(
@@ -167,7 +172,7 @@ class _MainPageState extends State<MainPage> {
               size: 25,
             ),
             onPressed: () {
-              print("Notification button pressed");
+
             },
           ),
         ],

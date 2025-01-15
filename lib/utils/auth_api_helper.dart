@@ -279,6 +279,14 @@ class AuthApiHelper {
           debugPrint('Headers: $headers');
           response = await http.get(url, headers: headers);
           break;
+        case 'PUT': // 추가된 부분: PUT 메소드 처리
+          debugPrint('PUT Request:');
+          debugPrint('URL: $url');
+          debugPrint('Headers: $headers');
+          debugPrint('Body: ${jsonEncode(body)}');
+          response = await http.put(url, headers: headers, body: jsonEncode(body));
+          break;
+
         default:
           throw Exception('Unsupported HTTP method: $method');
       }
@@ -368,6 +376,20 @@ class AuthApiHelper {
       return false; // 사용 불가능한 닉네임
     }
   }
+  Future<bool> updateNickname(String nickname) async {
+    final response = await _sendApiRequest(
+      method: 'PUT',
+      endpoint: 'member/nickname/$nickname',  // URL 경로에 nickname 포함
+    );
+
+    if (response.statusCode == 200) {
+      return true; // 닉네임 수정 성공
+    } else {
+      return false; // 닉네임 수정 실패
+    }
+  }
+
+
 
 
 }

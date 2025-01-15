@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/pages/dday_page.dart';
 import 'package:project1/pages/timer.dart';
@@ -8,8 +9,6 @@ import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
 import '../colors.dart';
 import 'main_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
-
-
 
 class StudyPage extends StatefulWidget {
   const StudyPage({super.key});
@@ -21,8 +20,6 @@ class StudyPage extends StatefulWidget {
 class _StudyPageState extends State<StudyPage> {
   String? primaryDdayName;
   int? remainingDays;
-
-
 
   @override
   void initState() {
@@ -66,7 +63,6 @@ class _StudyPageState extends State<StudyPage> {
         return false; // 기본 뒤로 가기 동작 방지
       },
       child: Scaffold(
-
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -75,7 +71,8 @@ class _StudyPageState extends State<StudyPage> {
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(
                 color: black1, // 배경색 설정
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
+                borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(15)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,24 +96,8 @@ class _StudyPageState extends State<StudyPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20), // 여백 추가
+            const SizedBox(height: 10), // 여백 추가
 
-            buildSectionContainer(
-              context: context,
-              items: [
-                '타이머',
-                '00:00:00',
-              ],
-              onPressed: (String title) {
-                if (title == '타이머') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TimerPage()),
-                  );
-                }
-              },
-            ),
-                    const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -125,32 +106,46 @@ class _StudyPageState extends State<StudyPage> {
                   children: <Widget>[
                     buildSectionContainer(
                       context: context,
-                      items: [
-                        '디데이',
-                        primaryDdayName != null && remainingDays != null
-                            ? '$primaryDdayName D -$remainingDays'
-                            : '로딩 중...',
-                      ],
-                      onPressed: (String title) {
-                        if (title == '디데이') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => DdayPage()),
-                          );
-                        }
+                      title: ' 타이머',
+                      subtitle: '오늘 총 누적시간',
+                      subtitleValue: '00:00:00',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const TimerPage()),
+                        );
                       },
                     ),
-
                     const SizedBox(height: 20),
                     buildSectionContainer(
                       context: context,
-                      items: ['플래너'],
-                      onPressed: (String title) {
+                      title: ' 디데이',
+                      subtitle: primaryDdayName ?? '대표 디데이를 설정해주세요.',
+                      subtitleValue: remainingDays == null
+                          ? '로딩 중...'
+                          : (remainingDays == 0
+                          ? "D-day"
+                          : "D ${remainingDays! > 0 ? "-" : "+"}${remainingDays!.abs()}"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DdayPage()),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    buildSectionContainer(
+                      context: context,
+                      title: ' 플래너',
+                      height: 40.h,
+                      onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const PlannerPage()),
                         );
                       },
+                      showDivider: false,
                     ),
                   ],
                 ),
@@ -158,17 +153,18 @@ class _StudyPageState extends State<StudyPage> {
             ),
           ],
         ),
-
-        
       ),
     );
   }
 
-
   Widget buildSectionContainer({
     required BuildContext context,
-    required List<String> items,
-    required void Function(String) onPressed,
+    required String title,
+    String? subtitle,
+    String? subtitleValue,
+    required VoidCallback onPressed,
+    double? height,
+    bool showDivider = true,
   }) {
     return Container(
       width: MediaQuery.of(context).size.width - 32,
@@ -177,46 +173,61 @@ class _StudyPageState extends State<StudyPage> {
         color: const Color(0xFF333333),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(items.length, (index) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    onPressed(items[index]);
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+      child: SizedBox(
+        height: height ?? 80.h,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      items[index],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right_outlined, color: Colors.white),
+                  onPressed: onPressed,
+                ),
+              ],
+            ),
+            if (showDivider && subtitle != null && subtitleValue != null)
+              const Divider(color: Colors.white, thickness: 1),
+            if (subtitle != null && subtitleValue != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      subtitleValue,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
+                      textAlign: TextAlign.end,
                     ),
-                  ),
+                  ],
                 ),
               ),
-              if (index < items.length - 1)
-                const Divider(
-                  color: AppColors.primary,
-                  thickness: 1,
-                ),
-            ],
-          );
-        }),
+          ],
+        ),
       ),
     );
   }
