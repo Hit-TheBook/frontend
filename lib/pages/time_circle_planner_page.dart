@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/colors.dart';
+import 'package:project1/pages/planner_page.dart';
+import 'package:project1/pages/timer.dart';
 import 'package:project1/widgets/time_circle_planner_painter.dart';
 import 'package:project1/utils/planner_api_helper.dart';
 import 'dart:convert';
 import '../models/planner_model.dart';
+import '../widgets/custom_appbar.dart';
+import 'home_screen.dart';
 
 class TimeCirclePlannerPage extends StatefulWidget {
   const TimeCirclePlannerPage({super.key});
@@ -67,10 +71,22 @@ class _TimeCirclePlannerPageState extends State<TimeCirclePlannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
+    ScreenUtil.init(context, designSize: Size(360, 640), minTextAdapt: true);
 
     return Scaffold(
-      appBar:  AppBar(title: Text('원 시간표')),
+      appBar: CustomAppBar(
+        title: '원시간표',
+        showBackButton: true,
+        onBackPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PlannerPage()),
+          ).then((_) {
+            setState(() {});  // 돌아올 때 화면 새로고침
+          });
+
+        },
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w), // 화면 좌우 여백 추가

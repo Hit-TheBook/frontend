@@ -62,7 +62,7 @@ class _FeedbackTypeDialogState extends State<FeedbackTypeDialog> {
     String formattedEndTime = DateFormat('a h:mm').format(widget.endAt);
 
     return Container(
-      height: 220.h,
+      height: 235.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.r)),

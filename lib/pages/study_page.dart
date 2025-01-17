@@ -9,6 +9,7 @@ import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
 import 'package:project1/utils/timer_api_helper.dart'; // 타이머 API 헬퍼 추가
 import '../colors.dart';
 import 'main_page.dart';
+import 'onboarding_page.dart';
 import 'planner_page.dart'; // 플래너 페이지 추가
 
 class StudyPage extends StatefulWidget {
@@ -25,11 +26,12 @@ class _StudyPageState extends State<StudyPage> {
   final TimerApiHelper _timerApiHelper = TimerApiHelper();
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     fetchPrimaryDday();
     fetchStudyTime();
   }
+
 
   Future<void> fetchPrimaryDday() async {
     try {
@@ -63,6 +65,7 @@ class _StudyPageState extends State<StudyPage> {
       print('studyTime 가져오기 실패: $error');
     }
   }
+
   Duration _parseDuration(String durationString) {
     final RegExp regExp = RegExp(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?");
     final match = regExp.firstMatch(durationString);
@@ -79,11 +82,12 @@ class _StudyPageState extends State<StudyPage> {
   }
 
 
-
-
 // Duration을 'HH:mm:ss' 형식으로 변환
   String formatDuration(Duration duration) {
-    return '${duration.inHours.toString().padLeft(2, '0')}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+    return '${duration.inHours.toString().padLeft(2, '0')}:${(duration
+        .inMinutes % 60).toString().padLeft(2, '0')}:${(duration.inSeconds % 60)
+        .toString()
+        .padLeft(2, '0')}';
   }
 
   @override
@@ -114,7 +118,8 @@ class _StudyPageState extends State<StudyPage> {
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
                   color: black1, // 배경색 설정
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(15.r)),
+                  borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(15.r)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,12 +133,43 @@ class _StudyPageState extends State<StudyPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
-                      '$formattedDate ($firstLetterOfWeekDay)', // 날짜 표시
-                      style: TextStyle(
-                        color: white1,
-                        fontSize: 12.sp,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$formattedDate ($firstLetterOfWeekDay)',
+                          style: TextStyle(
+                            color: white1,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const OnboardingPage()),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                '도움말',
+                                style: TextStyle(
+                                  color: white1,
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Icon(
+                                Icons.help_outline,
+                                color: white1,
+                                size: 20.sp,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -168,7 +204,9 @@ class _StudyPageState extends State<StudyPage> {
                             ? '로딩 중...'
                             : (remainingDays == 0
                             ? "D-day"
-                            : "D ${remainingDays! > 0 ? "-" : "+"}${remainingDays!.abs()}"),
+                            : "D ${remainingDays! > 0
+                            ? "-"
+                            : "+"}${remainingDays!.abs()}"),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -184,7 +222,8 @@ class _StudyPageState extends State<StudyPage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PlannerPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const PlannerPage()),
                           );
                         },
                         showDivider: false,
@@ -202,8 +241,7 @@ class _StudyPageState extends State<StudyPage> {
   }
 
 
-
-Widget buildSectionContainer({
+  Widget buildSectionContainer({
     required BuildContext context,
     required String title,
     String? subtitle,
@@ -213,14 +251,17 @@ Widget buildSectionContainer({
     bool showDivider = true,
   }) {
     return Container(
-      width: MediaQuery.of(context).size.width - 32,
-      padding: const EdgeInsets.all(4.0),
+      width: MediaQuery
+          .of(context)
+          .size
+          .width - 32.w, // 가로 크기 조정
+      padding: EdgeInsets.all(4.r), // 패딩 크기 조정
       decoration: BoxDecoration(
         color: const Color(0xFF333333),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r), // 반지름 크기 조정
       ),
       child: SizedBox(
-        height: height ?? 80.h,
+        height: height ?? 85.h, // 기본 높이 조정
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -229,31 +270,36 @@ Widget buildSectionContainer({
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 16.sp, // 글자 크기 조정
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chevron_right_outlined, color: Colors.white),
+                  icon: Icon(
+                    Icons.chevron_right_outlined,
+                    color: Colors.white,
+                    size: 20.sp, // 아이콘 크기 조정
+                  ),
                   onPressed: onPressed,
                 ),
               ],
             ),
             if (showDivider && subtitle != null && subtitleValue != null)
-              const Divider(color: Colors.white, thickness: 1),
+              Divider(color: Colors.white, thickness: 1.h), // 구분선 두께 조정
             if (subtitle != null && subtitleValue != null)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                // 내부 패딩 조정
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         subtitle,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: 14.sp, // 글자 크기 조정
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -262,8 +308,8 @@ Widget buildSectionContainer({
                     ),
                     Text(
                       subtitleValue,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 14.sp, // 글자 크기 조정
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

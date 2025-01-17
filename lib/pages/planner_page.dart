@@ -1,6 +1,4 @@
 import 'dart:convert';
-//import 'dart:nativewrappers/_internal/vm/lib/core_patch.dart';
-import 'package:project1/pages/study_page.dart';
 import 'package:project1/widgets/feedback_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,13 +7,12 @@ import 'package:project1/pages/planner_detail_page.dart';
 import 'package:project1/widgets/customfloatingactionbutton.dart';
 import 'package:project1/pages/time_circle_planner_page.dart';
 import 'package:project1/utils/planner_api_helper.dart';
-import '../main.dart';
 import '../models/planner_model.dart';
 import 'package:project1/colors.dart';
-
 import '../widgets/custom_appbar.dart';
 import 'home_screen.dart';
-import 'main_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 
 
 class PlannerPage extends StatefulWidget {
@@ -90,7 +87,7 @@ class _PlannerPageState extends State<PlannerPage> {
       context: context,
       builder: (context) {
         return Container(
-          height: 250,
+          height: 200.h,
           color: Colors.grey[300],
           child: CupertinoDatePicker(
             mode: CupertinoDatePickerMode.date,
@@ -120,7 +117,7 @@ class _PlannerPageState extends State<PlannerPage> {
     return TableRow(
       children: [
         Container(
-          height: 60,
+          height: 50.h,
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
           child: Column(
@@ -128,35 +125,35 @@ class _PlannerPageState extends State<PlannerPage> {
             children: [
               Text(
                 startTime,
-                style: const TextStyle(color: Colors.white, fontSize: 9),
+                style:TextStyle(color: Colors.white, fontSize: 9.sp),
               ),
-              const Text(
+              Text(
                 '~',
-                style: TextStyle(color: Colors.white, fontSize: 9),
+                style: TextStyle(color: Colors.white, fontSize: 9.sp),
               ),
               Text(
                 endTime,
-                style: const TextStyle(color: Colors.white, fontSize: 9),
+                style: TextStyle(color: Colors.white, fontSize: 9.sp),
               ),
             ],
           ),
         ),
         Container(
-          height: 60,
+          height: 50.h,
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
           child: Text(
             subject,
-            style: TextStyle(color: Colors.white, fontSize: 12),
+            style: TextStyle(color: Colors.white, fontSize: 12.sp),
           ),
         ),
         Container(
-          height: 60,
+          height: 50.h,
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
           child: Text(
             content,
-            style: TextStyle(color: Colors.white, fontSize: 12),
+            style: TextStyle(color: Colors.white, fontSize: 12.sp),
           ),
         ),
         InkWell( // 여기서 InkWell을 사용
@@ -175,7 +172,7 @@ class _PlannerPageState extends State<PlannerPage> {
             );
           },
           child : Container(
-            height: 60,
+            height: 50.h,
             padding: const EdgeInsets.all(8.0),
             alignment: Alignment.center,
             child: _getFeedbackIcon(feedbackType), // 아이콘을 가져오는 함수 호출
@@ -308,29 +305,18 @@ class _PlannerPageState extends State<PlannerPage> {
           FocusScope.of(context).requestFocus(FocusNode());
         }
       },
-        child: WillPopScope(
-        onWillPop: () async {
-      // StudyPage로 이동
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const StudyPage()),
-            (route) => false, // 모든 이전 페이지를 제거하고 StudyPage로 이동
-      );
-      return false;
-        },
-
 
       child: Scaffold (
         appBar: CustomAppBar(
           title: '플래너',
           showBackButton: true,
           onBackPressed: () {
-            Navigator.pushAndRemoveUntil(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => const HomeScreen(initialIndex: 1), // StudyPage가 보이도록 설정
               ),
-                  (route) => false, // 모든 이전 페이지 제거
+
             );
           },
         ),
@@ -343,8 +329,8 @@ class _PlannerPageState extends State<PlannerPage> {
                 children: [
                   GestureDetector(
                     child: Container(
-                      width: 100,
-                      height: 24,
+                      width: 100.w,
+                      height: 20.h,
                       alignment: Alignment.center,
                       margin: const EdgeInsets.only(top: 5.0, right: 0.0),
                       child: Text(
@@ -352,7 +338,7 @@ class _PlannerPageState extends State<PlannerPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ),
@@ -363,18 +349,18 @@ class _PlannerPageState extends State<PlannerPage> {
                       onTap: () => _selectDate(context), // 아이콘 클릭 시 날짜 선택 모달
                       child: Icon(
                         Icons.expand_more,
-                        size: 24,
+                        size: 24.sp,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 5),
+             SizedBox(height: 5.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(width: 10),
+                 SizedBox(width: 10.w),
                   ElevatedButton(
                     onPressed: () {
 
@@ -388,15 +374,15 @@ class _PlannerPageState extends State<PlannerPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isStudying ? Color(0xFF69EDFF) : Color(0xFF9D9D9D), // 버튼 색상 설정
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      minimumSize: Size(50, 22),
+                      minimumSize: Size(50.w, 18.h),
                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     ),
-                    child: const Text(
+                    child: Text(
                       '공부',
-                      style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                      style: TextStyle(color: Color(0xFF333333), fontSize: 12.sp),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
                   ElevatedButton(
                     onPressed: () {
 
@@ -409,12 +395,12 @@ class _PlannerPageState extends State<PlannerPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isStudying ? Color(0xFF9D9D9D) : Color(0xFF69EDFF), // 버튼 색상 설정
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      minimumSize: Size(50, 22),
+                      minimumSize: Size(50.w, 18.h),
                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     ),
-                    child: const Text(
+                    child: Text(
                       '일정',
-                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      style: TextStyle(color: Colors.black, fontSize: 12.sp),
                     ),
                   ),
                   const Spacer(),
@@ -428,20 +414,20 @@ class _PlannerPageState extends State<PlannerPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF69EDFF), // 버튼 색상 설정
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      minimumSize: Size(60, 22),
+                      minimumSize: Size(60.w, 18.h),
                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     ),
-                    child: const Text(
+                    child:Text(
                       '원시간표',
-                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      style: TextStyle(color: Colors.black, fontSize: 12.sp),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 3),
+            SizedBox(height: 3.h),
               Container(
-                width: 380,
-                height: 100,
+                width: 380.w,
+                height: 80.h,
                 decoration: BoxDecoration(
                   color: const Color(0xff333333),
                   borderRadius: BorderRadius.circular(15),
@@ -453,23 +439,23 @@ class _PlannerPageState extends State<PlannerPage> {
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children:  [
                             Text(
                               '오늘의',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
+                              style: TextStyle(fontSize: 16.sp, color: Colors.white),
                             ),
                             Text(
                               '총평',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
+                              style: TextStyle(fontSize: 16.sp, color: Colors.white),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const VerticalDivider(
+                    VerticalDivider(
                       color: Colors.white,
                       thickness: 1,
-                      width: 10,
+                      width: 10.w,
                     ),
                     Expanded(
                       flex: 7,
@@ -521,9 +507,9 @@ class _PlannerPageState extends State<PlannerPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+             SizedBox(height: 20.h),
               Container(
-                width: 380,
+                width: 380.w,
                 decoration: BoxDecoration(
                   color: const Color(0xff333333),
                   borderRadius: BorderRadius.circular(15),
@@ -531,15 +517,15 @@ class _PlannerPageState extends State<PlannerPage> {
 
                 child: Table(
                   border: TableBorder(
-                    verticalInside: BorderSide(color: Colors.black54, width: 2),
-                    horizontalInside: BorderSide(color: Colors.black54, width: 2),
+                    verticalInside: BorderSide(color: Colors.black54, width: 2.w),
+                    horizontalInside: BorderSide(color: Colors.black54, width: 2.w),
                   ),
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   columnWidths: {
-                    0: FixedColumnWidth(40),
-                    1: FixedColumnWidth(40),
-                    2: FixedColumnWidth(175),
-                    3: FixedColumnWidth(35),
+                    0: FixedColumnWidth(40.w),
+                    1: FixedColumnWidth(40.w),
+                    2: FixedColumnWidth(175.w),
+                    3: FixedColumnWidth(35.w),
                   },
                   children: [
                     TableRow(
@@ -550,7 +536,7 @@ class _PlannerPageState extends State<PlannerPage> {
                           alignment: Alignment.center,
                           child: Text(
                             '시간',
-                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12.sp),
                           ),
                         ),
                         Container(
@@ -558,7 +544,7 @@ class _PlannerPageState extends State<PlannerPage> {
                           alignment: Alignment.center,
                           child: Text(
                             isScheduleButtonPressed ? '주제' : '과목', // 조건에 따라 텍스트 변경
-                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12.sp),
                           ),
                         ),
                         Container(
@@ -566,7 +552,7 @@ class _PlannerPageState extends State<PlannerPage> {
                           alignment: Alignment.center,
                           child: Text(
                             '내용',
-                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12.sp),
                           ),
                         ),
                         Container(
@@ -574,7 +560,7 @@ class _PlannerPageState extends State<PlannerPage> {
                           alignment: Alignment.center,
                           child: Text(
                             '달성',
-                            style: TextStyle(color: Color(0xFF333333), fontSize: 12),
+                            style: TextStyle(color: Color(0xFF333333), fontSize: 12.sp),
                           ),
                         ),
                       ],
@@ -622,7 +608,7 @@ class _PlannerPageState extends State<PlannerPage> {
           },
         ),
       ),
-    ),
+
     );
 
 
