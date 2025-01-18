@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:project1/pages/planner_page.dart';
 import 'package:project1/widgets/week_calendar_component.dart';
 import 'package:project1/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/widgets/bargraph.dart';
 import 'package:project1/widgets/subject_dropdown.dart';
 import 'package:project1/utils/timer_api_helper.dart';
+
+import '../widgets/custom_appbar.dart';
 
 class TimerUsageReportPage extends StatefulWidget {
   const TimerUsageReportPage({Key? key}) : super(key: key);
@@ -296,12 +299,18 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '통계',
-          style: TextStyle(fontSize: 18.sp),
-        ),
-        centerTitle: true,
+      appBar: CustomAppBar(
+        title: '통계',
+        showBackButton: true,
+        onBackPressed: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PlannerPage(),
+            ),
+                (route) => false, // 모든 이전 페이지 제거
+          );
+        },
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0.w),

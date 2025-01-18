@@ -5,6 +5,7 @@ import 'package:project1/utils/login_api_helper.dart';
 import 'package:project1/models/login_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 import '../main.dart';
+import '../widgets/custom_appbar.dart';
 import 'home_screen.dart';
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -72,11 +73,20 @@ class LoginPage extends StatelessWidget {
     LoginApiHelper apiHelper = LoginApiHelper(); // 여기서 인스턴스 생성
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('로그인'),
+      appBar: CustomAppBar(
+        title: '로그인',
+        showBackButton: true,
+        onBackPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Login(), // 이동할 페이지를 지정
+            ),
+          );
+        },
       ),
-      body: Padding(
+
+        body: Padding(
         padding: EdgeInsets.all(16.0.w), // ScreenUtil 사용
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

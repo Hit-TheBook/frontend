@@ -5,6 +5,7 @@ import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:project1/pages/home_screen.dart';
 import 'package:project1/pages/main_page.dart';
 import 'package:project1/pages/register_page.dart';
 import 'package:project1/pages/login_page.dart';
@@ -13,7 +14,9 @@ import 'package:project1/pages/study_page.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/pages/agreement_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
 void main() async {
@@ -54,6 +57,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           title: 'Flutter Demo',
+          navigatorKey: navigatorKey,
           theme: appTheme, // Use the custom theme from theme.dart
           home: const SplashScreen(),
           // 지역화 설정 추가
@@ -206,73 +210,73 @@ class Main extends StatelessWidget {
     );
   }
 }
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
-//
-//   @override
-//   _HomeScreenState createState() => _HomeScreenState();
-// }
-//
-// class _HomeScreenState extends State<HomeScreen> {
-//   int _selectedIndex = 0; // 기본값: MainPage
-//
-//   // 페이지 목록
-//   static final List<Widget> _pages = <Widget>[
-//     MainPage(),
-//     StudyPage(),
-//   ];
-//
-//   void _onItemTapped(int index) {
-//     setState(() {
-//       _selectedIndex = index;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: _pages[_selectedIndex], // 선택된 페이지 표시
-//       bottomNavigationBar: BottomNavigationBar(
-//         items: const <BottomNavigationBarItem>[
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.home),
-//             label: '홈',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.school),
-//             label: '스터디',
-//           ),
-//         ],
-//         currentIndex: _selectedIndex,
-//         selectedItemColor: Colors.blueAccent,
-//         onTap: _onItemTapped,
-//       ),
-//     );
-//   }
-// }
 
 // 스플래쉬 화면 시작
-class SplashScreen extends StatelessWidget {
+
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _startSplashSequence();
+  }
+
+  // 스플래시 화면의 애니메이션과 로직을 동기화
+  Future<void> _startSplashSequence() async {
+    // 스플래시 화면 표시 시간 설정 (7초)
+    const splashDuration = Duration(seconds: 7);
+
+    // 스플래시 애니메이션이 완료될 때까지 대기
+    await Future.delayed(splashDuration);
+
+    // 이후 로그인 상태를 확인하고 페이지 이동
+    await _checkLoginStatus();
+  }
+
+  // 로그인 상태 확인 후 페이지 이동
+  Future<void> _checkLoginStatus() async {
+    String? refreshToken = await storage.read(key: 'refreshToken');
+
+    // 화면 전환 전에 mounted 상태 확인
+    if (!mounted) return;
+
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen(initialIndex: 0)),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedSplashScreen(
-      splash: Container(
-        width: double.infinity, // 화면 전체 너비
-        height: double.infinity, // 화면 전체 높이
-        child: Image.asset(
-          'assets/images/splash.gif', // gif 파일 경로
-          fit: BoxFit.cover, // 화면을 가득 채우도록 설정
+    // AnimatedSplashScreen에서 nextScreen을 제거하고 화면 전환을 수동 처리
+    return Scaffold(
+      body: AnimatedSplashScreen(
+        splash: Image.asset(
+          'assets/images/splash.gif', // 스플래시 이미지 또는 GIF
+          fit: BoxFit.cover,
         ),
+        backgroundColor: Colors.cyanAccent,
+        splashIconSize: double.infinity,
+        duration: 7000, // 스플래시 애니메이션 지속 시간 (7초)
+        splashTransition: SplashTransition.fadeTransition,
+        animationDuration: const Duration(seconds: 7),
+        nextScreen: Container(), // 화면 전환은 initState에서 처리하므로 빈 화면 유지
       ),
-      backgroundColor: Colors.cyanAccent,
-      nextScreen: const Login(),
-      splashIconSize: double.infinity,
-      duration: 3000,
-      splashTransition: SplashTransition.fadeTransition,
-      animationDuration: const Duration(seconds: 3),
-      pageTransitionType: PageTransitionType.leftToRight,
     );
   }
 }

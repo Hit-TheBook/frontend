@@ -1,11 +1,17 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 안전한 스토리지
+import '../main.dart';
 import '../models/refresh_token_request_model.dart';
+import '../pages/login_page.dart';
+
 
 class RefreshTokenApiHelper {
   static const String baseUrl = 'http://13.209.78.125';
   final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
+
 
 
   Future<RefreshTokenResponseModel> refreshToken() async {
@@ -14,10 +20,10 @@ class RefreshTokenApiHelper {
     String? refreshToken = await storage.read(key: 'refreshToken');
 
     if (refreshToken == null) {
-      print('No refresh token found in storage.'); // 디버그 프린트 추가
+      print('No refresh token found in storage.');
+      _navigateToLoginPage();
       throw Exception('No refresh token found');
     }
-    print('Retrieved refresh token: $refreshToken');
 
     // 리프레시 토큰 요청을 위한 모델 생성
     RefreshTokenRequestModel requestModel = RefreshTokenRequestModel(refreshToken: refreshToken);
@@ -56,8 +62,17 @@ class RefreshTokenApiHelper {
 
       return RefreshTokenResponseModel.fromJson(jsonDecode(response.body));
     } else {
-      print('Error: ${response.body}'); // 서버 에러 로그 출력
+      print('Error: ${response.body}');
+      _navigateToLoginPage(); // ✅ 토큰 갱신 실패 시 로그인 페이지로 이동
       throw Exception('Failed to refresh token');
     }
   }
+  void _navigateToLoginPage() {
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+    );
+  }
+
+
 }

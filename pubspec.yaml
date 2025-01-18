@@ -49,4 +49,5 @@ flutter:
     - assets/levels/
     - assets/emblem/
     - assets/images/splash.gif
+    - assets/images/
     - .env

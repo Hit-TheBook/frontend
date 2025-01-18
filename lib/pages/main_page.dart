@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:project1/colors.dart';
+import 'package:project1/pages/alert_page.dart';
 import 'package:project1/pages/login_page.dart';
 import 'package:project1/pages/planner_page.dart';
 import 'package:project1/pages/dday_page.dart';
@@ -10,6 +12,7 @@ import 'package:project1/widgets/customdialog.dart';
 import 'package:project1/models/user_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/level_images.dart';
+import 'package:project1/widgets/level_dialog.dart';
 
 import 'nickname_change_page.dart';
 
@@ -93,8 +96,6 @@ class _MainPageState extends State<MainPage> {
         final userInfo = UserResponse.fromJson(jsonDecode(response.body));
         setState(() {
           nickname = userInfo.nickname;
-
-
         });
       } else {
         print('사용자 정보를 가져오는 중 오류 발생: ${response.body}');
@@ -172,7 +173,10 @@ class _MainPageState extends State<MainPage> {
               size: 25,
             ),
             onPressed: () {
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AlertPage()), // TimeCirclePlanner로 이동
+              );
             },
           ),
         ],
@@ -236,6 +240,18 @@ class _MainPageState extends State<MainPage> {
               },
             ),
 
+            ListTile(
+              leading: Icon(Icons.logout_outlined, color: black1 ),
+              title: Text(
+                '로그아웃',
+                style: TextStyle(color: black1, fontSize: 18),
+              ),
+              tileColor: neonskyblue1,
+              onTap: () async {
+                await _logout(); // 로그아웃 처리
+              },
+
+            ),
 
             ListTile(
               leading: Icon(Icons.delete_outline, color: Colors.redAccent),
@@ -299,13 +315,25 @@ class _MainPageState extends State<MainPage> {
 
                         //SizedBox(width: 10.w), // 이미지와 아이콘 사이에 여백 추가
                         Padding(
-                          padding: EdgeInsets.only(top: 110.h), // 아이콘 위쪽에 10.h 만큼 패딩 추가
-                          child: Icon(
-                            Icons.help_outline_outlined,
-                            size: 15.sp,
-                            color: Colors.white, // 아이콘 색상
+                          padding: EdgeInsets.only(top: 110.h),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.help_outline_outlined,
+                              size: 15.sp,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              // 버튼 위치 계산
+                              final RenderBox button = context.findRenderObject() as RenderBox;
+                              final Offset buttonPosition = button.localToGlobal(Offset.zero);
+
+                              // 버튼 위치와 함께 showLevelDialog 호출
+                              showLevelDialog(context, buttonPosition);
+                            },
                           ),
                         ),
+
+
                       ],
                     ),
                   ),
@@ -466,29 +494,34 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ],
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/hitthebook.jpg', // 이미지 경로
-                    width: 100.w, // 화면 크기에 맞게 너비 조정
-                    height: 100.h, // 화면 크기에 맞게 높이 조정
-                  ),
-                  if (nickname != null && point != null) ...[
-                    Text('닉네임: $nickname', style: TextStyle(fontSize: 18.sp)),
-                    Text('포인트: $point', style: TextStyle(fontSize: 18.sp)),
-                    const SizedBox(height: 20),
-                  ],
-                ],
-              ),
-            ),
           ],
         ),
       ),
     ),
     );
   }
+  Future<void> _logout() async {
+    final storage = FlutterSecureStorage();
+
+    try {
+      // SecureStorage에서 액세스 토큰과 리프레시 토큰 삭제
+      await storage.delete(key: 'accessToken');
+      await storage.delete(key: 'refreshToken');
+
+      print('토큰 삭제 완료');
+
+      // 로그인 페이지로 이동
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false, // 이전 화면 제거
+      );
+    } catch (e) {
+      print('로그아웃 중 오류 발생: $e');
+      _showErrorDialog(context, '로그아웃 실패', '다시 시도해주세요.');
+    }
+  }
+
 
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
@@ -523,6 +556,7 @@ class _MainPageState extends State<MainPage> {
       },
     );
   }
+
 
   void _showErrorDialog(BuildContext context, String title, String message) {
     showDialog(
