@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:project1/models/planner_model.dart';  // 모델 파일을 임포트
@@ -7,8 +8,7 @@ import 'refresh_token_api_helper.dart';
 
 
 class PlannerApiHelper {
-  static const String baseUrl = 'http://13.209.78.125';
-  // static const String temporaryToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0BleGFtcGxlLmNvbV85Mmlvc2RmOTNpc2Rmamkzb2kyMzRtb2ZzZGlqMiIsImlhdCI6MTcyNTk0NjQxOSwiZXhwIjoxNzU3NDgyNDE5fQ.t-LwL_f9huhSTzDMGLWLF_PAgqVq4NAk49kx1weMuFY1-eVY6OEBC1qm0rkmNyJAdIMylYtAuVq8Y8LS9IdUhQ'; // 서버에서 발급받은 임시 토큰
+  final String? baseUrl = dotenv.env['BASE_URL'];
   final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
   final RefreshTokenApiHelper refreshTokenHelper = RefreshTokenApiHelper(); // 토큰 갱신 헬퍼 인스턴스
 

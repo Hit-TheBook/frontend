@@ -145,7 +145,7 @@ class _WeekCalendarComponentState extends State<WeekCalendarComponent> {
           ],
         ),
         Container(
-          margin: EdgeInsets.symmetric(vertical: 10.h),
+          margin: EdgeInsets.only(top: 0.h, bottom: 10.h),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12.r),
@@ -168,19 +168,19 @@ class _WeekCalendarComponentState extends State<WeekCalendarComponent> {
             startingDayOfWeek: StartingDayOfWeek.monday,
             daysOfWeekStyle: DaysOfWeekStyle(
               dowTextFormatter: (date, locale) => ['월', '화', '수', '목', '금', '토', '일'][date.weekday - 1], // 요일 텍스트
-              weekendStyle: TextStyle(color: black1, fontSize: 12.sp),
-              weekdayStyle: TextStyle(color: black1, fontSize: 12.sp),
+              weekendStyle: TextStyle(color: black1, fontSize: 10.sp),
+              weekdayStyle: TextStyle(color: black1, fontSize: 10.sp),
             ),
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               leftChevronVisible: false,
               rightChevronVisible: false,
               titleCentered: true,
-              headerPadding: EdgeInsets.only(bottom: 0.h), // 헤더와 요일 사이 여백 줄임
+              headerPadding: EdgeInsets.symmetric(vertical: 0.h), // 헤더와 요일 사이 여백 줄임
             ),
             calendarStyle: CalendarStyle(
               defaultTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
-              tablePadding: EdgeInsets.symmetric(vertical: 4.h),
+              tablePadding: EdgeInsets.symmetric(vertical: 3.h),
               selectedTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
               todayTextStyle: TextStyle(color: Colors.black, fontSize: 14.sp),
               selectedDecoration: BoxDecoration(

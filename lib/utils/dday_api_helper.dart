@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'refresh_token_api_helper.dart'; // 리프레시 토큰 헬퍼를 임포트
 
 class ApiHelper {
-  static const String baseUrl = 'http://13.209.78.125'; // 서버 URL
+  final String? baseUrl = dotenv.env['BASE_URL'];
   final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
   final RefreshTokenApiHelper refreshTokenHelper = RefreshTokenApiHelper(); // 리프레시 토큰 헬퍼 인스턴스 생성
 

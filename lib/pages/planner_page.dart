@@ -294,17 +294,25 @@ class _PlannerPageState extends State<PlannerPage> {
     _textFieldFocusNode.dispose(); // FocusNode 정리
     _controller.dispose(); // 텍스트 필드 컨트롤러 정리
     super.dispose();
+
   }
 
   @override
   Widget build(BuildContext context) {
+
     String formattedDate = '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일';
-    return GestureDetector( // 수정 후
+    return WillPopScope( // WillPopScope 추가
+        onWillPop: () async {
+          // 뒤로 가기 버튼을 눌렀을 때 아무 동작도 하지 않음 (뒤로 가기 비활성화)
+          return false; // false를 반환하면 뒤로 가기 동작이 발생하지 않음
+        },
+    child: GestureDetector( // 수정 후
       onTap: () {
         if (_textFieldFocusNode.hasFocus) {
           FocusScope.of(context).requestFocus(FocusNode());
         }
       },
+
 
       child: Scaffold (
         appBar: CustomAppBar(
@@ -465,10 +473,10 @@ class _PlannerPageState extends State<PlannerPage> {
                           focusNode: _textFieldFocusNode,
                           controller: _controller,
                           maxLength: 200,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white, fontSize: 14.sp),
                           decoration: InputDecoration(
                             hintText: '클릭 후 오늘의 총 평을 입력해 보세요.',
-                            hintStyle: const TextStyle(color: Colors.white54),
+                            hintStyle:TextStyle(color: Colors.white54,fontSize: 14.sp),
                             border: InputBorder.none,
                           ),
                           maxLines: null,
@@ -609,6 +617,7 @@ class _PlannerPageState extends State<PlannerPage> {
         ),
       ),
 
+    ),
     );
 
 

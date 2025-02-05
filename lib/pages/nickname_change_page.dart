@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 import '../models/register_view_model.dart'; // RegisterViewModel 불러오기
@@ -19,7 +21,7 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
 
   void _validateNickname(String nickname) {
     setState(() {
-      _isNicknameValid = nickname.trim().length >= 2 && nickname.trim().length <= 6;
+      _isNicknameValid = utf8.encode(nickname.trim()).length >= 6 && utf8.encode(nickname.trim()).length <= 18;
       _isNicknameAvailable = false; // 새로운 닉네임 입력 시 다시 중복 체크 필요
       _hasCheckedNickname = false; // 입력하면 다시 중복 확인 필요
     });
@@ -63,113 +65,114 @@ class _NicknameChangePageState extends State<NicknameChangePage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('닉네임 변경')),
-      body: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 프로필 이미지 (가운데 정렬)
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/hitthebook.jpg'), // 로컬 이미지 사용
-            ),
-            SizedBox(height: 20.h),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 최소 크기로 설정하여 스크롤 가능하게 함
+            children: [
+              // 프로필 이미지 (가운데 정렬)
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage('assets/images/hitthebook.jpg'), // 로컬 이미지 사용
+              ),
+              SizedBox(height: 20.h),
+              Text(
+                '*닉네임은 영어·숫자는 6자 이상 18자 이하, 한글은 2자 이상 6자 이하로  입력해야 합니다.',
+                style: TextStyle(fontSize: 10.sp, color: neonskyblue1),
+              ),
 
+              SizedBox(height: 5.h), // 간격 추가
 
-            // 닉네임 입력 필드 + 중복 확인 버튼
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 30.h, // 높이 조정
-                        child: TextField(
-                          controller: nicknameController,
-                          onChanged: _validateNickname,
-                          decoration: InputDecoration(
-                            fillColor: Color(0xFF333333),
-                            filled: true,
-                            border: OutlineInputBorder(),
-                            hintText: '닉네임을 설정해주세요.',
-                            hintStyle: TextStyle(color: white1),
-                            contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0), // 내부 패딩 조정
+              // 닉네임 입력 필드 + 중복 확인 버튼
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 30.h, // 높이 조정
+                          child: TextField(
+                            controller: nicknameController,
+                            onChanged: _validateNickname,
+                            decoration: InputDecoration(
+                              fillColor: Color(0xFF333333),
+                              filled: true,
+                              border: OutlineInputBorder(),
+                              hintText: '닉네임을 설정해주세요.',
+                              hintStyle: TextStyle(color: white1, fontSize: 14.sp),
+                              contentPadding: EdgeInsets.symmetric(vertical: 5.0.w, horizontal: 10.0.h), // 내부 패딩 조정
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 20.w),
+                  SizedBox(
+                    width: 100.w, // 버튼 가로 크기 조정
+                    height: 30.h, // 버튼 높이 조정
+                    child: ElevatedButton(
+                      onPressed: _isNicknameValid ? _checkNicknameAvailability : null,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          _isNicknameValid ? neonskyblue1 : Colors.grey,
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
                           ),
                         ),
                       ),
-
-
-                      // 중복 확인 메시지 자리 고정
-
-                    ],
-                  ),
-                ),
-                SizedBox(width: 20.w),
-                SizedBox(
-                  width: 100.w, // 버튼 가로 크기 조정
-                  height: 30.h, // 버튼 높이 조정
-                  child: ElevatedButton(
-                    onPressed: _isNicknameValid ? _checkNicknameAvailability : null,
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        _isNicknameValid ? neonskyblue1 : Colors.grey,
-                      ),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
+                      child: Text('중복 확인', style: TextStyle(fontSize: 12.sp)), // 항상 '중복 확인' 유지
                     ),
-                    child: Text('중복 확인'), // 항상 '중복 확인' 유지
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 20.h,
-              child: _hasCheckedNickname
-                  ? Align(
-                alignment: Alignment.centerLeft,  // 왼쪽 정렬
-                child: Text(
-                  _isNicknameAvailable ? '사용 가능한 닉네임입니다.' : '이미 사용 중입니다.',
-                  style: TextStyle(
-                    color: _isNicknameAvailable ? Colors.blue : Colors.red,
-                    fontSize: 14.sp,
-                  ),
-                ),
-              )
-                  : null,
-            ),
-
-            SizedBox(height: 270.h),
-
-            // 완료 버튼 (닉네임이 사용 가능해야 활성화됨)
-            ElevatedButton(
-              onPressed: _isNicknameAvailable ? _submitNickname : null,
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                  _isNicknameAvailable ? neonskyblue1 : Colors.grey,
-                ),
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-                minimumSize: MaterialStateProperty.all(
-                  Size(300.w, 30.h), // 원하는 크기 (가로: 200, 세로: 50)
-                ),
+                ],
               ),
-              child: Text('완료'),
-            ),
-          ],
+              SizedBox(height: 5.h),
+              SizedBox(
+                height: 20.h,
+                child: _hasCheckedNickname
+                    ? Align(
+                  alignment: Alignment.centerLeft, // 왼쪽 정렬
+                  child: Text(
+                    _isNicknameAvailable ? '사용 가능한 닉네임입니다.' : '이미 사용 중입니다.',
+                    style: TextStyle(
+                      color: _isNicknameAvailable ? Colors.blue : Colors.red,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                )
+                    : null,
+              ),
+
+              SizedBox(height: 330.h),
+
+              // 완료 버튼 (닉네임이 사용 가능해야 활성화됨)
+              ElevatedButton(
+                onPressed: _isNicknameAvailable ? _submitNickname : null,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    _isNicknameAvailable ? neonskyblue1 : Colors.grey,
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  minimumSize: MaterialStateProperty.all(
+                    Size(300.w, 30.h), // 원하는 크기 (가로: 200, 세로: 50)
+                  ),
+                ),
+                child: Text('완료'),
+              ),
+            ],
+          ),
         ),
       ),
     );

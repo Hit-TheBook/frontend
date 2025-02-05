@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project1/colors.dart';
 import 'package:project1/pages/timer.dart';
 import 'dart:async';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-//import 'package:project1/widgets/customdialog.dart';
 import 'package:project1/widgets/timerdialog.dart';
 import 'package:project1/utils/timer_api_helper.dart';
 
@@ -40,7 +39,7 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
   @override
   void initState() {
     super.initState();
-    Wakelock.enable();
+    WakelockPlus.enable();
     WidgetsBinding.instance.addObserver(this);
 
     _studyDuration = widget.totalStudyTime;
@@ -88,7 +87,8 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
 
   @override
   void dispose() {
-    Wakelock.disable();
+
+    WakelockPlus.disable();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -321,7 +321,7 @@ class _StudyTimerPageState extends State<StudyTimerPage> with WidgetsBindingObse
                         padding: EdgeInsets.symmetric(vertical: 2.0.h),
                         child: Text(
                           '타이머 종료',
-                          style: TextStyle(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 14.sp, color: Colors.black, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),

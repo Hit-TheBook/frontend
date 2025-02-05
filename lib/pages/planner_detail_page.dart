@@ -35,13 +35,11 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
         title: Text(
           widget.title,
           style: TextStyle(
             fontSize: 14.sp,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w400,
           ),
         ),
         centerTitle: true,
@@ -64,6 +62,12 @@ class _PlannerDetailPageState extends State<PlannerDetailPage> {
             ),
           ),
         ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // 원하는 아이콘으로 변경
+          onPressed: () {
+            Navigator.pop(context); // 뒤로 가기 버튼 동작
+          },
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.only(left: 25.w, right: 25.w),

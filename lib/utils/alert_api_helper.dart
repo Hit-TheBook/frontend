@@ -1,11 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project1/utils/refresh_token_api_helper.dart';
 
 class AlertApiHelper {
-  final String baseUrl = 'http://13.209.78.125'; // API 기본 URL
+  final String? baseUrl = dotenv.env['BASE_URL'];
   late FlutterSecureStorage storage;
   late RefreshTokenApiHelper refreshTokenHelper;
 

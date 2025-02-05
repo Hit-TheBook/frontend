@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 안전한 스토리지
 import '../main.dart';
@@ -9,7 +10,7 @@ import '../pages/login_page.dart';
 
 
 class RefreshTokenApiHelper {
-  static const String baseUrl = 'http://13.209.78.125';
+  final String? baseUrl = dotenv.env['BASE_URL'];
   final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
 
 

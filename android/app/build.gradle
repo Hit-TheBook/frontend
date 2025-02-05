@@ -43,8 +43,8 @@ android {
         applicationId = "com.tobehi.hitthebook"
         minSdk = 23 // Flutter secure storage가 필요로 하는 최소 SDK 버전
         targetSdk = 34 // 적절한 targetSdkVersion 설정
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 5
+        versionName = "5.0"
     }
 
     signingConfigs {
@@ -62,7 +62,11 @@ android {
         }
     }
 }
-
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8" // Java와 Kotlin의 JVM 타겟 버전을 동일하게 설정
+    }
+}
 flutter {
     source = "../.."
 }

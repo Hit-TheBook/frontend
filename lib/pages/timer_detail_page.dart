@@ -93,6 +93,7 @@ class _TimerDetailPageState extends State<TimerDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         // 플래그에 따라 제목 변경
         title: Text(widget.isEditMode ? '과목 이름 수정' : '과목 추가'),
         centerTitle: true,
@@ -107,6 +108,12 @@ class _TimerDetailPageState extends State<TimerDetailPage> {
             ),
           ),
         ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // 원하는 아이콘으로 변경
+          onPressed: () {
+            Navigator.pop(context); // 뒤로 가기 버튼 동작
+          },
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 25.w),

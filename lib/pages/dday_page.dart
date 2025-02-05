@@ -318,13 +318,8 @@ class DdayPageState extends State<DdayPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // 뒤로가기 버튼을 눌렀을 때 StudyPage로 이동하고, 이전 페이지는 스택에서 제거
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const StudyPage()),
-              (route) => false, // 모든 페이지를 제거하고 StudyPage만 남김
-        );
-        return false; // 기본 뒤로가기 동작을 막음
+        // 뒤로 가기 버튼을 눌렀을 때 아무 동작도 하지 않음 (뒤로 가기 비활성화)
+        return false; // false를 반환하면 뒤로 가기 동작이 발생하지 않음
       },
       child : Scaffold(
         appBar: CustomAppBar(

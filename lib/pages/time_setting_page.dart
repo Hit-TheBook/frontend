@@ -108,6 +108,7 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('목표시간 설정', style: TextStyle(fontSize: 18.sp)),
         actions: [
           // "시작" 텍스트를 AppBar 오른쪽에 배치
@@ -116,12 +117,18 @@ class _TimeSettingPageState extends State<TimeSettingPage> {
             child: Text(
               '시작',
               style: TextStyle(
-                fontSize: 16.sp,
+                fontSize: 14.sp,
                 color: isStartTextEnabled ? neonskyblue1 : Colors.grey, // 비활성화 색상
               ),
             ),
           ),
         ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // 원하는 아이콘으로 변경
+          onPressed: () {
+            Navigator.pop(context); // 뒤로 가기 버튼 동작
+          },
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(10.0.w),

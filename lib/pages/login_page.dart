@@ -86,7 +86,8 @@ class LoginPage extends StatelessWidget {
         },
       ),
 
-        body: Padding(
+        body: SingleChildScrollView(
+        child:Padding(
         padding: EdgeInsets.all(16.0.w), // ScreenUtil 사용
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -138,11 +139,11 @@ class LoginPage extends StatelessWidget {
                     ),
                   ); // 비밀번호 재설정 클릭 시 동작 추가
                 },
-                child: const Text(
+                child: Text(
                   '비밀번호 재설정',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -233,6 +234,7 @@ class LoginPage extends StatelessWidget {
           ],
         ),
       ),
+        ),
     );
   }
 }

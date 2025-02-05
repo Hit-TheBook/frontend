@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/pages/dday_page.dart';
+import 'package:project1/pages/home_screen.dart';
 import 'package:project1/pages/timer.dart';
-import 'package:project1/theme.dart';
 import 'package:project1/utils/dday_api_helper.dart'; // API 헬퍼 불러오기
 import 'package:project1/utils/timer_api_helper.dart'; // 타이머 API 헬퍼 추가
 import '../colors.dart';
@@ -100,11 +100,6 @@ class _StudyPageState extends State<StudyPage> {
     return WillPopScope(
       onWillPop: () async {
         // 뒤로 가기 버튼 눌렀을 때 항상 MainPage로 이동
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const MainPage()),
-              (route) => false, // 기존 스택 제거
-        );
         return false; // 기본 뒤로 가기 동작 방지
       },
       child: Scaffold(

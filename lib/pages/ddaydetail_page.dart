@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/src/response.dart';
 import 'package:intl/intl.dart';
 import 'package:project1/colors.dart';
@@ -191,6 +192,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(widget.isEditing ? '디데이 수정' : '디데이 추가'),
         centerTitle: true,
         actions: <Widget>[
@@ -198,15 +200,22 @@ class DdaydetailPageState extends State<DdaydetailPage> {
             onPressed: () async {
               await _saveDday();
             },
-            child: const Text(
+            child:  Text(
               '완료',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: 14.sp,
               ),
             ),
           ),
         ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // 원하는 아이콘으로 변경
+          onPressed: () {
+            Navigator.pop(context); // 뒤로 가기 버튼 동작
+          },
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -214,20 +223,20 @@ class DdaydetailPageState extends State<DdaydetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 '디데이 이름',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
+                decoration:  InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: '디데이 이름을 입력하세요',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: TextStyle(color: Colors.grey,fontSize: 14.sp),
                 ),
               ),
               const SizedBox(height: 16),
@@ -264,13 +273,13 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   '시작일',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Colors.white,fontSize: 12.sp),
                                 ),
                                 Text(
                                   _formatDate(_selectedStartDate),
-                                  style: const TextStyle(color: neonskyblue1),
+                                  style: TextStyle(color: neonskyblue1,fontSize: 12.sp),
                                 ),
                               ],
                             ),
@@ -278,7 +287,7 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                         ),
                       ],
                     ),
-                    const Divider(height: 1, color: Colors.white),
+                    Divider(height: 1.h, color: Colors.white),
                     Row(
                       children: [
                         Expanded(
@@ -297,13 +306,13 @@ class DdaydetailPageState extends State<DdaydetailPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   '종료일',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Colors.white,fontSize: 12.sp),
                                 ),
                                 Text(
                                   _formatDate(_selectedEndDate),
-                                  style: const TextStyle(color: neonskyblue1),
+                                  style: TextStyle(color: neonskyblue1,fontSize: 12.sp),
                                 ),
                               ],
                             ),

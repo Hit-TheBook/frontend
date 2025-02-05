@@ -3,14 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project1/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:project1/pages/home_screen.dart';
-import 'package:project1/pages/main_page.dart';
-import 'package:project1/pages/register_page.dart';
 import 'package:project1/pages/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:project1/pages/study_page.dart';
 import 'package:project1/theme.dart'; // Import your theme file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/pages/agreement_page.dart';
@@ -51,12 +47,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(360, 640), // 피그마 기준 해상도
+      designSize: const Size(360, 640), // 피그마 기준 해상도
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Hit the book',
           navigatorKey: navigatorKey,
           theme: appTheme, // Use the custom theme from theme.dart
           home: const SplashScreen(),
@@ -130,22 +126,7 @@ class Login extends StatelessWidget {
               width: 250.w,// 원하는 높이 설정
             ),
             SizedBox(height: 20.h),
-            /*ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: neonskyblue1, // 배경색
-                foregroundColor: black1, // 텍스트 색
-              ),
-              child: Text(
-                '메인',
-                style: TextStyle(fontSize: 16.sp), // 폰트 크기 설정
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MainPage()),
-                );
-              },
-            ),*/
+
             SizedBox(height: 20.h), // 로그인 버튼과 시작하기 버튼 사이의 간격
             ElevatedButton(
               style: ElevatedButton.styleFrom(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project1/main.dart';
 import 'package:project1/pages/login_page.dart';
@@ -42,10 +43,11 @@ class _RegisterPageState extends State<RegisterPage> {
   // 비밀번호 유효성 검사 함수
   bool _validatePassword(String password) {
     final RegExp passwordExp = RegExp(
-      r'^(?=.*[A-Za-z])(?=.*\d)|(?=.*[A-Za-z])(?=.*[!@#\$%\^&\*])|(?=.*\d)(?=.*[!@#\$%\^&\*]).{8,}$',
+        r'^(?=.*[A-Za-z])(?=(.*\d|.*[!@#\$%\^&\*]))[A-Za-z\d!@#\$%\^&\*]{8,}$'
     );
     return passwordExp.hasMatch(password);
   }
+
 
 
   @override
@@ -134,6 +136,9 @@ class _RegisterPageState extends State<RegisterPage> {
     String email = emailController.text;
     String code = codeController.text;
 
+    print('서버로 보내는 이메일: $email');
+    print('서버로 보내는 인증번호: $code');
+
     bool verified = await registerViewModel.verifyAuthCode(email, code);
     if (verified) {
 
@@ -161,6 +166,9 @@ class _RegisterPageState extends State<RegisterPage> {
         passwordController.text,
         nicknameController.text
     );
+    print('이메일 데이터 타입: ${emailController.text.runtimeType}');
+    print('비밀번호 데이터 타입: ${passwordController.text.runtimeType}');
+    print('닉네임 데이터 타입: ${nicknameController.text.runtimeType}');
 
     if (registered) {
       _showCustomDialog(
@@ -317,8 +325,17 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
-        title: Text(widget.isResetPassword ? '비밀번호 재설정' : '시작하기'), // widget을 사용하여 접근
+        title: Text(widget.isResetPassword ? '비밀번호 재설정' : '시작하기',style: TextStyle(
+          fontSize: 14.sp,
+        )), // widget을 사용하여 접근
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // 원하는 아이콘으로 변경
+          onPressed: () {
+            Navigator.pop(context); // 뒤로 가기 버튼 동작
+          },
+        ),
       ),
 
       body: SingleChildScrollView(
@@ -336,6 +353,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Expanded(
                     child: TextField(
                       controller: emailController,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
                       decoration: const InputDecoration(
                         fillColor: Color(0xFF333333),
                         filled: true,
@@ -361,7 +379,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-                    child: const Text('인증번호 받기'),
+                    child: Text('인증번호 받기',style: TextStyle(fontSize: 12.sp)),
                   ),
 
 
@@ -370,7 +388,7 @@ class _RegisterPageState extends State<RegisterPage> {
               SizedBox(height: 16.h),
 
               // 인증번호 입력 필드
-              Text('인증번호', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text('인증번호', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 14.sp)),
               SizedBox(height: 8.h),
               Row(
                 children: [
@@ -379,6 +397,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 37.h,
                     child: TextField(
                       controller: codeController,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
                       decoration: const InputDecoration(
                         fillColor: Color(0xFF333333),
                         filled: true,
@@ -395,13 +414,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Text(
                           '남은시간',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white,fontSize: 12.sp),
                         ),
                         SizedBox(height: 4.h),
                         if (_isCountdownActive)
                           Text(
                             _formatDuration(_countdownDuration),
-                            style: const TextStyle(color: Colors.red, fontSize: 16),
+                            style: TextStyle(color: Colors.red, fontSize: 12.sp),
                           ),
                       ],
                     ),
@@ -416,7 +435,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-                    child: Text(_isCodeVerified ? '인증 완료' : '확인'), // Update button text based on verification status
+                    child: Text(_isCodeVerified ? '인증 완료' : '확인',style: TextStyle(fontSize: 12.sp)), // Update button text based on verification status
                   ),
                 ],
               ),
@@ -428,6 +447,7 @@ class _RegisterPageState extends State<RegisterPage> {
             // 비밀번호 입력 필드 (유효성 검사 추가)
             TextField(
               controller: passwordController,
+              style: TextStyle(fontSize: 14.sp, color: Colors.white),
               obscureText: true,
               decoration: InputDecoration(
                 fillColor: Color(0xFF333333),
@@ -457,6 +477,7 @@ class _RegisterPageState extends State<RegisterPage> {
              SizedBox(height: 8.h),
               TextField(
                 controller: confirmPasswordController,
+                style: TextStyle(fontSize: 14.sp, color: Colors.white),
                 obscureText: true,
                 decoration: const InputDecoration(
                   fillColor: Color(0xFF333333),
@@ -484,6 +505,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           height: 37.h, // Set height to 37.h
                           child: TextField(
                             controller: nicknameController,
+                            style: TextStyle(fontSize: 14.sp, color: Colors.white),
                             decoration: const InputDecoration(
                               fillColor: Color(0xFF333333),
                               filled: true,
@@ -495,7 +517,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             onChanged: (text) {
                               setState(() {
                                 // 입력된 닉네임 길이가 2~6글자면 버튼 활성화, 아니면 비활성화
-                                _isNicknameValid = text.trim().length >= 2 && text.trim().length <= 6;
+                                _isNicknameValid = utf8.encode(text.trim()).length >= 6 && utf8.encode(text.trim()).length <= 18;
                               });
                             },
                           ),
@@ -511,13 +533,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                           ),
-                          child: Text(_isNicknameAvailable ? '사용가능' : '중복확인'), // 닉네임이 사용 가능한지에 따라 텍스트 업데이트
+                            child: Text(
+                              _isNicknameAvailable ? '사용가능' : '중복확인',
+                              style: TextStyle(fontSize: 12.sp), // 텍스트 크기 설정
+                            )
+                          // 닉네임이 사용 가능한지에 따라 텍스트 업데이트
                         ),
                       ],
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      '* 최소 2글자 이상 6글자 이하(공백 제외)',
+                      '*닉네임은 영어·숫자는 6자 이상 18자 이하, 한글은 2자 이상 6자 이하로 입력해야 합니다.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: neonskyblue1), // 직접 정의한 색상 사용
                     ),
                     SizedBox(height: 30.h),
@@ -551,7 +577,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
-                  child: const Text('완료'),
+                  child:  Text('완료',
+                      style: TextStyle(fontSize: 12.sp)),
                 ),
               ),
             ],

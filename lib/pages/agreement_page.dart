@@ -64,127 +64,126 @@ class _AgreementPageState extends State<AgreementPage> {
             SizedBox(height: 130.h), // 화면 크기에 맞게 높이 조정
 
             // 체크박스들을 하나의 네모난 상자에 담기
-        Align(
-          alignment: Alignment.center,
-          child: Container(
-              decoration: BoxDecoration(
-                color: gray1, // 컨테이너 배경 색상
-                borderRadius: BorderRadius.circular(5.0.r), // 화면 크기에 맞게 테두리 둥글기 조정
-              ),
-              padding: EdgeInsets.symmetric(vertical: 3.0.w, horizontal: 5.0.w),
-              // 화면 크기에 맞게 패딩 크기 조정
-              height: 160.h, // 컨테이너 높이 지정
-              width: 290.w, // 컨테이너 너비 지정
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 전체 동의 체크박스
-                  CheckboxListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "모두 동의합니다.",
-                          style: TextStyle(color: Colors.white, fontSize: 14.sp,fontWeight: FontWeight.bold), // 텍스트 색상 흰색으로
-                        ),
-                      ],
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: gray1, // 컨테이너 배경 색상
+                  borderRadius: BorderRadius.circular(5.0.r), // 테두리 둥글게
+                ),
+                padding: EdgeInsets.symmetric(vertical: 10.0.h, horizontal: 15.0.w), // 상하, 좌우 여백 조정
+                height: 170.h, // 컨테이너 높이 조정 (기기에 따라 적절히 설정)
+                width: 310.w, // 화면 너비에 맞게 조정
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 전체 동의 체크박스
+                    CheckboxListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "모두 동의합니다.",
+                            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      value: _agreeAll,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _agreeAll = value ?? false;
+                          _agreeTerms = _agreeAll;
+                          _agreePrivacy = _agreeAll;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: neonskyblue1,
+                      side: BorderSide(
+                        color: _agreeAll ? Colors.transparent : Colors.white,
+                        width: 1.5.w,
+                      ),
                     ),
-                    value: _agreeAll,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _agreeAll = value ?? false;
-                        // 전체 동의 체크 시 다른 체크박스도 동기화
-                        _agreeTerms = _agreeAll;
-                        _agreePrivacy = _agreeAll;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading, // 체크박스를 왼쪽에 배치
-                    activeColor: neonskyblue1, // 체크박스 색상 설정
-                    side: BorderSide(
-                      color: _agreeAll ? Colors.transparent : Colors.white, // 비활성화일 때 흰색 테두리
-                      width: 1.5, // 테두리 두께
-                    ),
-                  ),
-                  Divider(color: white1, thickness: 2),
-                  // 이용약관 동의 체크박스
-                  CheckboxListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "[필수] 이용약관 동의",
-                          style: TextStyle(color: Colors.white, fontSize: 14.sp,fontWeight: FontWeight.bold),
-                        ),
+                    Divider(color: white1, thickness: 2.h),
 
-                        IconButton(
-                          icon: Icon(Icons.chevron_right, color: Colors.white),
-                          onPressed: () {
-                            //개인정보 동의 페이지로 이동
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TermsOfUsePage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                    // 이용약관 동의 체크박스
+                    CheckboxListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "[필수] 이용약관 동의",
+                            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.chevron_right, color: Colors.white),
+                            iconSize: 24.sp,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TermsOfUsePage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      value: _agreeTerms,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _agreeTerms = value ?? false;
+                          _agreeAll = _agreeTerms && _agreePrivacy;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: neonskyblue1,
+                      side: BorderSide(
+                        color: _agreeTerms ? Colors.transparent : Colors.white,
+                        width: 1.5.w,
+                      ),
                     ),
-                    value: _agreeTerms,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _agreeTerms = value ?? false;
-                        _agreeAll = _agreeTerms && _agreePrivacy;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: neonskyblue1,
-                    side: BorderSide(
-                      color: _agreeTerms ? Colors.transparent : Colors.white, // 비활성화일 때 흰색 테두리
-                      width: 1.5, // 테두리 두께
+                    // 개인정보 동의 체크박스
+                    CheckboxListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "[필수] 개인정보 동의",
+                            style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.chevron_right, color: Colors.white),
+                            iconSize: 24.sp,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PrivacyConsentPage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      value: _agreePrivacy,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _agreePrivacy = value ?? false;
+                          _agreeAll = _agreeTerms && _agreePrivacy;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: neonskyblue1,
+                      side: BorderSide(
+                        color: _agreePrivacy ? Colors.transparent : Colors.white,
+                        width: 1.5.w,
+                      ),
                     ),
-                  ),
-                  // 개인정보 동의 체크박스
-                  CheckboxListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "[필수] 개인정보 동의",
-                          style: TextStyle(color: Colors.white, fontSize: 14.sp,fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.chevron_right, color: Colors.white),
-                          onPressed: () {
-                            //개인정보 동의 페이지로 이동
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PrivacyConsentPage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    value: _agreePrivacy,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _agreePrivacy = value ?? false;
-                        _agreeAll = _agreeTerms && _agreePrivacy;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: neonskyblue1,
-                    side: BorderSide(
-                      color:  _agreePrivacy ? Colors.transparent : Colors.white, // 비활성화일 때 흰색 테두리
-                      width: 1.5, // 테두리 두께
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-        ),
+
             SizedBox(height:80.h), // 화면 크기에 맞게 높이 조정
 
             // 동의 후 버튼

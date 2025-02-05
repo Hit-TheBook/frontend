@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,7 +7,7 @@ import '../models/user_model.dart';
 import 'refresh_token_api_helper.dart';
 
 class AuthApiHelper {
-  final String baseUrl = 'http://13.209.78.125';
+  final String? baseUrl = dotenv.env['BASE_URL'];
   final FlutterSecureStorage storage = FlutterSecureStorage(); // FlutterSecureStorage 인스턴스 생성
   final RefreshTokenApiHelper refreshTokenHelper = RefreshTokenApiHelper(); // 리프레시 토큰 헬퍼 인스턴스 생성
 
@@ -34,8 +35,11 @@ class AuthApiHelper {
     debugPrint('POST $url');
     debugPrint('Response status: ${response.statusCode}');
     debugPrint('Response body: ${response.body}');
+
+    // 응답 상태 코드가 200이면 성공
     return response.statusCode == 200;
   }
+
 
   Future<bool> registerUser(String email, String password,
       String nickname) async {
@@ -49,6 +53,11 @@ class AuthApiHelper {
         'nickname': nickname,
       }),
     );
+    debugPrint('Request Body: ${jsonEncode({
+      'emailId': email,
+      'password': password,
+      'nickname': nickname,
+    })}');
 
     debugPrint('$email,$password,$nickname');
     debugPrint('POST $url');
@@ -203,31 +212,6 @@ class AuthApiHelper {
     return response;
   }
 
-  // Future<bool> checkNicknameAvailability(String nickname) async {
-  //   final url = Uri.parse('$baseUrl/member/nickname/check'); // 실제 API 주소로 변경
-  //
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       body: json.encode({'nickname': nickname}),
-  //       headers: {'Content-Type': 'application/json'},
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       // 서버 응답이 200일 때 처리 (중복되지 않음)
-  //       var data = json.decode(response.body);
-  //       return data['available'] == true; // 'available'이 true이면 사용 가능
-  //     } else {
-  //       // 오류 처리
-  //       throw Exception('닉네임 중복 확인 실패');
-  //     }
-  //   } catch (e) {
-  //     // 예외 처리
-  //     print('Error: $e');
-  //     return false; // 실패 시 false 반환
-  //   }
-  // }
-
   // 공통 API 요청 함수
   Future<http.Response> _sendApiRequest({
     required String method,
@@ -364,18 +348,21 @@ class AuthApiHelper {
     }
   }
   Future<bool> checkNicknameAvailability(String nickname) async {
-    final response = await _sendApiRequest(
-      method: 'POST',
-      endpoint: 'member/nickname/check/$nickname', // 요청 URL
-      body: {'nickname': nickname}, // 요청 본문
+    final url = Uri.parse('$baseUrl/member/nickname/check/$nickname');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'nickname': nickname}),
     );
 
-    if (response.statusCode == 200) {
-      return true; // 사용 가능한 닉네임
-    } else {
-      return false; // 사용 불가능한 닉네임
-    }
+    debugPrint('POST $url');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    return response.statusCode == 200; // 200이면 사용 가능, 아니면 불가능
   }
+
   Future<bool> updateNickname(String nickname) async {
     final response = await _sendApiRequest(
       method: 'PUT',
@@ -388,8 +375,6 @@ class AuthApiHelper {
       return false; // 닉네임 수정 실패
     }
   }
-
-
 
 
 }

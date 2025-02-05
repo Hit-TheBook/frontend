@@ -152,7 +152,13 @@ class _TimerPageState extends State<TimerPage> {
     String formattedDate =
         '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일';
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // 뒤로 가기 버튼을 비활성화
+        return false;
+      },
+
+      child:Scaffold(
       appBar: CustomAppBar(
         title: '타이머',
         showBackButton: true,
@@ -397,125 +403,127 @@ class _TimerPageState extends State<TimerPage> {
                                         return Center(
                                           child: Container(
                                             width: 340.w,
-                                            height: 110.h, // 고정 높이 설정
+                                            height: 100.h, // 고정 높이 설정
                                             decoration: BoxDecoration(
                                               color: gray1,
                                               borderRadius: BorderRadius.circular(15.r),
                                             ),
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
                                               children: [
                                                 // 첫 번째 버튼: 과목 이름 수정
-                                                CupertinoActionSheetAction(
-                                                  onPressed: () {
-                                                    Navigator.pop(context); // 다이얼로그 닫기
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => TimerDetailPage(
-                                                          isEditMode: true, // 수정 모드로 진입
-                                                          initialSubjectName: entry['subjectName'], // 기존 과목명 전달
-                                                          timerId: entry['timerId'], // 타이머 ID 전달
+                                                Container(
+                                                  height: 50.h, // 첫 번째 버튼의 높이
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      print("과목 이름 수정 버튼 눌림");
+                                                      //Navigator.pop(context); // 다이얼로그 닫기
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => TimerDetailPage(
+                                                            isEditMode: true, // 수정 모드로 진입
+                                                            initialSubjectName: entry['subjectName'], // 기존 과목명 전달
+                                                            timerId: entry['timerId'], // 타이머 ID 전달
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ).then((result) async {
-                                                      if (result == true) {
-                                                        await fetchTimerContentList(); // 데이터 새로고침
-                                                        setState(() {}); // UI 갱신
-                                                      }
-                                                    });
-                                                  },
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(vertical: 8.h), // 버튼 높이 축소 조정
+                                                      ).then((result) async {
+                                                        if (result == true) {
+                                                          await fetchTimerContentList(); // 데이터 새로고침
+                                                          setState(() {}); // UI 갱신
+                                                        }
+                                                      });
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      foregroundColor: white1, padding: EdgeInsets.symmetric(vertical: 8.h),
+                                                    ),
                                                     child: Text(
                                                       '과목 이름 수정',
                                                       style: TextStyle(color: white1, fontSize: 14.sp),
                                                     ),
                                                   ),
                                                 ),
-                                                // 구분선
                                                 Divider(
                                                   color: Colors.white.withOpacity(0.5), // 구분선 색상
                                                   thickness: 1.h, // 구분선 두께
                                                   height: 0, // 구분선 자체 간격 제거
                                                 ),
                                                 // 두 번째 버튼: 과목 삭제
-                                                CupertinoActionSheetAction(
-                                                  onPressed: () {
-                                                    Navigator.pop(context); // 다이얼로그 닫기
-                                                    // CustomDialog 호출
-                                                    showDialog(
-                                                      context: context,
-                                                      barrierDismissible: false,
-                                                      builder: (BuildContext context) {
-                                                        return AlertDialog(
-                                                          title: const Text(
-                                                            '삭제 후 점수 안내',
-                                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                          ),
-                                                          content: Text(
-                                                            '과목 삭제 후에도 사전에 처리된 점수에 영향을 주지 않습니다.',
-                                                            style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                                                          ),
-                                                          actions: <Widget>[
-                                                            // 취소 및 확인 버튼을 같은 행에 배치
-                                                            Row(
-                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 두 버튼을 양쪽 끝으로 배치
-                                                              children: [
-                                                                // 취소 버튼 (왼쪽 끝에 배치, 볼드체)
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    Navigator.pop(context); // 다이얼로그 닫기
-                                                                  },
-                                                                  child: const Text(
-                                                                    '취소',
-                                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                                  ),
-                                                                ),
-                                                                // 확인 버튼 (오른쪽 끝에 배치, 볼드체)
-                                                                TextButton(
-                                                                  onPressed: () async {
-                                                                    Navigator.pop(context); // 다이얼로그 닫기
+                                                Container(
+                                                  height: 50.h, // 두 번째 버튼의 높이
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      print("과목 삭제 버튼 눌림");
 
-                                                                    // 삭제할 과목의 ID 가져오기 (entry['timerId'] 사용)
-                                                                    int timerId = entry['timerId']; // 삭제할 과목의 ID
-
-                                                                    // API 호출
-                                                                    bool success = await TimerApiHelper().deleteTimer(timerId);
-
-                                                                    if (success) {
-                                                                      // 삭제 성공 시 UI 갱신
-                                                                      setState(() {
-                                                                        timerData.removeWhere((entry) => entry['timerId'] == timerId); // 삭제된 과목 제거
-                                                                      });
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                        const SnackBar(content: Text('과목 삭제 성공')),
-                                                                      );
-                                                                    } else {
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                        const SnackBar(content: Text('과목 삭제 실패')),
-                                                                      );
-                                                                    }
-                                                                  },
-                                                                  child: const Text(
-                                                                    '확인',
-                                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                      // CustomDialog 호출
+                                                      showDialog(
+                                                        context: context,
+                                                        barrierDismissible: false,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                              '삭제 후 점수 안내',
+                                                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                                             ),
-                                                          ],
-                                                          backgroundColor: gray1,
-                                                        );
-                                                      },
-                                                    );
+                                                            content: Text(
+                                                              '과목 삭제 후에도 사전에 처리된 점수에 영향을 주지 않습니다.',
+                                                              style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                                                            ),
+                                                            actions: <Widget>[
+                                                              // 취소 및 확인 버튼을 같은 행에 배치
+                                                              Row(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween, // 두 버튼을 양쪽 끝으로 배치
+                                                                children: [
+                                                                  // 취소 버튼 (왼쪽 끝에 배치, 볼드체)
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      Navigator.pop(context); // 다이얼로그 닫기
+                                                                    },
+                                                                    child: const Text(
+                                                                      '취소',
+                                                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                  ),
+                                                                  // 확인 버튼 (오른쪽 끝에 배치, 볼드체)
+                                                                  TextButton(
+                                                                    onPressed: () async {
+                                                                      Navigator.pop(context); // 다이얼로그 닫기
 
+                                                                      // 삭제할 과목의 ID 가져오기 (entry['timerId'] 사용)
+                                                                      int timerId = entry['timerId']; // 삭제할 과목의 ID
 
+                                                                      // API 호출
+                                                                      bool success = await TimerApiHelper().deleteTimer(timerId);
 
-                                                  },
-                                                  isDestructiveAction: true, // 파괴적 동작 스타일 적용
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(vertical: 8.h), // 버튼 높이 축소 조정
+                                                                      if (success) {
+                                                                        // 삭제 성공 시 UI 갱신
+                                                                        setState(() {
+                                                                          timerData.removeWhere((entry) => entry['timerId'] == timerId); // 삭제된 과목 제거
+                                                                        });
+                                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                                          const SnackBar(content: Text('과목 삭제 성공')),
+                                                                        );
+                                                                      } else {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                                          const SnackBar(content: Text('과목 삭제 실패')),
+                                                                        );
+                                                                      }
+                                                                    },
+                                                                    child: const Text(
+                                                                      '확인',
+                                                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                            backgroundColor: gray1,
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      foregroundColor: white1, padding: EdgeInsets.symmetric(vertical: 8.h),
+                                                    ),
                                                     child: Text(
                                                       '과목 삭제',
                                                       style: TextStyle(fontSize: 14.sp, color: white1),
@@ -528,6 +536,8 @@ class _TimerPageState extends State<TimerPage> {
                                         );
                                       },
                                     );
+
+
                                   },
                                 ),
                               ),
@@ -560,6 +570,8 @@ class _TimerPageState extends State<TimerPage> {
         },
       ),
 
+    ),
     );
+
   }
 }

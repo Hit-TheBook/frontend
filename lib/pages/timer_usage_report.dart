@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project1/pages/planner_page.dart';
+import 'package:project1/pages/timer.dart';
 import 'package:project1/widgets/week_calendar_component.dart';
 import 'package:project1/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -306,7 +307,7 @@ class _TimerUsageReportPageState extends State<TimerUsageReportPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const PlannerPage(),
+              builder: (context) => const TimerPage(),
             ),
                 (route) => false, // 모든 이전 페이지 제거
           );

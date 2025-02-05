@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:project1/models/login_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginApiHelper {
-  final String baseUrl = 'http://13.209.78.125';
+  final String? baseUrl = dotenv.env['BASE_URL'];
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<LoginResponseModel> login(String email, String password) async {

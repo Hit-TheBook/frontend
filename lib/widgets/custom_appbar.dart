@@ -1,5 +1,6 @@
 // lib/custom_app_bar.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:project1/colors.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -20,8 +21,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: black1,
       title: Text(
         title,
-        style: const TextStyle(
+        style:  TextStyle(
           color: white1,
+          fontSize: 14.sp
         ),
       ),
       iconTheme: const IconThemeData(
